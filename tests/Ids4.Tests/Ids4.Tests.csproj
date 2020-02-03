@@ -13,6 +13,4 @@
     <ProjectReference Include="..\..\src\Jwks.Manager.Store.FileSystem\Jwks.Manager.Store.FileSystem.csproj" />
   </ItemGroup>
 
-
-
 </Project>

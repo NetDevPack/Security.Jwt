@@ -1,213 +1,256 @@
-
-# ASP.NET Core RESTFul Extensions
+# Json Web Key Set Manager
 ![Nuget](https://img.shields.io/nuget/v/AspNetCore.RESTFul.Extensions)![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/brunohbrito/AspNet.Core.RESTFul.Extensions/14)[![Build Status](https://dev.azure.com/brunohbrito/AspNet.Core.RESTFul.Extensions/_apis/build/status/brunohbrito.AspNet.Core.RESTFul.Extensions?branchName=master)](https://dev.azure.com/brunohbrito/AspNet.Core.RESTFul.Extensions/_build/latest?definitionId=14&branchName=master)
 
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/restful-icon-github.png" />
-Lightweight API that construct custom IQueryable LINQ Extensions to help you filter, sort and paginate your objects from a custom Class and expose it as GET parameter.
+<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/helldog.png" />
+The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
+The main goal of this component is to provide a centralized store and Key Rotation of your JWK. It also provide features to generate best practices JWK.
+It has a plugin for IdentityServer4, giving hability to rotating jwks_uri every 90 days and auto manage your jwks_uri.
 
+If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it's a must have component. It work in the same way DataProtection Key of ASP.NET Core.
 
 ## Table of Contents ##
 
-- [ASP.NET Core RESTFul Extensions](#aspnet-core-restful-extensions)
+- [Json Web Key Set Manager](#json-web-key-set-manager)
   - [Table of Contents](#table-of-contents)
 - [How](#how)
-- [Sort](#sort)
-- [Paging](#paging)
-- [All in One](#all-in-one)
-- [Criterias for filtering](#criterias-for-filtering)
-- [Different database fields name](#different-database-fields-name)
+  - [Database](#database)
+  - [File system](#file-system)
+- [Changing Algorithm](#changing-algorithm)
+- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwksuri-management)
+- [Signing JWT](#signing-jwt)
+  - [Token Validation](#token-validation)
 - [Why](#why)
+  - [Load Balance scenarios](#load-balance-scenarios)
+  - [Best practices](#best-practices)
 - [License](#license)
 
 ------------------
 
 # How #
 
-Create a class with filtering properties:
+First choose where to store your JWK's.
 
-``` c#
-public class UserSearch
-{
-    public string Username { get; set; }
 
-    [Rest(Operator = WhereOperator.GreaterThan)]
-    public DateTime? Birthday { get; set; }
+## Database
 
-    [Rest(Operator = WhereOperator.Contains, HasName = "Firstname")]
-    public string Name { get; set; }
-}
+The [Jwks.Manager.EntityFrameworkCore](https://www.nuget.org/packages/Jwks.Manager.EntityFrameworkCore) package provides a mechanism for storing JsonWebKeys to a database using Entity Framework Core. `The Jwks.Manager.EntityFrameworkCore` NuGet package must be added to the project file.
+
+With this package, keys can be shared across multiple instances of a web app.
+
+First install 
+```
+    Install-Package Jwks.Manager.EntityFrameworkCore
+``` 
+
+Or via the .NET Core command line interface:
+
+```
+    dotnet add package Jwks.Manager.EntityFrameworkCore
 ```
 
-Expose this class as GET in your API and use it to Filter your collection:
+Change your Startup.cs
 
 ``` c#
-[HttpGet("")]
-public async Task<ActionResult<IEnumerable<User>>> Get([FromQuery] UserSearch search)
+public void ConfigureServices(IServiceCollection services)
 {
-    var result = await context.Users.AsQueryable().Filter(search).ToListAsync();
+    services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(
+            Configuration.GetConnectionString("DefaultConnection")));
 
-    return Ok(result);
+    // Add a DbContext to store your Database Keys
+    services.AddDbContext<MyKeysContext>(options =>
+        options.UseSqlServer(
+            Configuration.GetConnectionString("MyKeysConnection")));
+
+    // using Jwks.Manager.EntityFrameworkCore;
+    services.AddJwksManager().PersistKeysToDatabaseStore<MyKeysContext>();
+
+}
+```
+The generic parameter, TContext, must inherit from DbContext and implement `ISecurityKeyContext`:
+
+``` c#
+using Jwks.Manager.Store.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using WebApp1.Data;
+
+namespace WebApp1
+{
+    class MyKeysContext : DbContext, IDataProtectionKeyContext
+    {
+        // A recommended constructor overload when using EF Core 
+        // with dependency injection.
+        public MyKeysContext(DbContextOptions<MyKeysContext> options) 
+            : base(options) { }
+
+        // This maps to the table that stores keys.
+        public DbSet<SecurityKeyWithPrivate> DataProtectionKeys { get; set; }
+    }
 }
 ```
 
 Done! 
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/restful-icon.png" />
-You can send a request to you API like this: `https://www.myapi.com/users?username=bhdebrito@gmail.com&name=bruno`
 
 
-The component will construct a IQueryable. If you are using an ORM like EF Core it construct a SQL query based in IQueryable, improving performance.
+## File system
 
-# Sort
-
-A comma separetd fields. E.g username,birthday,-firstname
-
-**-**(minus) for **descending** **+**(plus) or nothing for **ascending**
+To configure a file system-based key repository, call the PersistKeysToFileSystem configuration routine as shown below. Provide a DirectoryInfo pointing to the repository where keys should be stored:
 
 ``` c#
-public class UserSearch
+public void ConfigureServices(IServiceCollection services)
 {
-    public string Username { get; set; }
-
-    public string SortBy { get; set; }
+    services.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(@"c:\temp-keys\"));
 }
 ```
 
+# Changing Algorithm
+
+It's possible to change default Algorithm at configuration routine.
 
 ``` c#
-[HttpGet("")]
-public async Task<ActionResult<IEnumerable<User>>> Get([FromQuery] UserSearch search)
+public void ConfigureServices(IServiceCollection services)
 {
-    var result = await context.Users.AsQueryable().Filter(search).Sort(search.SortBy).ToListAsync();
-
-    return Ok(result);
-}
-```
-Example GET: `https://www.myapi.com/users?username=bruno&sortby=username,-birtday`
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/restful-icon-2.png" />
-
-# Paging
-
-A exclusive extension for paging
-
-
-``` c#
-public class UserSearch
-{
-    public string Username { get; set; }
-
-    [Rest(Max = 100)]
-    public int Limit { get; set; } = 10;
-
-    public int Offset { get; set; } = 0;
+    services.AddJwksManager(o => o.Algorithm = Algorithm.RS384).PersistKeysToFileSystem(new DirectoryInfo(@"c:\temp-keys\"));
 }
 ```
 
-**Limit** is the total results in response. **Offset** is how many rows to Skip. Optionally you can set the `Max` attribute to restrict the max items of pagination.
+The Algorithm object has a list of possibilities:
 
-``` c#
-[HttpGet("")]
-public async Task<ActionResult<IEnumerable<User>>> Get([FromQuery] UserSearch search)
-{
-    var result = await context.Users.AsQueryable().Filter(search).Paging(search.Limit, search.Offset).ToListAsync();
+|Shortname|Name|
+|---------|-----|
+|HS256| Hmac Sha256|
+|HS384| Hmac Sha384|
+|HS512| Hmac Sha512|
+|RS256| Rsa Sha256|
+|RS384| Rsa Sha384|
+|RS512| Rsa Sha512|
+|PS256| Rsa SsaPss Sha256|
+|PS384| Rsa SsaPss Sha384|
+|PS512| Rsa SsaPss Sha512|
+|ES256| Ecdsa Sha256|
+|ES384| Ecdsa Sha384|
+|ES512| Ecdsa Sha512|
 
-    return Ok(result);
-}
+# IdentityServer4 - Auto jwks_uri Management
+
+If you have an IdentityServer4 OAuth 2.0 Server, you can use this component plugin.
+
+
+First install 
+```
+    Install-Package Jwks.Manager.IdentityServer4
+``` 
+
+Or via the .NET Core command line interface:
+
+```
+    dotnet add package Jwks.Manager.IdentityServer4
 ```
 
-Example GET: `https://www.myapi.com/users?username=bruno&limit=10&offset=20`
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/all-in-one.png" />
-
-# All in One
-
-
-Create a search class like this
+Go to Startup.cs
 
 ``` c#
-public class UserSearch : IRestSort, IRestPagination
-{
-    public string Username { get; set; }
+    public void ConfigureServices(IServiceCollection services)
+    {
+        var builder = services.AddIdentityServer()
+            .AddInMemoryIdentityResources(Config.GetIdentityResources())
+            .AddInMemoryApiResources(Config.GetApis())
+            .AddInMemoryClients(Config.GetClients());
 
-    [Rest(Operator = WhereOperator.GreaterThan)]
-    public DateTime? Birthday { get; set; }
-
-    [Rest(Operator = WhereOperator.Contains, HasName = "Firstname")]
-    public string Name { get; set; }
-
-    public int Offset { get; set; }
-    public int Limit { get; set; } = 10;
-    public string Sort { get; set; }
-}
+        services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.WebRootPath));
+    }
 ```
-Call Apply method, instead calling each one with custom parameters.
+
+If you wanna use Database, follow instructions to DatabaseStore instead.
+
+# Signing JWT
+
+To signing a JWT Token do as follow.
+
+First inject:
 
 ``` c#
-[HttpGet("")]
-public async Task<ActionResult<IEnumerable<User>>> Get([FromQuery] UserSearch search)
-{
-    var result = await context.Users.AsQueryable().Apply(search).ToListAsync();
+    public class AccessManager
+    {
+        private readonly IJsonWebKeySetService _jwksService;
 
-    return Ok(result);
-}
+        public AccessManager(IJsonWebKeySetService jwksService)
+        {
+            _jwksService = jwksService;
+        }
+    }
 ```
 
-`IRestSort` and `IRestPagination` give the ability for method `Apply` use **Sort** and **Pagination**. If don't wanna sort, just use pagination remove `IRestSort` Interface from Class.
-
-# Criterias for filtering
-
-When creating a Search class, you can define criterias by decorating your properties:
+Then, after a successfull login, create a routine to generate token.
 
 ``` c#
-public class CustomUserSearch
-{
-    [Rest(Operator = WhereOperator.Equals, UseNot = true)]
-    public string Category { get; set; }
+    public Token GenerateToken(User user)
+    {
+        ClaimsIdentity identity = new ClaimsIdentity(
+            new GenericIdentity(user.UserID, "Login"),
+            new[] {
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserID)
+            }
+        );
 
-    [Rest(Operator = WhereOperator.GreaterThanOrEqualTo)]
-    public int OlderThan { get; set; }
+        var now = DateTime.Now;
 
-    [Rest(Operator = WhereOperator.StartsWith, CaseSensitive = true)]
-    public string Username { get; set; }
+        var handler = new JsonWebTokenHandler();
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Issuer = "me",
+            Audience = "you",
+            SigningCredentials = _jwksService.GetCurrent(),
+            Subject = identity,
+            NotBefore = now,
+            Expires = now.AddHours(1)
+        };
 
-    [Rest(Operator = WhereOperator.GreaterThan)]
-    public DateTime? Birthday { get; set; }
+        var jwt = handler.CreateToken(descriptor);
 
-    [Rest(Operator = WhereOperator.Contains)]
-    public string Name { get; set; }
-}
+        return new Token()
+        {
+            Authenticated = true,
+            Created = now.ToString("yyyy-MM-dd HH:mm:ss"),
+            Expiration = now.AddHours(1).ToString("yyyy-MM-dd HH:mm:ss"),
+            AccessToken = jwt,
+            Message = "OK"
+        };
+    }
 ```
 
-# Different database fields name
+## Token Validation
 
-You can specify different property name to hide you properties original fields
+To validate a token it's as simple as that:
 
 ``` c#
-public class CustomUserSearch
-{
-    [Rest(Operator = WhereOperator.Equals, UseNot = true, HasName = "Privilege")]
-    public string Category { get; set; }
-
-    [Rest(Operator = WhereOperator.GreaterThanOrEqualTo)]
-    public int OlderThan { get; set; }
-
-    [Rest(Operator = WhereOperator.StartsWith, CaseSensitive = true, HasName = "Username")]
-    public string Email { get; set; }
-}
+    var result = handler.ValidateToken(jwt,
+            new TokenValidationParameters
+            {
+                ValidIssuer = "me",
+                ValidAudience = "you",
+                IssuerSigningKey = _jwksService.GetCurrent(options).Key
+            });
 ```
+
 
 # Why
 
-RESTFul api's are hard to create. See the example get:
+When creating applications and APIs in OAuth 2.0 or simpling Signing a JWT Key, many algorithms are supported. While there a subset of alg's, some of them are considered best practices, and better than others. Like Elliptic Curve with PS256 algorithm. Some Auth Servers works with Deterministic and other with Probabilist. Some servers like Auth0 doesn't support more than one JWK. But IdentityServer4 support as many as you configure. So this component came to abstract this layer and offer for your application the current best practies for JWK.
 
-`https://www.myapi.com/users?name=bruno&age_lessthan=30&sortby=name,-age&limit=20&offset=20`
+## Load Balance scenarios
 
-How many code you need to perform such search? A custom filter for each Field, maybe a for and a switch for each `sortby` and after all apply pagination.
-How many resources your api have? 
+When working in containers with Kubernetes or Docker Swarm, if your application scale them you became to have some problems, like DataProtection Keys that must be stored in a centralized place. While isn't recommended to avoid this situation Symmetric Key is a way. So this component, like DataProtection, provide a Centralized store for your JWKS.
 
-This lightweight API create a custom IQueryable based in Querystring to help your ORM or LINQ to filter data.
+## Best practices
+
+Many developers has no clue about which Algorithm to use for sign their JWT. This component uses Elliptic Curve with ECDSA using P-256 and SHA-256 as default. It should help to build more secure API's and environments providing JWKS management.
+
 
 ---------------
 
 # License
 
-AspNet.Core.RESTFul.Extensions is Open Source software and is released under the MIT license. This license allow the use of AspNet.Core.RESTFul.Extensions in free and commercial applications and libraries without restrictions.
+Jwks.Manager is Open Source software and is released under the MIT license. This license allow the use of Jwks.Manager in free and commercial applications and libraries without restrictions.
 

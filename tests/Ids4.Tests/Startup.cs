@@ -1,3 +1,4 @@
+using Jwks.Manager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,7 @@ namespace Ids4.Tests
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            services.AddAutoSigningCredential().UseFileSystemStore(new DirectoryInfo(_env.WebRootPath));
+            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.WebRootPath));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

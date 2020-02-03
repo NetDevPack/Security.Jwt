@@ -11,11 +11,22 @@ namespace Jwks.Manager.Jwk
             var key = CryptoService.CreateRsaSecurityKey();
             return JsonWebKeyConverter.ConvertFromRSASecurityKey(key);
         }
-        private SecurityKey GenerateECDsa()
+        private SecurityKey GenerateECDsa(Algorithm algorithm)
         {
-            var key = CryptoService.CreateECDsaSecurityKey();
-            // JsonWebKeyConverter do not support ECDsa
-            return key;
+            var key = CryptoService.CreateECDsaSecurityKey(algorithm);
+            var parameters = key.ECDsa.ExportParameters(true);
+            return new JsonWebKey()
+            {
+                Kty = "EC",
+                Use = "sig",
+                Kid = key.KeyId,
+                KeyId = key.KeyId,
+                X = Base64UrlEncoder.Encode(parameters.Q.X),
+                Y = Base64UrlEncoder.Encode(parameters.Q.Y),
+                D = Base64UrlEncoder.Encode(parameters.D),
+                Crv = CryptoService.GetCurveType(algorithm),
+                Alg = algorithm
+            };
         }
         private SecurityKey GenerateHMAC(Algorithm algorithms)
         {
@@ -29,9 +40,6 @@ namespace Jwks.Manager.Jwk
         {
             var key = CryptoService.CreateAESSecurityKey(algorithms);
             return new SymmetricSecurityKey(key.Key);
-            //var jwk = JsonWebKeyConverter.ConvertFromSecurityKey(new SymmetricSecurityKey(key.Key));
-            //jwk.KeyId = CryptoService.CreateUniqueId();
-            //return jwk;
         }
 
         public SecurityKey Generate(Algorithm algorithm)
@@ -39,7 +47,7 @@ namespace Jwks.Manager.Jwk
             return algorithm.KeyType switch
             {
                 KeyType.RSA => GenerateRsa(),
-                KeyType.ECDsa => GenerateECDsa(),
+                KeyType.ECDsa => GenerateECDsa(algorithm),
                 KeyType.HMAC => GenerateHMAC(algorithm),
                 KeyType.AES => GenerateAES(algorithm),
                 _ => throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, null)

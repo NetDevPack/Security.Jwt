@@ -97,6 +97,7 @@ namespace Jwks.Manager.Tests.Jwk
             jwt1.Should().NotBe(jwt2);
         }
 
+
         public Faker<Claim> GenerateClaim()
         {
             return new Faker<Claim>().CustomInstantiator(f => new Claim(f.Internet.DomainName(), f.Lorem.Text()));
