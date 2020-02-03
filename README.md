@@ -1,7 +1,7 @@
 # Json Web Key Set Manager
-![Nuget](https://img.shields.io/nuget/v/AspNetCore.RESTFul.Extensions)![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/brunohbrito/AspNet.Core.RESTFul.Extensions/14)[![Build Status](https://dev.azure.com/brunohbrito/AspNet.Core.RESTFul.Extensions/_apis/build/status/brunohbrito.AspNet.Core.RESTFul.Extensions?branchName=master)](https://dev.azure.com/brunohbrito/AspNet.Core.RESTFul.Extensions/_build/latest?definitionId=14&branchName=master)
+![Nuget](https://img.shields.io/nuget/v/Jwks.Manager)![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/brunohbrito/Jwks.Manager/14)[![Build Status](https://dev.azure.com/brunohbrito/Jwks.Manager/_apis/build/status/brunohbrito.Jwks.Manager?branchName=master)](https://dev.azure.com/brunohbrito/Jwks.Manager/_build/latest?definitionId=15&branchName=master)
 
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/helldog.png" />
+<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
 The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
 The main goal of this component is to provide a centralized store and Key Rotation of your JWK. It also provide features to generate best practices JWK.
 It has a plugin for IdentityServer4, giving hability to rotating jwks_uri every 90 days and auto manage your jwks_uri.
