@@ -15,6 +15,7 @@ namespace Jwks.Manager.Jwk
         {
             var key = CryptoService.CreateECDsaSecurityKey(algorithm);
             var parameters = key.ECDsa.ExportParameters(true);
+            
             return new JsonWebKey()
             {
                 Kty = "EC",
