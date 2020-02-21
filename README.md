@@ -76,7 +76,7 @@ using WebApp1.Data;
 
 namespace WebApp1
 {
-    class MyKeysContext : DbContext, IDataProtectionKeyContext
+    class MyKeysContext : DbContext, ISecurityKeyContext
     {
         // A recommended constructor overload when using EF Core 
         // with dependency injection.
