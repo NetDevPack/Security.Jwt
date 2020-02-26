@@ -4,6 +4,6 @@ namespace Jwks.Manager.Interfaces
 {
     public interface IJsonWebKeyService
     {
-        SecurityKey Generate(Algorithm algorithm);
+        JsonWebKey Generate(Algorithm algorithm);
     }
 }

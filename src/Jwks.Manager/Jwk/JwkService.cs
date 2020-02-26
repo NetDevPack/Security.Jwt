@@ -6,19 +6,18 @@ namespace Jwks.Manager.Jwk
 {
     public class JwkService : IJsonWebKeyService
     {
-        private SecurityKey GenerateRsa()
+        private JsonWebKey GenerateRsa()
         {
             var key = CryptoService.CreateRsaSecurityKey();
             return JsonWebKeyConverter.ConvertFromRSASecurityKey(key);
         }
-        private SecurityKey GenerateECDsa(Algorithm algorithm)
+        private JsonWebKey GenerateECDsa(Algorithm algorithm)
         {
             var key = CryptoService.CreateECDsaSecurityKey(algorithm);
             var parameters = key.ECDsa.ExportParameters(true);
-            
             return new JsonWebKey()
             {
-                Kty = "EC",
+                Kty = JsonWebAlgorithmsKeyTypes.EllipticCurve,
                 Use = "sig",
                 Kid = key.KeyId,
                 KeyId = key.KeyId,
@@ -29,7 +28,7 @@ namespace Jwks.Manager.Jwk
                 Alg = algorithm
             };
         }
-        private SecurityKey GenerateHMAC(Algorithm algorithms)
+        private JsonWebKey GenerateHMAC(Algorithm algorithms)
         {
             var key = CryptoService.CreateHmacSecurityKey(algorithms);
             var jwk = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(key.Key));
@@ -37,13 +36,13 @@ namespace Jwks.Manager.Jwk
             return jwk;
         }
 
-        private SecurityKey GenerateAES(Algorithm algorithms)
+        private JsonWebKey GenerateAES(Algorithm algorithms)
         {
             var key = CryptoService.CreateAESSecurityKey(algorithms);
-            return new SymmetricSecurityKey(key.Key);
+            return JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(key.Key));
         }
 
-        public SecurityKey Generate(Algorithm algorithm)
+        public JsonWebKey Generate(Algorithm algorithm)
         {
             return algorithm.KeyType switch
             {

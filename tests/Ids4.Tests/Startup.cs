@@ -1,4 +1,3 @@
-using Jwks.Manager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,7 +23,7 @@ namespace Ids4.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            foreach (var file in Directory.GetFiles(_env.WebRootPath, "*.key"))
+            foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
             {
                 File.Delete(file);
             }
@@ -33,7 +32,8 @@ namespace Ids4.Tests
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.WebRootPath));
+            //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
+            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

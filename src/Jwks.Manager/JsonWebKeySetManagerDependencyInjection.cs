@@ -22,5 +22,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return new JwksBuilder(services);
         }
+
+        /// <summary>
+        /// Sets the signing credential.
+        /// </summary>
+        /// <returns></returns>
+        public static IJwksBuilder PersistKeysInMemory(this IJwksBuilder builder)
+        {
+            builder.Services.AddScoped<IJsonWebKeyStore, InMemoryStore>();
+
+            return builder;
+        }
     }
 }
