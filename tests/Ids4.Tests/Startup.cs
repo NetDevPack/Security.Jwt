@@ -23,17 +23,17 @@ namespace Ids4.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
-            {
-                File.Delete(file);
-            }
+            //foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
+            //{
+            //    File.Delete(file);
+            //}
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
-            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
+            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
+            //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
