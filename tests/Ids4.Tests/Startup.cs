@@ -24,6 +24,7 @@ namespace Ids4.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddEntityFrameworkInMemoryDatabase();
             //foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
             //{
             //    File.Delete(file);
@@ -36,7 +37,6 @@ namespace Ids4.Tests
             services.AddJwksManager(opts =>
             {
                 opts.Algorithm = Algorithm.PS256;
-                opts.AlgorithmsToKeep = 2;
             }).IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
             //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }

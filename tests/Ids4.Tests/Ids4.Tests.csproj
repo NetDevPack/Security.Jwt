@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Jwks.Manager.IdentityServer4\Jwks.Manager.IdentityServer4.csproj" />
+    <ProjectReference Include="..\..\src\Jwks.Manager.Store.EntityFrameworkCore\Jwks.Manager.Store.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\Jwks.Manager.Store.FileSystem\Jwks.Manager.Store.FileSystem.csproj" />
   </ItemGroup>
 
