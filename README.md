@@ -33,19 +33,19 @@ First choose where to store your JWK's.
 
 ## Database
 
-The [Jwks.Manager.EntityFrameworkCore](https://www.nuget.org/packages/Jwks.Manager.EntityFrameworkCore) package provides a mechanism for storing JsonWebKeys to a database using Entity Framework Core. `The Jwks.Manager.EntityFrameworkCore` NuGet package must be added to the project file.
+The [Jwks.Manager.Store.EntityFrameworkCore](https://www.nuget.org/packages/Jwks.Manager.Store.EntityFrameworkCore) package provides a mechanism for storing JsonWebKeys to a database using Entity Framework Core. The `Jwks.Manager.Store.EntityFrameworkCore` NuGet package must be added to the project file.
 
 With this package, keys can be shared across multiple instances of a web app.
 
 First install 
 ```
-    Install-Package Jwks.Manager.EntityFrameworkCore
+    Install-Package Jwks.Manager.Store.EntityFrameworkCore
 ``` 
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package Jwks.Manager.EntityFrameworkCore
+    dotnet add package Jwks.Manager.Store.EntityFrameworkCore
 ```
 
 Change your Startup.cs
@@ -62,7 +62,7 @@ public void ConfigureServices(IServiceCollection services)
         options.UseSqlServer(
             Configuration.GetConnectionString("MyKeysConnection")));
 
-    // using Jwks.Manager.EntityFrameworkCore;
+    // using Jwks.Manager.Store.EntityFrameworkCore;
     services.AddJwksManager().PersistKeysToDatabaseStore<MyKeysContext>();
 
 }
