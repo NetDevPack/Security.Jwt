@@ -1,3 +1,4 @@
+using Jwks.Manager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,11 @@ namespace Ids4.Tests
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
+            services.AddJwksManager(opts =>
+            {
+                opts.Algorithm = Algorithm.PS256;
+                opts.AlgorithmsToKeep = 2;
+            }).IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
             //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }
 
