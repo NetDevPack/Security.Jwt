@@ -68,7 +68,7 @@ namespace Ids4.Tests
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseJwksManager("teste-gostosinho");
+            app.UseJwksManager();
         }
     }
 }
