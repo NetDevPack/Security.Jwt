@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
+using Jwks.Manager.AspNetCore;
 
 namespace Ids4.Tests
 {
@@ -24,7 +25,7 @@ namespace Ids4.Tests
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddEntityFrameworkInMemoryDatabase();
+            //services.AddEntityFrameworkInMemoryDatabase();
             //foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
             //{
             //    File.Delete(file);
@@ -36,8 +37,9 @@ namespace Ids4.Tests
 
             services.AddJwksManager(opts =>
             {
-                opts.Algorithm = Algorithm.PS256;
-            }).IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
+                opts.Algorithm = Algorithm.ES256;
+            }).PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
+
             //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }
 
@@ -65,6 +67,8 @@ namespace Ids4.Tests
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseJwksManager();
         }
     }
 }
