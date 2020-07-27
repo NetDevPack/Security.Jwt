@@ -58,7 +58,6 @@ namespace Ids4.Tests
 
             app.UseRouting();
 
-            app.UseIdentityServer();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

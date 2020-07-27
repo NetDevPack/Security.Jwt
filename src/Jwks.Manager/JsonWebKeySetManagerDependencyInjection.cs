@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<IJsonWebKeyService, JwkService>();
             services.AddScoped<IJsonWebKeySetService, JwksService>();
+            services.AddSingleton<IJsonWebKeyStore, InMemoryStore>();
 
             return new JwksBuilder(services);
         }
@@ -29,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns></returns>
         public static IJwksBuilder PersistKeysInMemory(this IJwksBuilder builder)
         {
-            builder.Services.AddScoped<IJsonWebKeyStore, InMemoryStore>();
+            builder.Services.AddSingleton<IJsonWebKeyStore, InMemoryStore>();
 
             return builder;
         }
