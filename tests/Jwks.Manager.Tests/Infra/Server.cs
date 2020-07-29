@@ -19,7 +19,7 @@ namespace Jwks.Manager.Tests.Infra
                 })
                 .Configure(app =>
                 {
-                    app.UseJwksManager();
+                    app.UseJwksDiscovery();
                 }));
         }
 

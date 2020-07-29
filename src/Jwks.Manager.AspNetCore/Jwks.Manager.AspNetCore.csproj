@@ -6,7 +6,7 @@
     <Authors>Eduardo Pires</Authors>
     <PackageIconUrl>https://jpproject.blob.core.windows.net/images/helldog.png</PackageIconUrl>
     <PackageTags>jwt jwks rsa ecdsa hmac oauth2 key rotating</PackageTags>
-    <Title>Expose JWKS endpoint</Title>
+    <Title>Expose JWKS public endpoint</Title>
     <Description>Component to manage your JWKS. Auto generate and manage your JWK</Description>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
