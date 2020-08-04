@@ -1,0 +1,21 @@
+﻿
+<ul class="navbar-nav">
+    @if (Context.User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" title="Manage">Hello @User.Claims.FirstOrDefault(c=>c.Type == "email")?.Value!</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Identity" asp-action="Logout">Logout</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Identity" asp-action="Register">Register</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Identity" asp-action="Login">Login</a>
+        </li>
+    }
+</ul>
