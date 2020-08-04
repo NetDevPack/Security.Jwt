@@ -9,6 +9,7 @@ using Api.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 
 namespace Api.Identity.Controllers
 {
@@ -18,11 +19,13 @@ namespace Api.Identity.Controllers
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IJsonWebKeySetService _jwksService;
 
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager)
+        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IJsonWebKeySetService jwksService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _jwksService = jwksService;
         }
 
         [HttpPost("new-account")]
@@ -94,19 +97,25 @@ namespace Api.Identity.Controllers
             return identityClaims;
         }
 
-        private static string EncodeToken(ClaimsIdentity identityClaims)
+        private string EncodeToken(ClaimsIdentity identityClaims)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("MYSUPERSECRETBUTINSECUREPASS");//_appSettings.Secret);
+            var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
+            var key = _jwksService.GetCurrent();
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = "localhost",//_appSettings.Emissor,
-                Audience = "System",// _appSettings.ValidoEm,
+                Issuer = currentIssuer,
                 Subject = identityClaims,
-                Expires = DateTime.UtcNow.AddHours(2),//_appSettings.ExpiracaoHoras),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials =key
             });
-
+            //var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+            //{
+            //    Issuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}",
+            //    Subject = identityClaims,
+            //    Expires = DateTime.UtcNow.AddHours(1),
+            //    SigningCredentials = _jwksService.GetCurrent()
+            //});
             return tokenHandler.WriteToken(token);
         }
 
@@ -115,7 +124,7 @@ namespace Api.Identity.Controllers
             return new AuthJwtResponse
             {
                 AccessToken = encodedToken,
-                ExpiresIn = TimeSpan.FromHours(2).TotalSeconds,//_appSettings.ExpiracaoHoras).TotalSeconds,
+                ExpiresIn = TimeSpan.FromHours(1).TotalSeconds,
                 UserData = new UserData
                 {
                     Id = user.Id,

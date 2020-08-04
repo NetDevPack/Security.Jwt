@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NetDevPack.Security.JwtExtensions;
 
 namespace Api.Sample
 {
@@ -44,15 +45,7 @@ namespace Api.Sample
             {
                 x.RequireHttpsMetadata = true;
                 x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MYSUPERSECRETBUTINSECUREPASS")),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = "System",
-                    ValidIssuer = "localhost"
-                };
+                x.SetJwksOptions(new JwkOptions("https://localhost:5001/jwks"));
             });
 
             #endregion
