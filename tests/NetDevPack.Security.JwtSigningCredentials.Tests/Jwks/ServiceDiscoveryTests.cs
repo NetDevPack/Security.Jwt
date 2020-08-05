@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using NetDevPack.Security.JwtSigningCredentials.Tests.Infra;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -40,6 +41,16 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             keys.Should().NotBeNull();
             keys.Keys.Should().NotBeEmpty();
             keys.Keys.Should().NotContainNulls();
+        }
+
+
+        [Fact]
+        public void ShouldThrowErrorWhenAppDoesntUseMemoryCache()
+        {
+            var server = new Server();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => server.CreateClient(false));
+            ex.Message.Should().Be("Service Discovery relies on IMemoryCache. Add services.AddMemoryCache() in your application");
         }
     }
 }

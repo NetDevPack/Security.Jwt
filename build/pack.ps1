@@ -2,7 +2,7 @@ param([string] $v)
 
 if (!$v)
 {
-    $version = '1.0.0-prerelease1.' + $([System.DateTime]::Now.ToString('MM-dd-HHmmss'))
+    $version = '1.0.2-prerelease1.' + $([System.DateTime]::Now.ToString('MM-dd-HHmmss'))
 }
 else{
 	$version = $v
