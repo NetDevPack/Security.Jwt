@@ -40,7 +40,6 @@ namespace NetDevPack.Security.JwtSigningCredentials.Model
             {
                 Key = jsonWebKey.K;
             }
-
         }
 
         /// <summary>
@@ -181,6 +180,35 @@ namespace NetDevPack.Security.JwtSigningCredentials.Model
         public static PublicJsonWebKey FromJwk(JsonWebKey jwk)
         {
             return new PublicJsonWebKey(jwk);
+        }
+
+        public JsonWebKey ToNativeJwk()
+        {
+            var jsonWebKey = new JsonWebKey
+            {
+                Kty = KeyType,
+                Use = PublicKeyUse,
+                Kid = KeyId,
+                Alg = Algorithm,
+                X5u = X509Url,
+                X5t = X5tS256,
+                Crv = CurveName,
+                X = X,
+                Y = Y,
+                N = Modulus,
+                E = Exponent,
+                K = Key
+            };
+
+            if (KeyOperations != null)
+                foreach (var keyOperation in KeyOperations)
+                    jsonWebKey.KeyOps.Add(keyOperation);
+
+            if (X509Chain != null)
+                foreach (var certificate in X509Chain)
+                    jsonWebKey.X5c.Add(certificate);
+
+            return jsonWebKey;
         }
     }
 

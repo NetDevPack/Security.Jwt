@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NetDevPack.Security.JwtSigningCredentials;
+using NetDevPack.Security.JwtSigningCredentials.AspNetCore;
 
 namespace Api.Identity
 {
@@ -36,35 +38,24 @@ namespace Api.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddJwksManager(options => options.Algorithm = Algorithm.ES256)
+                .PersistKeysToDatabaseStore<ApplicationDbContext>();
 
             #region Identity
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequiredLength = 8;
+                    options.Password.RequireNonAlphanumeric = false;
+                })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = true;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("MYSUPERSECRETBUTINSECUREPASS")),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = "System",
-                    ValidIssuer = "localhost"
-                };
-            });
 
             #endregion
 
@@ -126,7 +117,7 @@ namespace Api.Identity
             {
                 endpoints.MapControllers();
             });
-
+            app.UseJwksDiscovery();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
