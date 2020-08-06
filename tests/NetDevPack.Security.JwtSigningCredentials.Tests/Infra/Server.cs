@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra
 {
@@ -22,6 +24,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra
                 .Configure(app =>
                 {
                     app.UseJwksDiscovery();
+                    app.Map(new PathString("/renew"), x => x.UseMiddleware<JwkRenewMiddleware>());
                 }));
         }
 

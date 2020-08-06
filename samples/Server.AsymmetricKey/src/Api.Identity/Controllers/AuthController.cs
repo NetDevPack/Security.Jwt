@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Api.Identity.Models;
+﻿using Api.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Api.Identity.Controllers
 {
@@ -107,7 +106,7 @@ namespace Api.Identity.Controllers
                 Issuer = currentIssuer,
                 Subject = identityClaims,
                 Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials =key
+                SigningCredentials = key
             });
             //var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             //{

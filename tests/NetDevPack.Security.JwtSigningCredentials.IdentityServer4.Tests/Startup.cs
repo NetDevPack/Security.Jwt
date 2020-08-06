@@ -41,12 +41,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            services.AddJwksManager(opts =>
-            {
-                opts.Algorithm = Algorithm.ES256;
-            }).PersistKeysToFileSystem(new DirectoryInfo(_env.ContentRootPath));
-
-            //services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
+            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,7 +60,8 @@ namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseIdentityServer();
+            app.UseJwksDiscovery();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -73,7 +69,6 @@ namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseJwksDiscovery();
         }
     }
 }

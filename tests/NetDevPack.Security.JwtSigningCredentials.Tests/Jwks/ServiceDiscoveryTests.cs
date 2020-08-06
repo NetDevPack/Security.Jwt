@@ -52,5 +52,36 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             var ex = Assert.Throws<InvalidOperationException>(() => server.CreateClient(false));
             ex.Message.Should().Be("Service Discovery relies on IMemoryCache. Add services.AddMemoryCache() in your application");
         }
+
+
+        [Fact]
+        public async Task ShouldUpdateCacheAfterKeyRotation()
+        {
+            var server = new Server();
+
+            var client = server.CreateClient();
+
+            // GET JWK
+            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/jwks");
+            var response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+            var jwks = new JsonWebKeySet(await response.Content.ReadAsStringAsync());
+            jwks.Keys.Should().HaveCount(1);
+
+            // Force Generate a new one
+            request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/renew");
+
+            response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            // GET JWK Again - now it needs to have 2 keys.
+            request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/jwks");
+            response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+            jwks = new JsonWebKeySet(await response.Content.ReadAsStringAsync());
+            jwks.Keys.Should().HaveCount(2);
+        }
     }
 }
