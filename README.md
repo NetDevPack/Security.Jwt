@@ -12,7 +12,7 @@ If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it
 
 - [Json Web Key Set Manager](#json-web-key-set-manager)
   - [Table of Contents](#table-of-contents)
-- [How](#how)
+- [Store](#store)
   - [Database](#database)
   - [File system](#file-system)
 - [Changing Algorithm](#changing-algorithm)
@@ -26,9 +26,54 @@ If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it
 
 ------------------
 
-# How #
+# What is
 
-First choose where to store your JWK's.
+This component generate, store and manage your JWK. It keep a centralized store to share between your instances. By default after a 3 months a new key will be generated. 
+
+You can expose the JWK through a JWKS endpoint and share it with your API's.
+
+
+# JWKS
+
+Install `NetDevPack.Security.JwtSigningCredentials.AspNetCore` in your API who emit JWT Tokens. Change your Startup.cs:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+        
+    
+    services.AddJwksManager(options => options.Algorithm = Algorithm.ES256)
+                .PersistKeysToDatabaseStore<ApplicationDbContext>();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseJwksDiscovery();
+}
+```
+
+Look at [Signing JWT](#signing-jwt) to see how assign your JWT.
+
+In your Client API, which need to load JWK, install `NetDevPack.Security.JwtExtensions`. Then change you Startup.cs:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
+    {
+        x.RequireHttpsMetadata = true;
+        x.SaveToken = true;
+        x.SetJwksOptions(new JwkOptions("https://localhost:5001/jwks"));
+    });
+}
+```
+
+# Store #
+
+The JWKS needs to be stored in a centralized place. There are several methods to accomplish that.
 
 
 ## Database

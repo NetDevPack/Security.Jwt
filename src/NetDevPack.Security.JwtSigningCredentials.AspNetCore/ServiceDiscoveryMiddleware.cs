@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 using NetDevPack.Security.JwtSigningCredentials.Model;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtSigningCredentials.Jwks;
 
 namespace NetDevPack.Security.JwtSigningCredentials.AspNetCore
 {
