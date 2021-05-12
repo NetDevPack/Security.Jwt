@@ -43,7 +43,7 @@ jobs:
         run: echo "PACKAGE_VERSION=$PACKAGE_MAJOR_VERSION.$PACKAGE_MINOR_VERSION.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
 
       - name: Generate Package
-        run: dotnet pack ./src -c Release -o out -p:PackageVersion=${{env.PACKAGE_VERSION}} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
+        run: dotnet pack -c Release -o out -p:PackageVersion=${{env.PACKAGE_VERSION}} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
 
       - name: Publish the package to nuget.org
         run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
