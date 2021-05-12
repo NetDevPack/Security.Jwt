@@ -1,0 +1,51 @@
+name: Notification - Master
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  PACKAGE_MAJOR_VERSION: 1
+  PACKAGE_MINOR_VERSION: 1
+  REPOSITORY_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+  CURRENT_REPO_URL: https://github.com/${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+          source-url: ${{env.REPOSITORY_URL}}
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}    
+
+      - name: Restore dependencies
+        run: dotnet restore 
+        working-directory: src
+
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: src
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: src
+
+      - name: Generate version
+        run: echo "PACKAGE_VERSION=$PACKAGE_MAJOR_VERSION.$PACKAGE_MINOR_VERSION.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+
+      - name: Generate Package
+        run: dotnet pack ./src -c Release -o out -p:PackageVersion=${{env.PACKAGE_VERSION}} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
+
+      - name: Push generated package to GitHub registry
+        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true
