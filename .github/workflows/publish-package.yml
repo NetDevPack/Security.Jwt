@@ -37,4 +37,4 @@ jobs:
         run: dotnet pack -c Release -o out -p:PackageVersion=${{env.PACKAGE_VERSION}} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
 
       - name: Publish the package to nuget.org
-        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true -k ${{ secrets.NUGET_AUTH_TOKEN}} -s https://api.nuget.org/v3/index.json
