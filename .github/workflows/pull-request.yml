@@ -1,4 +1,4 @@
-name: Notification - PR
+name: Pull Request Analisys
 
 on:
   pull_request:
