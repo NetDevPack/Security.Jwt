@@ -27,15 +27,12 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore 
-        working-directory: src
 
       - name: Build
-        run: dotnet build --no-restore
-        working-directory: src
+        run: dotnet build
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
-        working-directory: src
+        run: dotnet test
 
       - name: Generate version
         run: echo "PACKAGE_VERSION=$PACKAGE_MAJOR_VERSION.$PACKAGE_MINOR_VERSION.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
