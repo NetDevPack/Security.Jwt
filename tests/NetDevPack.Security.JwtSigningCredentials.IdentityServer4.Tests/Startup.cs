@@ -1,12 +1,10 @@
-using NetDevPack.Security.JwtSigningCredentials;
-using NetDevPack.Security.JwtSigningCredentials.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NetDevPack.Security.JwtSigningCredentials.AspNetCore;
 using Newtonsoft.Json;
-using System.IO;
 
 namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
 {
@@ -36,6 +34,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
             //{
             //    File.Delete(file);
             //}
+            services.AddMemoryCache();
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())

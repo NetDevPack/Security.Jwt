@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Api.Identity.Controllers
@@ -100,6 +101,7 @@ namespace Api.Identity.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
+
             var key = _jwksService.GetCurrent();
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
