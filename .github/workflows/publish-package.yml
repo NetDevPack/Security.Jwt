@@ -1,13 +1,12 @@
-name: Notification - Master
+name: Master - Publish packages
 
 on:
   push:
     branches: [ master ]
 
 env:
-  PACKAGE_MAJOR_VERSION: 1
-  PACKAGE_MINOR_VERSION: 1
-  REPOSITORY_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+  PACKAGE_MAJOR_VERSION: 5
+  PACKAGE_MINOR_VERSION: 0
   CURRENT_REPO_URL: https://github.com/${{ github.repository }}
 
 jobs:
@@ -24,10 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.0.x
-          source-url: ${{env.REPOSITORY_URL}}
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}    
+          dotnet-version: 5.0.x  
 
       - name: Restore dependencies
         run: dotnet restore 
@@ -47,5 +43,5 @@ jobs:
       - name: Generate Package
         run: dotnet pack ./src -c Release -o out -p:PackageVersion=${{env.PACKAGE_VERSION}} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
 
-      - name: Push generated package to GitHub registry
-        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true
+      - name: Publish the package to nuget.org
+        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json

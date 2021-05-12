@@ -10,19 +10,25 @@ jobs:
     defaults:
       run:
         working-directory: ./src
-
+    strategy:
+      matrix:
+        dotnet: [ "3.1.x", "5.0.x" ]
+    
+    name: Dotnet ${{ matrix.dotnet }} sample
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Setup .NET 5
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
 
-    - name: Build
-      run: dotnet build --no-restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
