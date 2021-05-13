@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
-using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
@@ -13,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -36,31 +36,26 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         private readonly IOptions<JwksOptions> _options;
         private readonly IDataProtector _dataProtector;
         private IXmlRepository KeyRepository { get; set; }
-        private IXmlEncryptor KeyEncryptor { get; set; }
-        public IXmlDecryptor KeyDecryptor { get; set; }
 
         private const string Name = "NetDevPackSecurityJwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtector dataProtector)
+        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtectionProvider provider)
         {
 
             _loggerFactory = loggerFactory;
             _options = options;
-            _dataProtector = dataProtector.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
+            _dataProtector = provider.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
             Check();
             // Force it to configure xml repository.
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
             var ser = new XmlSerializer(typeof(SecurityKeyWithPrivate));
-            var doc = new XDocument();
-            using (var xw = doc.CreateWriter())
-            {
-                ser.Serialize(xw, securityParamteres);
-                xw.Close();
-            }
+            using var ms = new MemoryStream();
+            ser.Serialize(ms, securityParamteres);
 
+            var xml = Encoding.ASCII.GetString(ms.ToArray());
 
-            var possiblyEncryptedKeyElement =
+            var possiblyEncryptedKeyElement = _dataProtector.Protect(xml);
 
             // build the <key> element
             var keyElement = new XElement(Name,
@@ -83,7 +78,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         {
             if (KeyRepository == null)
             {
-                (KeyRepository, KeyEncryptor, KeyDecryptor) = GetFallbackKeyRepositoryEncryptorPair();
+                KeyRepository = GetFallbackKeyRepositoryEncryptorPair();
             }
         }
 
@@ -106,7 +101,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     var descriptorElement = element.Element(DescriptorElementName);
                     string descriptorDeserializerTypeName = (string)descriptorElement!.Attribute(DeserializerTypeAttributeName)!;
                     // Decrypt the descriptor element and pass it to the descriptor for consumption
-                    var unencryptedInputToDeserializer = KeyDecryptor.Decrypt(descriptorElement)
+                    var unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
 
                 }
             }
@@ -147,26 +142,19 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
 
 
-        internal (IXmlRepository, IXmlEncryptor, IXmlDecryptor) GetFallbackKeyRepositoryEncryptorPair()
+        internal IXmlRepository GetFallbackKeyRepositoryEncryptorPair()
         {
-            IXmlEncryptor xmlEncryptor = null;
-            IXmlDecryptor xmlDecryptor = null;
             IXmlRepository key;
             DirectoryInfo forAzureWebSites = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectoryForAzureWebSites();
             if (forAzureWebSites != null)
             {
-                key = (IXmlRepository)new FileSystemXmlRepository(forAzureWebSites, this._loggerFactory);
+                key = new FileSystemXmlRepository(forAzureWebSites, this._loggerFactory);
             }
             else
             {
                 DirectoryInfo storageDirectory = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectory();
                 if (storageDirectory != null)
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    {
-                        xmlEncryptor = new DpapiXmlEncryptor(false, this._loggerFactory);
-                        xmlDecryptor = new DpapiXmlDecryptor();
-                    }
                     key = new FileSystemXmlRepository(storageDirectory, this._loggerFactory);
                 }
                 else
@@ -178,8 +166,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     if (registryKey != null)
                     {
                         var defaultRegistryKey = RegistryXmlRepository.DefaultRegistryKey;
-                        xmlEncryptor = new DpapiXmlEncryptor(true, this._loggerFactory);
-                        xmlDecryptor = new DpapiXmlDecryptor();
                         key = new RegistryXmlRepository(defaultRegistryKey, this._loggerFactory);
                     }
                     else
@@ -189,7 +175,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     }
                 }
             }
-            return (key, xmlEncryptor, xmlDecryptor);
+            return key;
         }
 
 
