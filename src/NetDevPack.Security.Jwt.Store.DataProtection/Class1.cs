@@ -14,7 +14,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
         private readonly IXmlRepository _xmlRepository;
-
+        private const string Name = "NetDevPack.Security.Jwt";
         public AspNetCoreDataProtection(IXmlRepository xmlRepository)
         {
             _xmlRepository = xmlRepository;
@@ -26,15 +26,22 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
             var xmlSerializer = new XmlSerializer(typeof(SecurityKeyWithPrivate));
             xmlSerializer.Serialize(streamWriter, securityParamteres);
-            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), "NetDevPack.Security.Jwt");
+            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), Name);
         }
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
             var allElements = _xmlRepository.GetAllElements();
+            var keys = new Dictionary<string, SecurityKeyWithPrivate>();
             foreach (var element in allElements)
             {
-                if ()
+                if (element.Name == Name)
+                {
+                    var key = new SecurityKeyWithPrivate()
+                    {
+                        JwkType = (JsonWebKeyType)int.Parse(element.Attribute("JwkType")!.Value),
+                    };
+                }
             }
         }
 
