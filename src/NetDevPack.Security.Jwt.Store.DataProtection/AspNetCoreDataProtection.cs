@@ -10,21 +10,21 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Microsoft.AspNetCore.DataProtection.Internal;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 
 namespace NetDevPack.Security.Jwt.Store.DataProtection
 {
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
-        private readonly IKeyManager _keyManager;
         private readonly IOptions<KeyManagementOptions> _xmlRepository;
+        private readonly XmlKeyManager _xmlKeyManager;
         private const string Name = "NetDevPack.Security.Jwt";
-        public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions, IKeyManager keyManager)
+        public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions, IActivator activator)
         {
-            _keyManager = keyManager;
             // Force it to configure xml repository.
-            _keyManager.CreateNewKey(DateTimeOffset.Now, DateTimeOffset.Now.AddDays(30));
-
             _xmlRepository = keyManagementOptions;
+            _xmlKeyManager = new XmlKeyManager(keyManagementOptions, activator);
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
@@ -43,6 +43,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         private IOrderedEnumerable<SecurityKeyWithPrivate> GetKeys()
         {
+            
             var allElements = _xmlRepository.Value.XmlRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)

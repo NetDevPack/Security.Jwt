@@ -17,8 +17,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IJwksBuilder PersistKeysToDataProtection(this IJwksBuilder builder)
         {
             if (builder.Services.All(x => x.ServiceType != typeof(IXmlRepository)))
-                builder.Services.AddDataProtection();
-            builder.Services.AddScoped<IJsonWebKeyStore, AspNetCoreDataProtection>();
+
+                builder.Services.AddScoped<IJsonWebKeyStore, AspNetCoreDataProtection>();
 
             return builder;
         }
