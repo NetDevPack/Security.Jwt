@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
@@ -21,16 +20,15 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
         private readonly ILoggerFactory _loggerFactory;
-        private readonly IOptions<KeyManagementOptions> _keyManagementOptions;
-        private IXmlRepository KeyRepository;
-        private IXmlEncryptor KeyEncryptor;
+        private IXmlRepository KeyRepository { get; set; }
+        private IXmlEncryptor KeyEncryptor { get; set; }
         private IKeyEscrowSink KeyEscrowSink { get; set; }
+
         private const string Name = "NetDevPack.Security.Jwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<KeyManagementOptions> keyManagementOptions)
+        public AspNetCoreDataProtection(ILoggerFactory loggerFactory)
         {
 
             _loggerFactory = loggerFactory;
-            _keyManagementOptions = keyManagementOptions;
             Check();
             // Force it to configure xml repository.
         }
@@ -43,7 +41,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 ser.Serialize(xw, securityParamteres);
                 xw.Close();
             }
-            var el = doc.Root;
 
 
             var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(doc.Root) != null ? KeyEncryptor.Encrypt(doc.Root).EncryptedElement : doc?.Root;
@@ -62,8 +59,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 KeyRepository = keyval.Key;
                 KeyEncryptor = keyval.Value;
 
-                var keyEscrowSinks = _keyManagementOptions.Value.KeyEscrowSinks;
-                KeyEscrowSink = keyEscrowSinks.Count > 0 ? (IKeyEscrowSink)new AggregateKeyEscrowSink(keyEscrowSinks) : null;
             }
         }
 
@@ -163,18 +158,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         }
 
 
-        private sealed class AggregateKeyEscrowSink : IKeyEscrowSink
-        {
-            private readonly IList<IKeyEscrowSink> _sinks;
-
-            public AggregateKeyEscrowSink(IList<IKeyEscrowSink> sinks) => this._sinks = sinks;
-
-            public void Store(Guid keyId, XElement element)
-            {
-                foreach (IKeyEscrowSink sink in (IEnumerable<IKeyEscrowSink>)this._sinks)
-                    sink.Store(keyId, element);
-            }
-        }
     }
 
 
