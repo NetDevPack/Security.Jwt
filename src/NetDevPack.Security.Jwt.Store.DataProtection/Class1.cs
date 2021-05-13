@@ -26,12 +26,16 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
             var xmlSerializer = new XmlSerializer(typeof(SecurityKeyWithPrivate));
             xmlSerializer.Serialize(streamWriter, securityParamteres);
-            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), securityParamteres.KeyId);
+            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), "NetDevPack.Security.Jwt");
         }
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
-            throw new NotImplementedException();
+            var allElements = _xmlRepository.GetAllElements();
+            foreach (var element in allElements)
+            {
+                if ()
+            }
         }
 
         public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
