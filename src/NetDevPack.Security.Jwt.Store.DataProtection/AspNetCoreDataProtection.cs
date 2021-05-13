@@ -81,7 +81,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         private IOrderedEnumerable<SecurityKeyWithPrivate> GetKeys()
         {
-
             var allElements = KeyRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)
@@ -121,7 +120,11 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public bool NeedsUpdate(JsonWebKeyType jsonWebKeyType)
         {
-            return true;
+            var current = GetCurrentKey(jsonWebKeyType);
+            if (current == null)
+                return true;
+
+            return current.CreationDate.AddDays(_options.Value.DaysUntilExpire) < DateTime.UtcNow.Date;
         }
 
         public void Update(SecurityKeyWithPrivate securityKeyWithPrivate)
