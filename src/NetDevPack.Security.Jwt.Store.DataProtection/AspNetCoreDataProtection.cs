@@ -27,6 +27,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         internal static readonly XName ExpirationDateElementName = "expirationDate";
         internal static readonly XName DescriptorElementName = "descriptor";
         internal static readonly XName DeserializerTypeAttributeName = "deserializerType";
+        internal static readonly XName RevocationElementName = "revocation";
+        internal static readonly XName RevocationDateElementName = "revocationDate";
+        internal static readonly XName ReasonElementName = "reason";
 
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<JwksOptions> _options;
@@ -52,9 +55,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
             var keyElement = new XElement(Name,
                 new XAttribute(IdAttributeName, securityParamteres.Id),
                 new XAttribute(VersionAttributeName, 1),
-                new XElement(CreationDateElementName, DateTimeOffset.Now),
-                new XElement(ActivationDateElementName, DateTimeOffset.Now),
-                new XElement(ExpirationDateElementName, DateTimeOffset.Now.AddDays(_options.Value.DaysUntilExpire)),
+                new XElement(CreationDateElementName, DateTimeOffset.UtcNow),
+                new XElement(ActivationDateElementName, DateTimeOffset.UtcNow),
+                new XElement(ExpirationDateElementName, DateTimeOffset.UtcNow.AddDays(_options.Value.DaysUntilExpire)),
                 new XElement(DescriptorElementName,
                     new XAttribute(DeserializerTypeAttributeName, typeof(SecurityKeyWithPrivate).AssemblyQualifiedName!),
                     possiblyEncryptedKeyElement));
@@ -95,15 +98,36 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     var key = JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer);
                     // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
                     if (key.IsExpired(_options.Value.DaysUntilExpire))
+                    {
                         key.SetParameters();
 
+                    }
+
                     keys.Add(key);
+                }
+                else if (element.Name == RevocationElementName)
+                {
+
                 }
             }
 
             return keys.OrderByDescending(o => o.CreationDate);
         }
 
+        private void RevokeKey(SecurityKeyWithPrivate securityKey)
+        {
+            var revocationElement = new XElement(RevocationElementName,
+                new XAttribute(VersionAttributeName, 1),
+                new XElement(RevocationDateElementName, DateTimeOffset.UtcNow),
+                new XElement(Name,
+                    new XAttribute(IdAttributeName, securityKey.Id)),
+                new XElement(ReasonElementName, "Expired"));
+
+
+            // Persist it to the underlying repository and trigger the cancellation token
+            var friendlyName = string.Format(CultureInfo.InvariantCulture, "revocation--{0}-{1:D}", securityKey.JwkType.ToString(), securityKey.KeyId);
+            KeyRepository.StoreElement(revocationElement, friendlyName);
+        }
 
         public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
         {
