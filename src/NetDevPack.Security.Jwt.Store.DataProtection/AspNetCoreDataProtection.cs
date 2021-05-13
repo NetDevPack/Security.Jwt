@@ -11,7 +11,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -20,8 +19,8 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
         private readonly ILoggerFactory _loggerFactory;
-        private IXmlRepository _xmlRepository;
-        private IXmlEncryptor _xmlEncryptor;
+        private IXmlRepository KeyRepository;
+        private IXmlEncryptor KeyEncryptor;
         private const string Name = "NetDevPack.Security.Jwt";
         public AspNetCoreDataProtection(ILoggerFactory loggerFactory)
         {
@@ -32,28 +31,31 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
-            using var memoryStream = new MemoryStream();
-            using TextWriter streamWriter = new StreamWriter(memoryStream);
+            var ser = new XmlSerializer(typeof(SecurityKeyWithPrivate));
+            var doc = new XDocument();
+            using (var xw = doc.CreateWriter())
+            {
+                ser.Serialize(xw, securityParamteres);
+                xw.Close();
+            }
+            var el = doc.Root;
 
-            var xmlSerializer = new XmlSerializer(typeof(SecurityKeyWithPrivate));
-            xmlSerializer.Serialize(streamWriter, securityParamteres);
 
-
-            var possiblyEncryptedKeyElement = KeyEncryptor?.EncryptIfNecessary(keyElement) ?? keyElement;
+            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(doc.Root) != null ? KeyEncryptor.Encrypt(doc.Root).EncryptedElement : doc?.Root;
 
             // Persist it to the underlying repository and trigger the cancellation token.
             var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.KeyId);
             KeyRepository.StoreElement(possiblyEncryptedKeyElement, friendlyName);
-            _keyManagementOptions.Value.XmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), Name);
+
         }
 
         private void Check()
         {
-            if (_xmlRepository == null)
+            if (KeyRepository == null)
             {
                 var keyval = GetFallbackKeyRepositoryEncryptorPair();
-                _xmlRepository = keyval.Key;
-                _xmlEncryptor = keyval.Value;
+                KeyRepository = keyval.Key;
+                KeyEncryptor = keyval.Value;
             }
         }
 
@@ -65,7 +67,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         private IOrderedEnumerable<SecurityKeyWithPrivate> GetKeys()
         {
 
-            var allElements = _keyManagementOptions.Value.XmlRepository.GetAllElements();
+            var allElements = KeyRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)
             {
