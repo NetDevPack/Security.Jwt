@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Logging;
@@ -34,18 +34,18 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<JwksOptions> _options;
-        private readonly IAuthenticatedEncryptorDescriptorDeserializer _descriptorDeserializer;
+        private readonly IDataProtector _dataProtector;
         private IXmlRepository KeyRepository { get; set; }
         private IXmlEncryptor KeyEncryptor { get; set; }
         public IXmlDecryptor KeyDecryptor { get; set; }
 
         private const string Name = "NetDevPackSecurityJwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IAuthenticatedEncryptorDescriptorDeserializer descriptorDeserializer)
+        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtector dataProtector)
         {
 
             _loggerFactory = loggerFactory;
             _options = options;
-            _descriptorDeserializer = descriptorDeserializer;
+            _dataProtector = dataProtector.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
             Check();
             // Force it to configure xml repository.
         }
@@ -58,7 +58,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 ser.Serialize(xw, securityParamteres);
                 xw.Close();
             }
-            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(doc.Root) != null ? KeyEncryptor.Encrypt(doc.Root).EncryptedElement : doc.Root;
+
+
+            var possiblyEncryptedKeyElement =
 
             // build the <key> element
             var keyElement = new XElement(Name,
