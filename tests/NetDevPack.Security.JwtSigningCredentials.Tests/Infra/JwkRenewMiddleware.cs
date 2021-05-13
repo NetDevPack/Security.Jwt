@@ -18,8 +18,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra
         {
             foreach (var securityKeyWithPrivate in store.Get(JsonWebKeyType.Jws, options.Value.AlgorithmsToKeep))
             {
-                securityKeyWithPrivate.SetParameters();
-                store.Update(securityKeyWithPrivate);
+                store.Revoke(securityKeyWithPrivate);
             }
 
             keyService.GenerateSigningCredentials();

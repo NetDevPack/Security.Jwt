@@ -3,6 +3,7 @@ using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 using NetDevPack.Security.JwtSigningCredentials.Jwk;
 using NetDevPack.Security.JwtSigningCredentials.Jwks;
 using System;
+using NetDevPack.Security.JwtSigningCredentials.DefaultStore.Memory;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

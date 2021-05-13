@@ -26,7 +26,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             WarmupData = warmup;
             _keyService = WarmupData.Services.GetRequiredService<IJsonWebKeySetService>();
             _jsonWebKeyStore = WarmupData.Services.GetRequiredService<IJsonWebKeyStore>();
-            _jsonWebKeyStore.Clear();
+            this.WarmupData.Clear();
         }
 
         [Fact]
@@ -78,8 +78,8 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             _jsonWebKeyStore.Save(privateKey);
 
             /*Remove private*/
-            privateKey.SetParameters();
-            _jsonWebKeyStore.Update(privateKey);
+            privateKey.Revoke();
+            _jsonWebKeyStore.Revoke(privateKey);
 
         }
 
@@ -106,8 +106,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             privateKey.SetJwsParameters(key.Key, alg);
             _jsonWebKeyStore.Save(privateKey);
             /*Remove private*/
-            privateKey.SetParameters();
-            _jsonWebKeyStore.Update(privateKey);
+            _jsonWebKeyStore.Revoke(privateKey);
 
             var jsonWebKey = _keyService.GetLastKeysCredentials(JsonWebKeyType.Jws, 5).First(w => w.Kid == privateKey.KeyId);
             jsonWebKey.Kty.Should().NotBeNullOrEmpty();
@@ -150,8 +149,8 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             _jsonWebKeyStore.Save(privateKey);
 
             /*Remove private*/
-            privateKey.SetParameters();
-            _jsonWebKeyStore.Update(privateKey);
+            privateKey.Revoke();
+            _jsonWebKeyStore.Revoke(privateKey);
 
             var jsonWebKey = _keyService.GetLastKeysCredentials(JsonWebKeyType.Jws, 5).First(w => w.Kid == privateKey.KeyId);
             jsonWebKey.Kty.Should().NotBeNullOrEmpty();
@@ -198,8 +197,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             _jsonWebKeyStore.Save(privateKey);
 
             /*Remove private*/
-            privateKey.SetParameters();
-            _jsonWebKeyStore.Update(privateKey);
+            _jsonWebKeyStore.Revoke(privateKey);
 
             var jsonWebKey = _keyService.GetLastKeysCredentials(JsonWebKeyType.Jwe, 5).First(w => w.Kid == privateKey.KeyId);
             jsonWebKey.Kty.Should().NotBeNullOrEmpty();
@@ -307,7 +305,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
         [InlineData(SecurityAlgorithms.RsaSha512, KeyType.RSA)]
         public void ShouldSaveDeterministicJwkRecoverAndSigning(string algorithm, KeyType keyType)
         {
-            _jsonWebKeyStore.Clear();
+            this.WarmupData.Clear();
             var options = new JwksOptions() { Jws = JwsAlgorithm.Create(algorithm, keyType) };
 
             var handler = new JsonWebTokenHandler();
@@ -363,7 +361,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
         [InlineData(SecurityAlgorithms.Aes256KW, KeyType.AES, SecurityAlgorithms.Aes192CbcHmacSha384)]
         public void ShouldSaveJweRecoverAndEncrypt(string algorithm, KeyType keyType, string encryption)
         {
-            _jsonWebKeyStore.Clear();
+            this.WarmupData.Clear();
             var options = new JwksOptions()
             {
                 Jwe = JweAlgorithm.Create(algorithm, keyType).WithEncryption(encryption)
@@ -429,7 +427,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
         [Fact]
         public void ShouldGenerateAndValidateJweAndJws()
         {
-            _jsonWebKeyStore.Clear();
+            this.WarmupData.Clear();
             var options = new JwksOptions()
             {
             };

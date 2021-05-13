@@ -1,23 +1,24 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.DataProtection.Repositories;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Win32;
-using NetDevPack.Security.JwtSigningCredentials;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Win32;
+using NetDevPack.Security.JwtSigningCredentials.Interfaces;
+using NetDevPack.Security.JwtSigningCredentials.Jwks;
+using NetDevPack.Security.JwtSigningCredentials.Model;
 
-namespace NetDevPack.Security.Jwt.Store.DataProtection
+namespace NetDevPack.Security.JwtSigningCredentials.DefaultStore
 {
-    public class AspNetCoreDataProtection : IJsonWebKeyStore
+    public class DataProtectionStore : IJsonWebKeyStore
     {
         // Used for serializing elements to persistent storage
         internal static readonly XName IdAttributeName = "id";
@@ -34,15 +35,23 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<JwksOptions> _options;
         private readonly IOptions<KeyManagementOptions> _keyManagementOptions;
+        private readonly IMemoryCache _memoryCache;
         private readonly IDataProtector _dataProtector;
+
         private IXmlRepository KeyRepository { get; set; }
 
         private const string Name = "NetDevPackSecurityJwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtectionProvider provider, IOptions<KeyManagementOptions> keyManagementOptions)
+        public DataProtectionStore(
+            ILoggerFactory loggerFactory,
+            IOptions<JwksOptions> options,
+            IDataProtectionProvider provider,
+            IOptions<KeyManagementOptions> keyManagementOptions,
+            IMemoryCache memoryCache)
         {
             _loggerFactory = loggerFactory;
             _options = options;
             _keyManagementOptions = keyManagementOptions;
+            _memoryCache = memoryCache;
             _dataProtector = provider.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
             Check();
             // Force it to configure xml repository.
@@ -63,9 +72,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     possiblyEncryptedKeyElement));
 
             // Persist it to the underlying repository and trigger the cancellation token.
-            var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.KeyId);
+            var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.Id);
             KeyRepository.StoreElement(keyElement, friendlyName);
-
+            ClearCache();
         }
 
         private void Check()
@@ -81,10 +90,22 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
-            return GetKeys().FirstOrDefault(f => f.JwkType == jwkType);
+            if (!_memoryCache.TryGetValue(JwkContants.CurrentJwkCache(jwkType), out SecurityKeyWithPrivate credentials))
+            {
+                credentials = Get(jwkType, 1).FirstOrDefault();
+                // Set cache options.
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    // Keep in cache for this time, reset time if accessed.
+                    .SetSlidingExpiration(_options.Value.CacheTime);
+
+                if (credentials != null)
+                    _memoryCache.Set(JwkContants.CurrentJwkCache(jwkType), credentials, cacheEntryOptions);
+            }
+
+            return credentials;
         }
 
-        private IOrderedEnumerable<SecurityKeyWithPrivate> GetKeys()
+        private IReadOnlyCollection<SecurityKeyWithPrivate> GetKeys()
         {
             var allElements = KeyRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
@@ -100,8 +121,8 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
                     if (key.IsExpired(_options.Value.DaysUntilExpire))
                     {
-                        key.SetParameters();
-                        RevokeKey(key);
+                        Revoke(key);
+                        revokedKeys.Add(key.Id.ToString());
                     }
 
                     keys.Add(key);
@@ -113,34 +134,41 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 }
             }
 
-            return keys.Where(w => !revokedKeys.Contains(w.Id.ToString())).OrderByDescending(o => o.CreationDate);
+            foreach (var revokedKey in revokedKeys)
+            {
+                keys.FirstOrDefault(a => a.Id.ToString().Equals(revokedKey))?.Revoke();
+            }
+            return keys.ToList();
         }
 
-        private void RevokeKey(SecurityKeyWithPrivate securityKey)
+
+        public IReadOnlyCollection<SecurityKeyWithPrivate> Get(JsonWebKeyType jsonWebKeyType, int quantity = 5)
         {
-            var revocationElement = new XElement(RevocationElementName,
-                new XAttribute(VersionAttributeName, 1),
-                new XElement(RevocationDateElementName, DateTimeOffset.UtcNow),
-                new XElement(Name,
-                    new XAttribute(IdAttributeName, securityKey.Id)),
-                new XElement(ReasonElementName, "Expired"));
+            if (!_memoryCache.TryGetValue(JwkContants.JwksCache, out IReadOnlyCollection<SecurityKeyWithPrivate> keys))
+            {
+                keys = GetKeys();
 
+                // Set cache options.
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    // Keep in cache for this time, reset time if accessed.
+                    .SetSlidingExpiration(_options.Value.CacheTime);
 
-            // Persist it to the underlying repository and trigger the cancellation token
-            var friendlyName = string.Format(CultureInfo.InvariantCulture, "revocation--{0}-{1:D}", securityKey.JwkType.ToString(), securityKey.KeyId);
-            KeyRepository.StoreElement(revocationElement, friendlyName);
-        }
+                if (keys.Any())
+                    _memoryCache.Set(JwkContants.JwksCache, keys, cacheEntryOptions);
+            }
 
-        public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
-        {
-            return GetKeys().Where(w => w.JwkType == jwkType).Take(quantity);
+            return keys
+                .Where(w => w.JwkType == jsonWebKeyType)
+                .OrderByDescending(s => s.CreationDate)
+                .ToList()
+                .AsReadOnly();
         }
 
         public void Clear()
         {
             foreach (var securityKeyWithPrivate in GetKeys())
             {
-                RevokeKey(securityKeyWithPrivate);
+                Revoke(securityKeyWithPrivate);
             }
         }
 
@@ -153,9 +181,33 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
             return current.CreationDate.AddDays(_options.Value.DaysUntilExpire) < DateTime.UtcNow.Date;
         }
 
-        public void Update(SecurityKeyWithPrivate securityKeyWithPrivate)
+        public void Revoke(SecurityKeyWithPrivate securityKeyWithPrivate)
         {
+            var key = Get(securityKeyWithPrivate.JwkType).First(f => f.Id == securityKeyWithPrivate.Id);
+            if (key != null && key.IsRevoked)
+                return;
 
+            securityKeyWithPrivate.Revoke();
+            var revocationElement = new XElement(RevocationElementName,
+                new XAttribute(VersionAttributeName, 1),
+                new XElement(RevocationDateElementName, DateTimeOffset.UtcNow),
+                new XElement(Name,
+                    new XAttribute(IdAttributeName, securityKeyWithPrivate.Id)),
+                new XElement(ReasonElementName, "Revoked"));
+
+
+            // Persist it to the underlying repository and trigger the cancellation token
+            var friendlyName = string.Format(CultureInfo.InvariantCulture, "revocation-{0}-{1:D}-{2:yyyy_MM_dd_hh_mm_fffffff}", securityKeyWithPrivate.JwkType.ToString(), securityKeyWithPrivate.Id, DateTime.UtcNow);
+            KeyRepository.StoreElement(revocationElement, friendlyName);
+            ClearCache();
+        }
+
+
+        private void ClearCache()
+        {
+            _memoryCache.Remove(JwkContants.JwksCache);
+            _memoryCache.Remove(JwkContants.CurrentJwkCache(JsonWebKeyType.Jwe));
+            _memoryCache.Remove(JwkContants.CurrentJwkCache(JsonWebKeyType.Jws));
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using NetDevPack.Security.Jwt.Store.DataProtection;
+﻿using NetDevPack.Security.JwtSigningCredentials.DefaultStore;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 
 namespace Microsoft.Extensions.DependencyInjection
