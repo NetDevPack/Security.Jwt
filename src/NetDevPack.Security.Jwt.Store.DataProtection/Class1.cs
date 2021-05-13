@@ -1,20 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.DataProtection.Repositories;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 using NetDevPack.Security.JwtSigningCredentials.Model;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace NetDevPack.Security.Jwt.Store.DataProtection
 {
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
-        public AspNetCoreDataProtection(IXmlRepository )
-        {
+        private readonly IXmlRepository _xmlRepository;
 
+        public AspNetCoreDataProtection(IXmlRepository xmlRepository)
+        {
+            _xmlRepository = xmlRepository;
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
-            
+            using var memoryStream = new MemoryStream();
+            using TextWriter streamWriter = new StreamWriter(memoryStream);
+
+            var xmlSerializer = new XmlSerializer(typeof(SecurityKeyWithPrivate));
+            xmlSerializer.Serialize(streamWriter, securityParamteres);
+            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), securityParamteres.KeyId);
         }
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
