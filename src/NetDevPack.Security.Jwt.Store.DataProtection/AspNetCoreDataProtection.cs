@@ -21,7 +21,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
         // Used for serializing elements to persistent storage
-        internal static readonly XName KeyElementName = "key";
         internal static readonly XName IdAttributeName = "id";
         internal static readonly XName VersionAttributeName = "version";
         internal static readonly XName CreationDateElementName = "creationDate";
@@ -39,7 +38,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         private IXmlEncryptor KeyEncryptor { get; set; }
         private IKeyEscrowSink KeyEscrowSink { get; set; }
 
-        private const string Name = "NetDevPack.Security.Jwt";
+        private const string Name = "NetDevPackSecurityJwt";
         public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options)
         {
 
@@ -57,8 +56,10 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 ser.Serialize(xw, securityParamteres);
                 xw.Close();
             }
+            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(doc.Root) != null ? KeyEncryptor.Encrypt(doc.Root).EncryptedElement : doc.Root;
+
             // build the <key> element
-            var keyElement = new XElement(KeyElementName,
+            var keyElement = new XElement(Name,
                 new XAttribute(IdAttributeName, securityParamteres.Id),
                 new XAttribute(VersionAttributeName, 1),
                 new XElement(CreationDateElementName, DateTimeOffset.Now),
@@ -66,13 +67,11 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 new XElement(ExpirationDateElementName, DateTimeOffset.Now.AddDays(_options.Value.DaysUntilExpire)),
                 new XElement(DescriptorElementName,
                     new XAttribute(DeserializerTypeAttributeName, typeof(SecurityKeyWithPrivate).AssemblyQualifiedName!),
-                    doc.Root));
-
-            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(keyElement) != null ? KeyEncryptor.Encrypt(keyElement).EncryptedElement : keyElement;
+                    possiblyEncryptedKeyElement));
 
             // Persist it to the underlying repository and trigger the cancellation token.
             var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.KeyId);
-            KeyRepository.StoreElement(possiblyEncryptedKeyElement, friendlyName);
+            KeyRepository.StoreElement(keyElement, friendlyName);
 
         }
 
