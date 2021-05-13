@@ -5,6 +5,7 @@ using NetDevPack.Security.JwtSigningCredentials.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -32,17 +33,22 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
             var allElements = _xmlRepository.GetAllElements();
-            var keys = new Dictionary<string, SecurityKeyWithPrivate>();
+            var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)
             {
                 if (element.Name == Name)
                 {
-                    var key = new SecurityKeyWithPrivate()
-                    {
-                        JwkType = (JsonWebKeyType)int.Parse(element.Attribute("JwkType")!.Value),
-                    };
+                    var key = FromXElement<SecurityKeyWithPrivate>(element);
+                    keys.Add(key);
                 }
             }
+
+            return keys.OrderByDescending(o => o.CreationDate).FirstOrDefault(f => f.JwkType == jwkType);
+        }
+        private static T FromXElement<T>(XElement xElement)
+        {
+            var xmlSerializer = new XmlSerializer(typeof(T));
+            return (T)xmlSerializer.Deserialize(xElement.CreateReader());
         }
 
         public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
