@@ -27,7 +27,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         internal static readonly XName ExpirationDateElementName = "expirationDate";
         internal static readonly XName DescriptorElementName = "descriptor";
         internal static readonly XName DeserializerTypeAttributeName = "deserializerType";
-        internal static readonly XName RevocationElementName = "revocation";
+        internal static readonly XName RevocationElementName = "NetDevPackSecurityJwtRevocation";
         internal static readonly XName RevocationDateElementName = "revocationDate";
         internal static readonly XName ReasonElementName = "reason";
 
