@@ -88,6 +88,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         {
             var allElements = KeyRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
+            var revokedKeys = new List<string>();
             foreach (var element in allElements)
             {
                 if (element.Name == Name)
@@ -100,18 +101,19 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     if (key.IsExpired(_options.Value.DaysUntilExpire))
                     {
                         key.SetParameters();
-
+                        RevokeKey(key);
                     }
 
                     keys.Add(key);
                 }
                 else if (element.Name == RevocationElementName)
                 {
-
+                    var keyIdAsString = (string)element.Element(Name)!.Attribute(IdAttributeName)!;
+                    revokedKeys.Add(keyIdAsString);
                 }
             }
 
-            return keys.OrderByDescending(o => o.CreationDate);
+            return keys.Where(w => !revokedKeys.Contains(w.Id.ToString())).OrderByDescending(o => o.CreationDate);
         }
 
         private void RevokeKey(SecurityKeyWithPrivate securityKey)
@@ -136,7 +138,10 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public void Clear()
         {
-
+            foreach (var securityKeyWithPrivate in GetKeys())
+            {
+                RevokeKey(securityKeyWithPrivate);
+            }
         }
 
         public bool NeedsUpdate(JsonWebKeyType jsonWebKeyType)
