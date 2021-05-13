@@ -1,5 +1,5 @@
 # Json Web Key Set Manager
-![Nuget](https://img.shields.io/nuget/v/Jwks.Manager)![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/brunohbrito/Jwks.Manager/14)[![Build Status](https://dev.azure.com/brunohbrito/Jwks.Manager/_apis/build/status/brunohbrito.Jwks.Manager?branchName=master)](https://dev.azure.com/brunohbrito/Jwks.Manager/_build/latest?definitionId=15&branchName=master)
+![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.JwtSigningCredentials)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml)
 
 <img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
 The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
@@ -12,11 +12,13 @@ If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it
 
 - [Json Web Key Set Manager](#json-web-key-set-manager)
   - [Table of Contents](#table-of-contents)
+- [What is](#what-is)
+- [JWKS](#jwks)
 - [Store](#store)
   - [Database](#database)
   - [File system](#file-system)
 - [Changing Algorithm](#changing-algorithm)
-- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwksuri-management)
+- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwks_uri-management)
 - [Signing JWT](#signing-jwt)
   - [Token Validation](#token-validation)
 - [Why](#why)

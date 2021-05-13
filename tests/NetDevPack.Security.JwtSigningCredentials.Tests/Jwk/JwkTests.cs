@@ -34,7 +34,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwk
         [InlineData(SecurityAlgorithms.EcdsaSha512, KeyType.ECDsa)]
         public void ShouldGenerateJwk(string algorithm, KeyType keyType)
         {
-            var key = _service.Generate(Algorithm.Create(algorithm, keyType));
+            var key = _service.Generate(JwsAlgorithm.Create(algorithm, keyType));
             key.KeyId.Should().NotBeNull();
         }
 
@@ -48,7 +48,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwk
         public void ShouldBeSameJwtWhenDeterministicToken(string algorithm, KeyType keyType)
         {
             IdentityModelEventSource.ShowPII = true;
-            var signingCredentials = _service.GenerateSigningCredentials(Algorithm.Create(algorithm, keyType));
+            var signingCredentials = _service.GenerateSigningCredentials(JwsAlgorithm.Create(algorithm, keyType));
             var handler = new JsonWebTokenHandler();
             var now = DateTime.Now;
             var descriptor = new SecurityTokenDescriptor
@@ -77,7 +77,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwk
         [InlineData(SecurityAlgorithms.EcdsaSha512, KeyType.ECDsa)]
         public void ShouldNotBeSameJwtWhenProbabilisticToken(string algorithm, KeyType keyType)
         {
-            var signingCredentials = _service.GenerateSigningCredentials(Algorithm.Create(algorithm, keyType));
+            var signingCredentials = _service.GenerateSigningCredentials(JwsAlgorithm.Create(algorithm, keyType));
             var handler = new JsonWebTokenHandler();
             var now = DateTime.Now;
             var descriptor = new SecurityTokenDescriptor

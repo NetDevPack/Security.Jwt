@@ -28,43 +28,43 @@ namespace NetDevPack.Security.JwtSigningCredentials.Jwk
                 Alg = algorithm
             };
         }
-        private JsonWebKey GenerateHMAC(Algorithm algorithms)
+        private JsonWebKey GenerateHMAC(Algorithm jwsAlgorithms)
         {
-            var key = CryptoService.CreateHmacSecurityKey(algorithms);
+            var key = CryptoService.CreateHmacSecurityKey(jwsAlgorithms);
             var jwk = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(key.Key));
             jwk.KeyId = CryptoService.CreateUniqueId();
             return jwk;
         }
 
-        private JsonWebKey GenerateAES(Algorithm algorithms)
+        private JsonWebKey GenerateAES(Algorithm jwsAlgorithms)
         {
-            var key = CryptoService.CreateAESSecurityKey(algorithms);
+            var key = CryptoService.CreateAESSecurityKey(jwsAlgorithms);
             return JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(key.Key));
         }
 
-        public JsonWebKey Generate(Algorithm algorithm)
+        public JsonWebKey Generate(Algorithm jwsAlgorithm)
         {
-            return algorithm.KeyType switch
+            return jwsAlgorithm.KeyType switch
             {
                 KeyType.RSA => GenerateRsa(),
-                KeyType.ECDsa => GenerateECDsa(algorithm),
-                KeyType.HMAC => GenerateHMAC(algorithm),
-                KeyType.AES => GenerateAES(algorithm),
-                _ => throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, null)
+                KeyType.ECDsa => GenerateECDsa(jwsAlgorithm),
+                KeyType.HMAC => GenerateHMAC(jwsAlgorithm),
+                KeyType.AES => GenerateAES(jwsAlgorithm),
+                _ => throw new ArgumentOutOfRangeException(nameof(jwsAlgorithm), jwsAlgorithm, null)
             };
         }
 
-        public SigningCredentials GenerateSigningCredentials(Algorithm algorithm)
+        public SigningCredentials GenerateSigningCredentials(JwsAlgorithm jwsAlgorithm)
         {
-            var key = Generate(algorithm);
-            return new SigningCredentials(key, algorithm);
+            var key = Generate(jwsAlgorithm);
+            return new SigningCredentials(key, jwsAlgorithm);
         }
 
-        public SigningCredentials GenerateSigningCredentials(SecurityKey key, Algorithm algorithm)
+        public SigningCredentials GenerateSigningCredentials(SecurityKey key, JwsAlgorithm jwsAlgorithm)
         {
             if (key == null)
                 throw new ArgumentException($"{nameof(key)}");
-            return new SigningCredentials(key, algorithm);
+            return new SigningCredentials(key, jwsAlgorithm);
         }
     }
 }
