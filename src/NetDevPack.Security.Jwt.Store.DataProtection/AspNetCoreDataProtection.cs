@@ -12,7 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Text.Json;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -28,9 +28,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         internal static readonly XName ExpirationDateElementName = "expirationDate";
         internal static readonly XName DescriptorElementName = "descriptor";
         internal static readonly XName DeserializerTypeAttributeName = "deserializerType";
-        internal static readonly XName RevocationElementName = "revocation";
-        internal static readonly XName RevocationDateElementName = "revocationDate";
-        internal static readonly XName ReasonElementName = "reason";
 
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<JwksOptions> _options;
@@ -40,7 +37,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         private const string Name = "NetDevPackSecurityJwt";
         public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtectionProvider provider)
         {
-
             _loggerFactory = loggerFactory;
             _options = options;
             _dataProtector = provider.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
@@ -49,13 +45,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
-            var ser = new XmlSerializer(typeof(SecurityKeyWithPrivate));
-            using var ms = new MemoryStream();
-            ser.Serialize(ms, securityParamteres);
-
-            var xml = Encoding.ASCII.GetString(ms.ToArray());
-
-            var possiblyEncryptedKeyElement = _dataProtector.Protect(xml);
+            var possiblyEncryptedKeyElement = _dataProtector.Protect(System.Text.Json.JsonSerializer.Serialize(securityParamteres));
 
             // build the <key> element
             var keyElement = new XElement(Name,
@@ -99,10 +89,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 if (element.Name == Name)
                 {
                     var descriptorElement = element.Element(DescriptorElementName);
-                    string descriptorDeserializerTypeName = (string)descriptorElement!.Attribute(DeserializerTypeAttributeName)!;
                     // Decrypt the descriptor element and pass it to the descriptor for consumption
                     var unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
-
+                    keys.Add(JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer));
                 }
             }
 
@@ -135,13 +124,10 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
             throw new NotImplementedException();
         }
 
-
-
-
-
-
-
-
+        /// <summary>
+        /// https://github.com/dotnet/aspnetcore/blob/d8906c8523f071371ce95d4e2d2fdfa89858047e/src/DataProtection/DataProtection/src/KeyManagement/XmlKeyManager.cs#L105
+        /// </summary>
+        /// <returns></returns>
         internal IXmlRepository GetFallbackKeyRepositoryEncryptorPair()
         {
             IXmlRepository key;
