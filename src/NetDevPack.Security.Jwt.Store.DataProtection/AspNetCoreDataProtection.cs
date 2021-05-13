@@ -91,7 +91,12 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                     var descriptorElement = element.Element(DescriptorElementName);
                     // Decrypt the descriptor element and pass it to the descriptor for consumption
                     var unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
-                    keys.Add(JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer));
+                    var key = JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer);
+                    // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
+                    if (key.IsExpired(_options.Value.DaysUntilExpire))
+                        key.SetParameters();
+
+                    keys.Add(key);
                 }
             }
 
@@ -121,7 +126,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public void Update(SecurityKeyWithPrivate securityKeyWithPrivate)
         {
-            throw new NotImplementedException();
+
         }
 
         /// <summary>
