@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
@@ -19,16 +20,31 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 {
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
+        // Used for serializing elements to persistent storage
+        internal static readonly XName KeyElementName = "key";
+        internal static readonly XName IdAttributeName = "id";
+        internal static readonly XName VersionAttributeName = "version";
+        internal static readonly XName CreationDateElementName = "creationDate";
+        internal static readonly XName ActivationDateElementName = "activationDate";
+        internal static readonly XName ExpirationDateElementName = "expirationDate";
+        internal static readonly XName DescriptorElementName = "descriptor";
+        internal static readonly XName DeserializerTypeAttributeName = "deserializerType";
+        internal static readonly XName RevocationElementName = "revocation";
+        internal static readonly XName RevocationDateElementName = "revocationDate";
+        internal static readonly XName ReasonElementName = "reason";
+
         private readonly ILoggerFactory _loggerFactory;
+        private readonly IOptions<JwksOptions> _options;
         private IXmlRepository KeyRepository { get; set; }
         private IXmlEncryptor KeyEncryptor { get; set; }
         private IKeyEscrowSink KeyEscrowSink { get; set; }
 
         private const string Name = "NetDevPack.Security.Jwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory)
+        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options)
         {
 
             _loggerFactory = loggerFactory;
+            _options = options;
             Check();
             // Force it to configure xml repository.
         }
@@ -41,9 +57,18 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 ser.Serialize(xw, securityParamteres);
                 xw.Close();
             }
+            // build the <key> element
+            var keyElement = new XElement(KeyElementName,
+                new XAttribute(IdAttributeName, securityParamteres.Id),
+                new XAttribute(VersionAttributeName, 1),
+                new XElement(CreationDateElementName, DateTimeOffset.Now),
+                new XElement(ActivationDateElementName, DateTimeOffset.Now),
+                new XElement(ExpirationDateElementName, DateTimeOffset.Now.AddDays(_options.Value.DaysUntilExpire)),
+                new XElement(DescriptorElementName,
+                    new XAttribute(DeserializerTypeAttributeName, typeof(SecurityKeyWithPrivate).AssemblyQualifiedName!),
+                    doc.Root));
 
-
-            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(doc.Root) != null ? KeyEncryptor.Encrypt(doc.Root).EncryptedElement : doc?.Root;
+            var possiblyEncryptedKeyElement = KeyEncryptor?.Encrypt(keyElement) != null ? KeyEncryptor.Encrypt(keyElement).EncryptedElement : keyElement;
 
             // Persist it to the underlying repository and trigger the cancellation token.
             var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.KeyId);
@@ -133,7 +158,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 if (storageDirectory != null)
                 {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                        xmlEncryptor = (IXmlEncryptor)new DpapiXmlEncryptor(true, this._loggerFactory);
+                        xmlEncryptor = (IXmlEncryptor)new DpapiXmlEncryptor(false, this._loggerFactory);
                     key = (IXmlRepository)new FileSystemXmlRepository(storageDirectory, this._loggerFactory);
                 }
                 else
