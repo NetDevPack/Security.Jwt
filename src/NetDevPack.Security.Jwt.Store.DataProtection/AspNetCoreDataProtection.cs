@@ -10,12 +10,10 @@ using NetDevPack.Security.JwtSigningCredentials.Model;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace NetDevPack.Security.Jwt.Store.DataProtection
 {
@@ -106,11 +104,6 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
             return keys.OrderByDescending(o => o.CreationDate);
         }
 
-        private static T FromXElement<T>(XElement xElement)
-        {
-            var xmlSerializer = new XmlSerializer(typeof(T));
-            return (T)xmlSerializer.Deserialize(xElement.CreateReader());
-        }
 
         public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
         {
@@ -143,14 +136,14 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         internal IXmlRepository GetFallbackKeyRepositoryEncryptorPair()
         {
             IXmlRepository key;
-            DirectoryInfo forAzureWebSites = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectoryForAzureWebSites();
+            var forAzureWebSites = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectoryForAzureWebSites();
             if (forAzureWebSites != null)
             {
                 key = new FileSystemXmlRepository(forAzureWebSites, this._loggerFactory);
             }
             else
             {
-                DirectoryInfo storageDirectory = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectory();
+                var storageDirectory = DefaultKeyStorageDirectories.Instance.GetKeyStorageDirectory();
                 if (storageDirectory != null)
                 {
                     key = new FileSystemXmlRepository(storageDirectory, this._loggerFactory);

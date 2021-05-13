@@ -429,6 +429,7 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
         [Fact]
         public void ShouldGenerateAndValidateJweAndJws()
         {
+            _jsonWebKeyStore.Clear();
             var options = new JwksOptions()
             {
             };
