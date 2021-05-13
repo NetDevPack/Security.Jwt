@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,14 +32,16 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         private readonly ILoggerFactory _loggerFactory;
         private readonly IOptions<JwksOptions> _options;
+        private readonly IOptions<KeyManagementOptions> _keyManagementOptions;
         private readonly IDataProtector _dataProtector;
         private IXmlRepository KeyRepository { get; set; }
 
         private const string Name = "NetDevPackSecurityJwt";
-        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtectionProvider provider)
+        public AspNetCoreDataProtection(ILoggerFactory loggerFactory, IOptions<JwksOptions> options, IDataProtectionProvider provider, IOptions<KeyManagementOptions> keyManagementOptions)
         {
             _loggerFactory = loggerFactory;
             _options = options;
+            _keyManagementOptions = keyManagementOptions;
             _dataProtector = provider.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
             Check();
             // Force it to configure xml repository.
@@ -66,6 +69,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         private void Check()
         {
+            KeyRepository = _keyManagementOptions.Value.XmlRepository;
             if (KeyRepository == null)
             {
                 KeyRepository = GetFallbackKeyRepositoryEncryptorPair();
