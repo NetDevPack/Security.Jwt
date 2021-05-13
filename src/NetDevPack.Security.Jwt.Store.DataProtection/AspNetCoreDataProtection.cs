@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.DataProtection.Repositories;
+﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.Extensions.Options;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 using NetDevPack.Security.JwtSigningCredentials.Model;
@@ -16,9 +18,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
     {
         private readonly IXmlRepository _xmlRepository;
         private const string Name = "NetDevPack.Security.Jwt";
-        public AspNetCoreDataProtection(IXmlRepository xmlRepository)
+        public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions)
         {
-            _xmlRepository = xmlRepository;
+            _xmlRepository = keyManagementOptions.Value.XmlRepository;
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
@@ -32,6 +34,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
+
             var allElements = _xmlRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)
@@ -58,12 +61,12 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public void Clear()
         {
-            throw new NotImplementedException();
+
         }
 
         public bool NeedsUpdate(JsonWebKeyType jsonWebKeyType)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public void Update(SecurityKeyWithPrivate securityKeyWithPrivate)
