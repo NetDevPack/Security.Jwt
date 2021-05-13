@@ -21,7 +21,8 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
         public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions, IKeyManager keyManager)
         {
             _keyManager = keyManager;
-            _keyManager.GetAllKeys();
+            // Force it to configure xml repository.
+            _keyManager.CreateNewKey(DateTimeOffset.Now, DateTimeOffset.Now.AddDays(30));
 
             _xmlRepository = keyManagementOptions;
         }
