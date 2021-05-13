@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.Options;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
@@ -16,11 +15,15 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 {
     public class AspNetCoreDataProtection : IJsonWebKeyStore
     {
-        private readonly IXmlRepository _xmlRepository;
+        private readonly IKeyManager _keyManager;
+        private readonly IOptions<KeyManagementOptions> _xmlRepository;
         private const string Name = "NetDevPack.Security.Jwt";
-        public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions)
+        public AspNetCoreDataProtection(IOptions<KeyManagementOptions> keyManagementOptions, IKeyManager keyManager)
         {
-            _xmlRepository = keyManagementOptions.Value.XmlRepository;
+            _keyManager = keyManager;
+            _keyManager.GetAllKeys();
+
+            _xmlRepository = keyManagementOptions;
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
@@ -29,13 +32,17 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
             var xmlSerializer = new XmlSerializer(typeof(SecurityKeyWithPrivate));
             xmlSerializer.Serialize(streamWriter, securityParamteres);
-            _xmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), Name);
+            _xmlRepository.Value.XmlRepository.StoreElement(XElement.Parse(Encoding.ASCII.GetString(memoryStream.ToArray())), Name);
         }
 
         public SecurityKeyWithPrivate GetCurrentKey(JsonWebKeyType jwkType)
         {
+            return GetKeys().FirstOrDefault(f => f.JwkType == jwkType);
+        }
 
-            var allElements = _xmlRepository.GetAllElements();
+        private IOrderedEnumerable<SecurityKeyWithPrivate> GetKeys()
+        {
+            var allElements = _xmlRepository.Value.XmlRepository.GetAllElements();
             var keys = new List<SecurityKeyWithPrivate>();
             foreach (var element in allElements)
             {
@@ -46,8 +53,9 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
                 }
             }
 
-            return keys.OrderByDescending(o => o.CreationDate).FirstOrDefault(f => f.JwkType == jwkType);
+            return keys.OrderByDescending(o => o.CreationDate);
         }
+
         private static T FromXElement<T>(XElement xElement)
         {
             var xmlSerializer = new XmlSerializer(typeof(T));
@@ -56,7 +64,7 @@ namespace NetDevPack.Security.Jwt.Store.DataProtection
 
         public IEnumerable<SecurityKeyWithPrivate> Get(JsonWebKeyType jwkType, int quantity = 5)
         {
-            throw new NotImplementedException();
+            return GetKeys().Where(w => w.JwkType == jwkType).Take(quantity);
         }
 
         public void Clear()
