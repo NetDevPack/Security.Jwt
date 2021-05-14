@@ -2,12 +2,15 @@
     <img alt="read before" src="docs/important.png" />
 </p>
 
-Are you creating Jwt like this?
-```c#
+## Are you creating Jwt like this?
+
+```csharp
 public static string GenerateToken(User user)
 {
+    
+---->   var key = Encoding.ASCII.GetBytes(Settings.Secret); <---- Using a stored key, Symetric encryption
+
     var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.ASCII.GetBytes(Settings.Secret);
     var tokenDescriptor = new SecurityTokenDescriptor
     {
         Subject = ... 
@@ -18,13 +21,15 @@ public static string GenerateToken(User user)
     var jwt = tokenHandler.WriteToken(token);
 }
 ```
-Let me tell you. You have a SECURITY problem.
+## Let me tell you: You have a SECURITY problem.
 
+------------------
+<br>
 
 ![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.JwtSigningCredentials)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml)
 
 
-The goal of this project is to help you. It generates token way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1).
+The goal of this project is to help your application security. It generates token way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1).
 
 Example:
 

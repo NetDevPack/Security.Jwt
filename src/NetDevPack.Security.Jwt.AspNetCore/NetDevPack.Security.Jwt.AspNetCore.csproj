@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetDevPack.Security.JwtSigningCredentials\NetDevPack.Security.JwtSigningCredentials.csproj" />
+    <ProjectReference Include="..\NetDevPack.Security.Jwt\NetDevPack.Security.Jwt.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
