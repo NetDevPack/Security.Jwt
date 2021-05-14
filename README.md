@@ -1,4 +1,4 @@
-<p style="text-align: center;">
+<p align="center">
     <img alt="read before" src="docs/important.png" />
 </p>
 
@@ -56,7 +56,7 @@ private string GenerateToken(User user)
     return tokenHandler.WriteToken(token);
 }
 ```
-<p style="text-align: center">
+<p align="center">
     <img width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
 </p>
 
