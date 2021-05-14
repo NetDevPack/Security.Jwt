@@ -1,24 +1,82 @@
-# Json Web Key Set Manager
-![Nuget](https://img.shields.io/nuget/v/Jwks.Manager)[![Master - Publish packages](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml)
+<p style="text-align: center;">
+    <img alt="read before" src="docs/important.png" />
+</p>
 
-<img align="right" width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
-The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
-The main goal of this component is to provide a centralized store and Key Rotation of your JWK. It also provide features to generate best practices JWK.
-It has a plugin for IdentityServer4, giving hability to rotating jwks_uri every 90 days and auto manage your jwks_uri.
+## Are you creating Jwt like this?
 
-If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it's a must have component. It work in the same way DataProtection Key of ASP.NET Core.
+```csharp
+public static string GenerateToken(User user)
+{
+    
+---->   var key = Encoding.ASCII.GetBytes(Settings.Secret); <---- Using a stored key, Symetric encryption
+
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = ... 
+        Expires = ... 
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+    };
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    var jwt = tokenHandler.WriteToken(token);
+}
+```
+## Let me tell you: You have a SECURITY problem.
+
+------------------
+<br>
+
+![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.JwtSigningCredentials)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml)
+
+
+The goal of this project is to help your application security. It generates token way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1).
+
+Example:
+
+```c#
+
+public AuthController(IJsonWebKeySetService jwksService)
+{
+    _jwksService = jwksService;
+}
+
+private string GenerateToken(User user)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
+
+    var key = _jwksService.GetCurrent(); // ECDsa auto generated key
+    var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+    {
+        Issuer = currentIssuer,
+        Subject = identityClaims,
+        Expires = DateTime.UtcNow.AddHours(1),
+        SigningCredentials = key
+    });
+    return tokenHandler.WriteToken(token);
+}
+```
+<p style="text-align: center">
+    <img width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
+</p>
 
 ## Table of Contents ##
 
-- [Json Web Key Set Manager](#json-web-key-set-manager)
-  - [Table of Contents](#table-of-contents)
-- [Store](#store)
+- [🛡️ What is](#️-what-is)
+- [ℹ️ Installing](#ℹ️-installing)
+- [❤️ Generating Tokens](#️-generating-tokens)
+- [✔️ Validating Token (Jws)](#️-validating-token-jws)
+- [⛅ Multiple API's - Use Jwks](#-multiple-apis---use-jwks)
+    - [Identity API (Who emits the token)](#identity-api-who-emits-the-token)
+  - [Client API](#client-api)
+- [💾 Store](#-store)
   - [Database](#database)
   - [File system](#file-system)
+- [Samples](#samples)
 - [Changing Algorithm](#changing-algorithm)
-- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwksuri-management)
-- [Signing JWT](#signing-jwt)
-  - [Token Validation](#token-validation)
+  - [Jws](#jws)
+  - [Jwe](#jwe)
+- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwks_uri-management)
 - [Why](#why)
   - [Load Balance scenarios](#load-balance-scenarios)
   - [Best practices](#best-practices)
@@ -26,36 +84,133 @@ If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it
 
 ------------------
 
-# What is
+# 🛡️ What is
+
+
+The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
+The main goal of this component is to provide a centralized store and Key Rotation of your JWK. It also provide features to generate best practices JWK.
+It has a plugin for IdentityServer4, giving hability to rotating jwks_uri every 90 days and auto manage your jwks_uri.
+
+If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it's a must have component. It work in the same way DataProtection Key of ASP.NET Core.
 
 This component generate, store and manage your JWK. It keep a centralized store to share between your instances. By default after a 3 months a new key will be generated. 
 
 You can expose the JWK through a JWKS endpoint and share it with your API's.
 
+# ℹ️ Installing
 
-# JWKS
+At your API install `NetDevPack.Security.Jwt`:
 
-Install `NetDevPack.Security.JwtSigningCredentials.AspNetCore` in your API who emit JWT Tokens. Change your Startup.cs:
+```bash
+dotnet add package NetDevPack.Security.Jwt
+```
 
-```csharp
+Or via the .NET Core command line interface:
+
+```
+    dotnet add package NetDevPack.Security.Jwt
+```
+
+Go to your `startup.cs` and change Configure:
+
+```c#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddControllers();
-        
-    
-    services.AddJwksManager(options => options.Algorithm = Algorithm.ES256)
-                .PersistKeysToDatabaseStore<ApplicationDbContext>();
+    services.AddJwksManager();
+}
+```
+
+# ❤️ Generating Tokens
+
+Usually we say Jwt. But in most cases we are trying to create a Jws.
+
+
+```c#
+public AuthController(IJsonWebKeySetService jwksService)
+{
+    _jwksService = jwksService;
 }
 
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+private string GenerateToken(User user)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
+
+    var key = _jwksService.GetCurrentSigningCredentials(); // ECDsa auto generated key
+    var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+    {
+        Issuer = currentIssuer,
+        Subject = identityClaims,
+        Expires = DateTime.UtcNow.AddHours(1),
+        SigningCredentials = key
+    });
+    return tokenHandler.WriteToken(token);
+}
+```
+
+# ✔️ Validating Token (Jws)
+
+Use the same service to get the current key and validate the token.
+
+```csharp
+
+public AuthController(IJsonWebKeySetService jwksService)
+{
+    _jwksService = jwksService;
+}
+
+private string ValidateToken(string jwt)
+{
+    var handler = new JsonWebTokenHandler();
+    var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
+
+    var result = handler.ValidateToken(jwt,
+        new TokenValidationParameters
+        {
+            ValidIssuer = currentIssuer,
+            SigningCredentials = _keyService.GetCurrentSigningCredentials()
+        });
+    
+    result.IsValid.Should().BeTrue();
+}
+```
+
+# ⛅ Multiple API's - Use Jwks
+
+In most cases we are using Jwt to share between our API's. To accomplish it you have an Identity API, who emits a token. At other side a API who consumes the token. Right? Peace of cake 🎂
+
+### Identity API (Who emits the token)
+Install `NetDevPack.Security.JwtSigningCredentials.AspNetCore` in your API that emit JWT Tokens. Change your Startup.cs:
+
+```csharp
+public void Configure(IApplicationBuilder app)
 {
     app.UseJwksDiscovery();
 }
 ```
+Generating the token:
 
-Look at [Signing JWT](#signing-jwt) to see how assign your JWT.
+```csharp
+ private string EncodeToken(ClaimsIdentity identityClaims)
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-In your Client API, which need to load JWK, install `NetDevPack.Security.JwtExtensions`. Then change you Startup.cs:
+    var key = _jwksService.GetCurrent();
+    var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+    {
+        Issuer = currentIssuer,
+        Subject = identityClaims,
+        Expires = DateTime.UtcNow.AddHours(1),
+        SigningCredentials = key
+    });
+    return tokenHandler.WriteToken(token);
+}
+```
+## Client API
+
+Then at your Client API, which need to load Jwt, install `NetDevPack.Security.JwtExtensions`. Then change your `Startup.cs`:
+
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -65,24 +220,49 @@ public void ConfigureServices(IServiceCollection services)
     services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x =>
     {
         x.RequireHttpsMetadata = true;
-        x.SaveToken = true;
+        x.SaveToken = true; // keep the public key at Cache for 10 min.
+        x.IncludeErrorDetails = true; // <- great for debugging
         x.SetJwksOptions(new JwkOptions("https://localhost:5001/jwks"));
     });
 }
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // ...
+    app.UseAuthentication();
+    app.UseAuthorization();
+    // ...
+}
+```
+The `Controller`:
+
+```csharp
+
+[Authorize]
+public class IdentityController : ControllerBase
+{
+    public IActionResult Get()
+    {
+        return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
+    }
+}
 ```
 
-# Store #
+Done 👌!
 
-The JWKS needs to be stored in a centralized place. There are several methods to accomplish that.
+# 💾 Store
 
+By default `NetDevPack.Security.Jwt` are stored in same place where ASP.NET Core store their Cryptographic Key Material. We use the [IXmlRepository](https://github.com/dotnet/aspnetcore/blob/d8906c8523f071371ce95d4e2d2fdfa89858047e/src/DataProtection/DataProtection/src/KeyManagement/XmlKeyManager.cs). 
+
+So every change you made at [DataProtection](https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/introduction?view=aspnetcore-5.0) it will apply
+
+You can override the default behavior by adding another provider and control it under your needs.
 
 ## Database
 
-The [Jwks.Manager.Store.EntityFrameworkCore](https://www.nuget.org/packages/Jwks.Manager.Store.EntityFrameworkCore) package provides a mechanism for storing JsonWebKeys to a database using Entity Framework Core. The `Jwks.Manager.Store.EntityFrameworkCore` NuGet package must be added to the project file.
+The `NetDevPack.Security.Jwt` package provides a mechanism for storing yor Keys to a database using EntityFramework Core. 
 
-With this package, keys can be shared across multiple instances of a web app.
-
-First install 
+Install
 ```
     Install-Package Jwks.Manager.Store.EntityFrameworkCore
 ``` 
@@ -93,53 +273,44 @@ Or via the .NET Core command line interface:
     dotnet add package Jwks.Manager.Store.EntityFrameworkCore
 ```
 
-Change your Startup.cs
+Add `ISecurityKeyContext` to your DbContext:
 
 ``` c#
-public void ConfigureServices(IServiceCollection services)
+class MyKeysContext : DbContext, ISecurityKeyContext
 {
-    services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(
-            Configuration.GetConnectionString("DefaultConnection")));
+    public MyKeysContext(DbContextOptions<MyKeysContext> options) : base(options) { }
 
-    // Add a DbContext to store your Database Keys
-    services.AddDbContext<MyKeysContext>(options =>
-        options.UseSqlServer(
-            Configuration.GetConnectionString("MyKeysConnection")));
-
-    // using Jwks.Manager.Store.EntityFrameworkCore;
-    services.AddJwksManager().PersistKeysToDatabaseStore<MyKeysContext>();
-
+    // This maps to the table that stores keys.
+    public DbSet<SecurityKeyWithPrivate> DataProtectionKeys { get; set; }
 }
 ```
-The generic parameter, TContext, must inherit from DbContext and implement `ISecurityKeyContext`:
 
-``` c#
-using Jwks.Manager.Store.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using WebApp1.Data;
-
-namespace WebApp1
+Then change your confinguration at `Startup.cs`
+```csharp
+public void ConfigureServices(IServiceCollection services)
 {
-    class MyKeysContext : DbContext, ISecurityKeyContext
-    {
-        // A recommended constructor overload when using EF Core 
-        // with dependency injection.
-        public MyKeysContext(DbContextOptions<MyKeysContext> options) 
-            : base(options) { }
-
-        // This maps to the table that stores keys.
-        public DbSet<SecurityKeyWithPrivate> DataProtectionKeys { get; set; }
-    }
+    services.AddJwksManager().PersistKeysToDatabaseStore<MyKeysContext>();
 }
 ```
 
 Done! 
 
-
 ## File system
 
-To configure a file system-based key repository, call the PersistKeysToFileSystem configuration routine as shown below. Provide a DirectoryInfo pointing to the repository where keys should be stored:
+The `NetDevPack.Security.Jwt` package provides a mechanism for storing yor Keys to filesystem. 
+
+Install
+```
+    Install-Package Jwks.Manager.Store.FileSystem
+``` 
+
+Or via the .NET Core command line interface:
+
+```
+    dotnet add package Jwks.Manager.Store.FileSystem
+```
+
+Now change your `startup.cs`
 
 ``` c#
 public void ConfigureServices(IServiceCollection services)
@@ -148,6 +319,10 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+# Samples
+
+There are few demos [here](samples/Server.AsymmetricKey)
+
 # Changing Algorithm
 
 It's possible to change default Algorithm at configuration routine.
@@ -155,26 +330,54 @@ It's possible to change default Algorithm at configuration routine.
 ``` c#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddJwksManager(o => o.Algorithm = Algorithm.RS384).PersistKeysToFileSystem(new DirectoryInfo(@"c:\temp-keys\"));
+    services.AddJwksManager(o =>
+    {
+        o.Jws = JwsAlgorithm.ES256;
+        o.Jwe = JweAlgorithm.RsaOAEP.WithEncryption(Encryption.Aes128CbcHmacSha256);
+    });
 }
 ```
 
-The Algorithm object has a list of possibilities:
+The Algorithm object has a list of possibilities.
 
-|Shortname|Name|
-|---------|-----|
-|HS256| Hmac Sha256|
-|HS384| Hmac Sha384|
-|HS512| Hmac Sha512|
-|RS256| Rsa Sha256|
-|RS384| Rsa Sha384|
-|RS512| Rsa Sha512|
-|PS256| Rsa SsaPss Sha256|
-|PS384| Rsa SsaPss Sha384|
-|PS512| Rsa SsaPss Sha512|
-|ES256| Ecdsa Sha256|
-|ES384| Ecdsa Sha384|
-|ES512| Ecdsa Sha512|
+## Jws
+
+Algorithms:
+
+| Shortname | Name              |
+| --------- | ----------------- |
+| HS256     | Hmac Sha256       |
+| HS384     | Hmac Sha384       |
+| HS512     | Hmac Sha512       |
+| RS256     | Rsa Sha256        |
+| RS384     | Rsa Sha384        |
+| RS512     | Rsa Sha512        |
+| PS256     | Rsa SsaPss Sha256 |
+| PS384     | Rsa SsaPss Sha384 |
+| PS512     | Rsa SsaPss Sha512 |
+| ES256     | Ecdsa Sha256      |
+| ES384     | Ecdsa Sha384      |
+| ES512     | Ecdsa Sha512      |
+
+## Jwe
+
+Algorithms options:
+
+| Shortname | Key Management Algorithm |
+| --------- | ------------------------ |
+| RSA1_5    | RSA1_5                   |
+| RsaOAEP   | RSAES OAEP using         |
+| A128KW    | A128KW                   |
+| A256KW    | A256KW                   |
+
+Encryption options
+
+| Shortname           | Content Encryption Algorithm |
+| ------------------- | ---------------------------- |
+| Aes128CbcHmacSha256 | A128CBC-HS256                |
+| Aes192CbcHmacSha384 | A192CBC-HS384                |
+| Aes256CbcHmacSha512 | A256CBC-HS512                |
+
 
 # IdentityServer4 - Auto jwks_uri Management
 
@@ -183,13 +386,13 @@ If you have an IdentityServer4 OAuth 2.0 Server, you can use this component plug
 
 First install 
 ```
-    Install-Package Jwks.Manager.IdentityServer4
+    Install-Package NetDevPack.Security.JwtSigningCredentials.IdentityServer4
 ``` 
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package Jwks.Manager.IdentityServer4
+    dotnet add package NetDevPack.Security.JwtSigningCredentials.IdentityServer4
 ```
 
 Go to Startup.cs
@@ -202,83 +405,11 @@ Go to Startup.cs
             .AddInMemoryApiResources(Config.GetApis())
             .AddInMemoryClients(Config.GetClients());
 
-        services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysToFileSystem(new DirectoryInfo(_env.WebRootPath));
+        services.AddJwksManager().IdentityServer4AutoJwksManager();
     }
 ```
 
 If you wanna use Database, follow instructions to DatabaseStore instead.
-
-# Signing JWT
-
-To signing a JWT Token do as follow.
-
-First inject:
-
-``` c#
-    public class AccessManager
-    {
-        private readonly IJsonWebKeySetService _jwksService;
-
-        public AccessManager(IJsonWebKeySetService jwksService)
-        {
-            _jwksService = jwksService;
-        }
-    }
-```
-
-Then, after a successfull login, create a routine to generate token.
-
-``` c#
-    public Token GenerateToken(User user)
-    {
-        ClaimsIdentity identity = new ClaimsIdentity(
-            new GenericIdentity(user.UserID, "Login"),
-            new[] {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserID)
-            }
-        );
-
-        var now = DateTime.Now;
-
-        var handler = new JsonWebTokenHandler();
-        var descriptor = new SecurityTokenDescriptor
-        {
-            Issuer = "me",
-            Audience = "you",
-            SigningCredentials = _jwksService.GetCurrent(),
-            Subject = identity,
-            NotBefore = now,
-            Expires = now.AddHours(1)
-        };
-
-        var jwt = handler.CreateToken(descriptor);
-
-        return new Token()
-        {
-            Authenticated = true,
-            Created = now.ToString("yyyy-MM-dd HH:mm:ss"),
-            Expiration = now.AddHours(1).ToString("yyyy-MM-dd HH:mm:ss"),
-            AccessToken = jwt,
-            Message = "OK"
-        };
-    }
-```
-
-## Token Validation
-
-To validate a token it's as simple as that:
-
-``` c#
-    var result = handler.ValidateToken(jwt,
-            new TokenValidationParameters
-            {
-                ValidIssuer = "me",
-                ValidAudience = "you",
-                IssuerSigningKey = _jwksService.GetCurrent(options).Key
-            });
-```
-
 
 # Why
 

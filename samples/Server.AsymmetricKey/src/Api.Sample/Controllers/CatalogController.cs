@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Api.Sample.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,15 @@ namespace Api.Sample.Controllers
             }
 
             return products;
+        }
+
+        [Authorize]
+        public class IdentityController : ControllerBase
+        {
+            public IActionResult Get()
+            {
+                return new JsonResult(from c in User.Claims select new { c.Type, c.Value });
+            }
         }
     }
 }
