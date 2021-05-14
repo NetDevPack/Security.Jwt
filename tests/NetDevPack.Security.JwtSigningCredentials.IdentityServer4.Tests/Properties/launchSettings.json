@@ -18,6 +18,7 @@
     "NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests": {
       "commandName": "Project",
       "launchBrowser": true,
+      "launchUrl": ".well-known/openid-configuration/jwks",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

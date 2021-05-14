@@ -1,9 +1,10 @@
 ﻿using NetDevPack.Security.JwtSigningCredentials;
+using NetDevPack.Security.JwtSigningCredentials.DefaultStore;
+using NetDevPack.Security.JwtSigningCredentials.DefaultStore.Memory;
 using NetDevPack.Security.JwtSigningCredentials.Interfaces;
 using NetDevPack.Security.JwtSigningCredentials.Jwk;
 using NetDevPack.Security.JwtSigningCredentials.Jwks;
 using System;
-using NetDevPack.Security.JwtSigningCredentials.DefaultStore.Memory;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -18,9 +19,10 @@ namespace Microsoft.Extensions.DependencyInjection
             if (action != null)
                 services.Configure(action);
 
+            services.AddDataProtection();
             services.AddScoped<IJsonWebKeyService, JwkService>();
             services.AddScoped<IJsonWebKeySetService, JwksService>();
-            services.AddSingleton<IJsonWebKeyStore, InMemoryStore>();
+            services.AddSingleton<IJsonWebKeyStore, DataProtectionStore>();
 
             return new JwksBuilder(services);
         }

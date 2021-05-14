@@ -1,20 +1,20 @@
 ﻿using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Discovery;
+using NetDevPack.Security.JwtSigningCredentials.Tests.Infra;
+using NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Is4;
 using Newtonsoft.Json;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
 {
-    public class ServiceDiscoveryTests
+    public class Is4Tests
     {
-        public Server Server { get; set; }
-        public ServiceDiscoveryTests()
+        public ServerBase Server { get; set; }
+        public Is4Tests()
         {
-            this.Server = new Server();
+            this.Server = new ServerIs4();
         }
 
         [Fact]
@@ -47,14 +47,6 @@ namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
             keys.Keys.Should().NotContainNulls();
         }
 
-
-        [Fact]
-        public void ShouldThrowErrorWhenAppDoesntUseMemoryCache()
-        {
-
-            var ex = Assert.Throws<InvalidOperationException>(() => Server.CreateClient(false));
-            ex.Message.Should().Be("Service Discovery relies on IMemoryCache. Add services.AddMemoryCache() in your application");
-        }
 
 
         [Fact]

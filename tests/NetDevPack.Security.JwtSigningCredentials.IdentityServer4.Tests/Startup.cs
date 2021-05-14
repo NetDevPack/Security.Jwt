@@ -29,18 +29,14 @@ namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.AllowInputFormatterExceptionMessages = true;
             }); ;
-            //services.AddEntityFrameworkInMemoryDatabase();
-            //foreach (var file in Directory.GetFiles(_env.ContentRootPath, "*.key"))
-            //{
-            //    File.Delete(file);
-            //}
+
             services.AddMemoryCache();
             var builder = services.AddIdentityServer()
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
-            services.AddJwksManager().IdentityServer4AutoJwksManager().PersistKeysInMemory();
+            services.AddJwksManager().IdentityServer4AutoJwksManager();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
