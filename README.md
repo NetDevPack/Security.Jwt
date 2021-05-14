@@ -13,7 +13,7 @@
 ------------------
 <br>
 
-![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.JwtSigningCredentials)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.JwtSigningCredentials/actions/workflows/publish-package.yml)
+![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml)
 
 
 The goal of this project is to help your application security. It generates token way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1).
@@ -167,7 +167,7 @@ private string ValidateToken(string jwt)
 In most cases we are using Jwt to share between our API's. To accomplish it you have an Identity API, who emits a token. At other side a API who consumes the token. Right? Peace of cake 🎂
 
 ### Identity API (Who emits the token)
-Install `NetDevPack.Security.JwtSigningCredentials.AspNetCore` in your API that emit JWT Tokens. Change your Startup.cs:
+Install `NetDevPack.Security.Jwt.AspNetCore` in your API that emit JWT Tokens. Change your Startup.cs:
 
 ```csharp
 public void Configure(IApplicationBuilder app)
@@ -373,13 +373,13 @@ If you have an IdentityServer4 OAuth 2.0 Server, you can use this component plug
 
 First install 
 ```
-    Install-Package NetDevPack.Security.JwtSigningCredentials.IdentityServer4
+    Install-Package NetDevPack.Security.Jwt.IdentityServer4
 ``` 
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package NetDevPack.Security.JwtSigningCredentials.IdentityServer4
+    dotnet add package NetDevPack.Security.Jwt.IdentityServer4
 ```
 
 Go to Startup.cs
