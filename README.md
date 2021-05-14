@@ -3,24 +3,11 @@
 </p>
 
 ## Are you creating Jwt like this?
+<p align="center">
+    <img alt="read before" src="docs/code.png" />
+</p>
 
-```csharp
-public static string GenerateToken(User user)
-{
-    
----->   var key = Encoding.ASCII.GetBytes(Settings.Secret); <---- Using a stored key, Symetric encryption
 
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = ... 
-        Expires = ... 
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    var jwt = tokenHandler.WriteToken(token);
-}
-```
 ## Let me tell you: You have a SECURITY problem.
 
 ------------------
