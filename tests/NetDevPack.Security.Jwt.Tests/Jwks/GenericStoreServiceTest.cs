@@ -1,18 +1,18 @@
-﻿using Bogus;
+﻿using System;
+using System.Linq;
+using System.Security.Claims;
+using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Jwk;
-using NetDevPack.Security.JwtSigningCredentials.Model;
-using NetDevPack.Security.JwtSigningCredentials.Tests.Warmups;
-using System;
-using System.Linq;
-using System.Security.Claims;
+using NetDevPack.Security.Jwt.Interfaces;
+using NetDevPack.Security.Jwt.Jwk;
+using NetDevPack.Security.Jwt.Model;
+using NetDevPack.Security.Jwt.Tests.Warmups;
 using Xunit;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
+namespace NetDevPack.Security.Jwt.Tests.Jwks
 {
     public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         where TWarmup : class, IWarmupTest

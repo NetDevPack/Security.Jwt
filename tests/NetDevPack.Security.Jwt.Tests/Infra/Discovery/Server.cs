@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using NetDevPack.Security.JwtSigningCredentials.AspNetCore;
-using NetDevPack.Security.JwtSigningCredentials.DefaultStore;
-using System;
-using System.IO;
-using System.Net.Http;
+using NetDevPack.Security.Jwt.AspNetCore;
+using NetDevPack.Security.Jwt.DefaultStore;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Discovery
+namespace NetDevPack.Security.Jwt.Tests.Infra.Discovery
 {
     public class Server : ServerBase
     {

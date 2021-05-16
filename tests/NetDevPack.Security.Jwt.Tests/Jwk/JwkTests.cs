@@ -1,14 +1,14 @@
-﻿using Bogus;
+﻿using System;
+using System.Security.Claims;
+using Bogus;
 using FluentAssertions;
-using NetDevPack.Security.JwtSigningCredentials.Jwk;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Security.Claims;
+using NetDevPack.Security.Jwt.Jwk;
 using Xunit;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwk
+namespace NetDevPack.Security.Jwt.Tests.Jwk
 {
     public class JwkTests
     {

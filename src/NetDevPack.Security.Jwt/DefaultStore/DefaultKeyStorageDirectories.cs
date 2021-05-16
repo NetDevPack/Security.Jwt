@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace NetDevPack.Security.JwtSigningCredentials.DefaultStore
+namespace NetDevPack.Security.Jwt.DefaultStore
 {
     /// <summary>
     /// https://github.com/dotnet/aspnetcore/blob/d8906c8523f071371ce95d4e2d2fdfa89858047e/src/DataProtection/DataProtection/src/KeyManagement/XmlKeyManager.cs#L105

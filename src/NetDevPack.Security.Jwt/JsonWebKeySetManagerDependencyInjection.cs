@@ -1,12 +1,12 @@
-﻿using NetDevPack.Security.JwtSigningCredentials;
-using NetDevPack.Security.JwtSigningCredentials.DefaultStore;
-using NetDevPack.Security.JwtSigningCredentials.DefaultStore.Memory;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Jwk;
-using NetDevPack.Security.JwtSigningCredentials.Jwks;
-using System;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using NetDevPack.Security.Jwt.DefaultStore;
+using NetDevPack.Security.Jwt.DefaultStore.Memory;
+using NetDevPack.Security.Jwt.Interfaces;
+using NetDevPack.Security.Jwt.Jwk;
+using NetDevPack.Security.Jwt.Jwks;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace NetDevPack.Security.Jwt
 {
     public static class JsonWebKeySetManagerDependencyInjection
     {

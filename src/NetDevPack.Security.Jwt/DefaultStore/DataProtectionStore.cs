@@ -12,11 +12,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Jwks;
-using NetDevPack.Security.JwtSigningCredentials.Model;
+using NetDevPack.Security.Jwt.Interfaces;
+using NetDevPack.Security.Jwt.Jwks;
+using NetDevPack.Security.Jwt.Model;
 
-namespace NetDevPack.Security.JwtSigningCredentials.DefaultStore
+namespace NetDevPack.Security.Jwt.DefaultStore
 {
     public class DataProtectionStore : IJsonWebKeyStore
     {

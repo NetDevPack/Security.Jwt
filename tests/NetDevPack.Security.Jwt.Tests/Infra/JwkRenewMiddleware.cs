@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Model;
-using System.Threading.Tasks;
+using NetDevPack.Security.Jwt.Interfaces;
+using NetDevPack.Security.Jwt.Model;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra
+namespace NetDevPack.Security.Jwt.Tests.Infra
 {
     public class JwkRenewMiddleware
     {

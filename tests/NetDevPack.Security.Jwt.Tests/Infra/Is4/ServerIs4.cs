@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.IO;
+using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests;
-using System;
-using System.IO;
-using System.Net.Http;
+using NetDevPack.Security.Jwt.IdentityServer4;
+using NetDevPack.Security.Jwt.IdentityServer4.Tests;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Is4
+namespace NetDevPack.Security.Jwt.Tests.Infra.Is4
 {
     public class ServerIs4 : ServerBase
     {

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
+namespace NetDevPack.Security.Jwt.IdentityServer4.Tests
 {
     public class Program
     {

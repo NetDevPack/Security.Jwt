@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using Microsoft.AspNetCore.TestHost;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Infra
+namespace NetDevPack.Security.Jwt.Tests.Infra
 {
     public abstract class ServerBase
     {

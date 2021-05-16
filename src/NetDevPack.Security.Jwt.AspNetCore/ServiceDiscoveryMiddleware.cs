@@ -1,13 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using NetDevPack.Security.JwtSigningCredentials.Interfaces;
-using NetDevPack.Security.JwtSigningCredentials.Model;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace NetDevPack.Security.JwtSigningCredentials.AspNetCore
+namespace NetDevPack.Security.Jwt.AspNetCore
 {
     public class ServiceDiscoveryMiddleware
     {

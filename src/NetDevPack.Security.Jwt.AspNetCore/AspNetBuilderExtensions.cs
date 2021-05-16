@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
-namespace NetDevPack.Security.JwtSigningCredentials.AspNetCore
+namespace NetDevPack.Security.Jwt.AspNetCore
 {
     public static class AspNetBuilderExtensions
     {

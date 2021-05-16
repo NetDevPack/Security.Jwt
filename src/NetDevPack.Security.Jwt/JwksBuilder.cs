@@ -1,6 +1,8 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using NetDevPack.Security.Jwt.Interfaces;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace NetDevPack.Security.Jwt
 {
     public class JwksBuilder : IJwksBuilder
     {

@@ -1,13 +1,13 @@
-﻿using FluentAssertions;
-using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtSigningCredentials.Tests.Infra;
-using NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Is4;
-using Newtonsoft.Json;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.IdentityModel.Tokens;
+using NetDevPack.Security.Jwt.Tests.Infra;
+using NetDevPack.Security.Jwt.Tests.Infra.Is4;
+using Newtonsoft.Json;
 using Xunit;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
+namespace NetDevPack.Security.Jwt.Tests.Jwks
 {
     public class Is4Tests
     {

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NetDevPack.Security.JwtSigningCredentials.AspNetCore;
+using NetDevPack.Security.Jwt.AspNetCore;
 using Newtonsoft.Json;
 
-namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
+namespace NetDevPack.Security.Jwt.IdentityServer4.Tests
 {
     public class Startup
     {

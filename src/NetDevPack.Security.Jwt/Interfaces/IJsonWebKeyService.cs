@@ -1,6 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Interfaces
+namespace NetDevPack.Security.Jwt.Interfaces
 {
     public interface IJsonWebKeyService
     {

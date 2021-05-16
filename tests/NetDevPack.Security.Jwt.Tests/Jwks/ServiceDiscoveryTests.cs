@@ -1,13 +1,13 @@
-﻿using FluentAssertions;
-using Microsoft.IdentityModel.Tokens;
-using NetDevPack.Security.JwtSigningCredentials.Tests.Infra.Discovery;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FluentAssertions;
+using Microsoft.IdentityModel.Tokens;
+using NetDevPack.Security.Jwt.Tests.Infra.Discovery;
+using Newtonsoft.Json;
 using Xunit;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Tests.Jwks
+namespace NetDevPack.Security.Jwt.Tests.Jwks
 {
     public class ServiceDiscoveryTests
     {

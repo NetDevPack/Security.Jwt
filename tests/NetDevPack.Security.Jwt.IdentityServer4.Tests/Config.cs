@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
 
-namespace NetDevPack.Security.JwtSigningCredentials.IdentityServer4.Tests
+namespace NetDevPack.Security.Jwt.IdentityServer4.Tests
 {
     public static class Config
     {

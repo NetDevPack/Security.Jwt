@@ -1,8 +1,8 @@
-﻿using NetDevPack.Security.JwtSigningCredentials.Interfaces;
+﻿using System;
 using Microsoft.IdentityModel.Tokens;
-using System;
+using NetDevPack.Security.Jwt.Interfaces;
 
-namespace NetDevPack.Security.JwtSigningCredentials.Jwk
+namespace NetDevPack.Security.Jwt.Jwk
 {
     public class JwkService : IJsonWebKeyService
     {
