@@ -1,8 +1,10 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using NetDevPack.Security.Jwt.Interfaces;
+using NetDevPack.Security.Jwt.Model;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace NetDevPack.Security.Jwt.AspNetCore
 {
@@ -15,7 +17,7 @@ namespace NetDevPack.Security.Jwt.AspNetCore
             _next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext, IJsonWebKeySetService keyService, IOptions<JwksOptions> options, IMemoryCache memoryCache)
+        public async Task Invoke(HttpContext httpContext, IJsonWebKeySetService keyService, IOptions<JwksOptions> options)
         {
             var keys = new
             {

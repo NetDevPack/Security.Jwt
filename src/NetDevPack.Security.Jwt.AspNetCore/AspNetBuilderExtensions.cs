@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace NetDevPack.Security.Jwt.AspNetCore
 {
@@ -15,8 +13,6 @@ namespace NetDevPack.Security.Jwt.AspNetCore
             app.Map(new PathString(jwksUri), x =>
                 x.UseMiddleware<ServiceDiscoveryMiddleware>());
 
-            if (app.ApplicationServices.GetService<IMemoryCache>() == null)
-                throw new InvalidOperationException("Service Discovery relies on IMemoryCache. Add services.AddMemoryCache() in your application");
             return app;
         }
     }
