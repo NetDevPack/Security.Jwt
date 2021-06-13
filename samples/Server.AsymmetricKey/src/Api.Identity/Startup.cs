@@ -35,7 +35,7 @@ namespace Api.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddJwksManager(options => options.Algorithm = Algorithm.ES256)
+            services.AddJwksManager(options => options.Jws = JwsAlgorithm.ES256)
                 .PersistKeysToDatabaseStore<ApplicationDbContext>();
 
             #region Identity

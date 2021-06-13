@@ -101,7 +101,9 @@ namespace Api.Identity.Controllers
             var tokenHandler = new JwtSecurityTokenHandler();
             var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-            var key = _jwksService.GetCurrent();
+            var key = _jwksService.GetCurrentSigningCredentials();
+            key = _jwksService.GetCurrentSigningCredentials();
+            key = _jwksService.GetCurrentSigningCredentials();
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
                 Issuer = currentIssuer,

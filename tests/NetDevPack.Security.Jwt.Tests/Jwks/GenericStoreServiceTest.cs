@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Security.Claims;
-using Bogus;
+﻿using Bogus;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -10,6 +7,9 @@ using NetDevPack.Security.Jwt.Interfaces;
 using NetDevPack.Security.Jwt.Jwk;
 using NetDevPack.Security.Jwt.Model;
 using NetDevPack.Security.Jwt.Tests.Warmups;
+using System;
+using System.Linq;
+using System.Security.Claims;
 using Xunit;
 
 namespace NetDevPack.Security.Jwt.Tests.Jwks
@@ -35,6 +35,24 @@ namespace NetDevPack.Security.Jwt.Tests.Jwks
             _keyService.GetCurrentSigningCredentials();
 
             _keyService.GetLastKeysCredentials(JsonWebKeyType.Jws, 5).Count.Should().BePositive();
+        }
+
+
+
+        [Fact]
+        public void ShouldNotThrowExceptionWhenGetSignManyTimes()
+        {
+            var currentA = _keyService.GetCurrentSigningCredentials();
+            var currentB = _keyService.GetCurrentSigningCredentials();
+            var currentCg = _keyService.GetCurrentSigningCredentials();
+
+            var token = new SecurityTokenDescriptor()
+            {
+                Issuer = "test.jwt",
+                Subject = new ClaimsIdentity(),
+                Expires = DateTime.UtcNow.AddMinutes(3),
+                SigningCredentials = _keyService.GetCurrentSigningCredentials()
+            };
         }
 
         [Theory]
