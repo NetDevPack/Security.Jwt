@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,6 +8,13 @@ using Microsoft.Win32;
 using NetDevPack.Security.Jwt.Interfaces;
 using NetDevPack.Security.Jwt.Jwks;
 using NetDevPack.Security.Jwt.Model;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Xml.Linq;
 
 namespace NetDevPack.Security.Jwt.DefaultStore
 {
@@ -41,6 +41,7 @@ namespace NetDevPack.Security.Jwt.DefaultStore
         private IXmlRepository KeyRepository { get; set; }
 
         private const string Name = "NetDevPackSecurityJwt";
+
         public DataProtectionStore(
             ILoggerFactory loggerFactory,
             IOptions<JwksOptions> options,
@@ -115,6 +116,12 @@ namespace NetDevPack.Security.Jwt.DefaultStore
                 if (element.Name == Name)
                 {
                     var descriptorElement = element.Element(DescriptorElementName);
+                    var expecteddescriptorType = typeof(SecurityKeyWithPrivate).FullName;
+                    var descriptorType = descriptorElement.Attribute(DeserializerTypeAttributeName);
+
+                    if (descriptorType == null || !descriptorType.Value.Contains(expecteddescriptorType))
+                        continue;
+
                     // Decrypt the descriptor element and pass it to the descriptor for consumption
                     var unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
                     var key = JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer);
