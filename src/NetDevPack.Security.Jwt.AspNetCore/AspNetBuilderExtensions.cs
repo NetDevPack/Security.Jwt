@@ -16,8 +16,7 @@ namespace NetDevPack.Security.Jwt.AspNetCore
 
             app.Map(new PathString(jweDiscoveryEndpoint), x =>
                 x.UseMiddleware<JweServiceDiscoveryMiddleware>());
-
-
+            
             return app;
         }
     }

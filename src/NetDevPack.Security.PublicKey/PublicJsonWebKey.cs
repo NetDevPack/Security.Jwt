@@ -6,15 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 namespace NetDevPack.Security.PublicKey
 {
     /// <summary>
-    /// Helper class to get jwks
-    /// </summary>
-    public class JsonWebKeySet
-    {
-        [JsonPropertyName("keys")]
-        public IEnumerable<PublicJsonWebKey> Keys { get; set; }
-    }
-
-    /// <summary>
     /// It represent a public JWK to expose at JWKS endpoint
     /// </summary>
     public class PublicJsonWebKey

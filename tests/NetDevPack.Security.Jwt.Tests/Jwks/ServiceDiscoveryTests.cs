@@ -46,16 +46,7 @@ namespace NetDevPack.Security.Jwt.Tests.Jwks
             keys.Keys.Should().NotBeEmpty();
             keys.Keys.Should().NotContainNulls();
         }
-
-
-        [Fact]
-        public void ShouldThrowErrorWhenAppDoesntUseMemoryCache()
-        {
-
-            var ex = Assert.Throws<InvalidOperationException>(() => Server.CreateClient(false));
-            ex.Message.Should().Be("Service Discovery relies on IMemoryCache. Add services.AddMemoryCache() in your application");
-        }
-
+        
 
         [Fact]
         public async Task ShouldUpdateCacheAfterKeyRotation()
