@@ -39,6 +39,7 @@ namespace NetDevPack.Security.Jwt.Jwk
         private JsonWebKey GenerateAES(Algorithm jwsAlgorithms)
         {
             var key = CryptoService.CreateAESSecurityKey(jwsAlgorithms);
+
             var jwk = JsonWebKeyConverter.ConvertFromSymmetricSecurityKey(new SymmetricSecurityKey(key.Key));
             jwk.KeyId = CryptoService.CreateUniqueId();
             return jwk;
