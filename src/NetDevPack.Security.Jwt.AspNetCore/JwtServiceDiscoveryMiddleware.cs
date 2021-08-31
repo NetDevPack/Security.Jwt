@@ -5,14 +5,15 @@ using NetDevPack.Security.Jwt.Model;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using NetDevPack.Security.PublicKey;
 
 namespace NetDevPack.Security.Jwt.AspNetCore
 {
-    public class ServiceDiscoveryMiddleware
+    public class JwtServiceDiscoveryMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public ServiceDiscoveryMiddleware(RequestDelegate next)
+        public JwtServiceDiscoveryMiddleware(RequestDelegate next)
         {
             _next = next;
         }

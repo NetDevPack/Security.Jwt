@@ -121,9 +121,16 @@ namespace NetDevPack.Security.Jwt.DefaultStore
 
                     if (descriptorType == null || !descriptorType.Value.Contains(expecteddescriptorType))
                         continue;
-
+                    string unencryptedInputToDeserializer = null;
                     // Decrypt the descriptor element and pass it to the descriptor for consumption
-                    var unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
+                    try
+                    {
+                        unencryptedInputToDeserializer = _dataProtector.Unprotect(descriptorElement.Value);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
                     var key = JsonSerializer.Deserialize<SecurityKeyWithPrivate>(unencryptedInputToDeserializer);
                     // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
                     if (key.IsExpired(_options.Value.DaysUntilExpire))
@@ -151,7 +158,8 @@ namespace NetDevPack.Security.Jwt.DefaultStore
 
         public IReadOnlyCollection<SecurityKeyWithPrivate> Get(JsonWebKeyType jsonWebKeyType, int quantity = 5)
         {
-            if (!_memoryCache.TryGetValue(JwkContants.JwksCache, out IReadOnlyCollection<SecurityKeyWithPrivate> keys))
+
+            if (!_memoryCache.TryGetValue(JwkContants.JwksCache(jsonWebKeyType), out IReadOnlyCollection<SecurityKeyWithPrivate> keys))
             {
                 keys = GetKeys();
 
@@ -161,7 +169,7 @@ namespace NetDevPack.Security.Jwt.DefaultStore
                     .SetSlidingExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
-                    _memoryCache.Set(JwkContants.JwksCache, keys, cacheEntryOptions);
+                    _memoryCache.Set(JwkContants.JwksCache(jsonWebKeyType), keys, cacheEntryOptions);
             }
 
             return keys
@@ -212,7 +220,8 @@ namespace NetDevPack.Security.Jwt.DefaultStore
 
         private void ClearCache()
         {
-            _memoryCache.Remove(JwkContants.JwksCache);
+            _memoryCache.Remove(JwkContants.JwksCache(JsonWebKeyType.Jwe));
+            _memoryCache.Remove(JwkContants.JwksCache(JsonWebKeyType.Jws));
             _memoryCache.Remove(JwkContants.CurrentJwkCache(JsonWebKeyType.Jwe));
             _memoryCache.Remove(JwkContants.CurrentJwkCache(JsonWebKeyType.Jws));
         }
