@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using NetDevPack.Security.Jwt.Interfaces;
 using NetDevPack.Security.Jwt.Model;
-using NetDevPack.Security.PublicKey;
 
 namespace NetDevPack.Security.Jwt.AspNetCore
 {
