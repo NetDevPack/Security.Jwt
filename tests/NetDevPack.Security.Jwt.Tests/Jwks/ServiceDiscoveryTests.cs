@@ -18,11 +18,23 @@ namespace NetDevPack.Security.Jwt.Tests.Jwks
         }
 
         [Fact]
-        public async Task ShouldGetJwks()
+        public async Task ShouldGetJwksForJws()
         {
 
             var client = Server.CreateClient();
             var request = new HttpRequestMessage(HttpMethod.Get, Server.JwkEndpoint);
+
+            var response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        [Fact]
+        public async Task ShouldGetJwksForJwe()
+        {
+
+            var client = Server.CreateClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, Server.JwkEncryptionEndpoint);
 
             var response = await client.SendAsync(request);
 

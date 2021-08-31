@@ -15,6 +15,7 @@ namespace NetDevPack.Security.Jwt.Tests.Infra.Discovery
     {
         private DirectoryInfo _keysRepository;
         public override string JwkEndpoint { get; set; } = "http://localhost/jwks";
+        public override string JwkEncryptionEndpoint { get; set; } = "http://localhost/jwks_e";
 
         public override TestServer CreateServer(bool useCache = true)
         {

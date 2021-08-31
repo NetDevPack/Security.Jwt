@@ -16,6 +16,7 @@ namespace NetDevPack.Security.Jwt.Tests.Infra.Is4
     {
         private DirectoryInfo _keysRepository;
         public override string JwkEndpoint { get; set; } = "http://localhost:6001/.well-known/openid-configuration/jwks";
+        public override string JwkEncryptionEndpoint { get; set; }
 
         public override TestServer CreateServer(bool useCache = true)
         {
