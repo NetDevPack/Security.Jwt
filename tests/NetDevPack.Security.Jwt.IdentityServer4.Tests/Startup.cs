@@ -36,6 +36,7 @@ namespace NetDevPack.Security.Jwt.IdentityServer4.Tests
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients());
 
+
             services.AddJwksManager().IdentityServer4AutoJwksManager();
         }
 

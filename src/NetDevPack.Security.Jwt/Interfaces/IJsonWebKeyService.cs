@@ -4,6 +4,6 @@ namespace NetDevPack.Security.Jwt.Interfaces
 {
     public interface IJsonWebKeyService
     {
-        JsonWebKey Generate(Algorithm jwsAlgorithm);
+        JsonWebKey Generate(Algorithm algorithm);
     }
 }

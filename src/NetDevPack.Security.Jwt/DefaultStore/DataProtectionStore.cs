@@ -37,8 +37,7 @@ namespace NetDevPack.Security.Jwt.DefaultStore
         private readonly IOptions<KeyManagementOptions> _keyManagementOptions;
         private readonly IMemoryCache _memoryCache;
         private readonly IDataProtector _dataProtector;
-
-        private IXmlRepository KeyRepository { get; set; }
+        private IXmlRepository KeyRepository => _keyManagementOptions.Value.XmlRepository ?? GetFallbackKeyRepositoryEncryptorPair();
 
         private const string Name = "NetDevPackSecurityJwt";
 
@@ -53,9 +52,7 @@ namespace NetDevPack.Security.Jwt.DefaultStore
             _options = options;
             _keyManagementOptions = keyManagementOptions;
             _memoryCache = memoryCache;
-            _dataProtector = provider.CreateProtector(typeof(SecurityKeyWithPrivate).AssemblyQualifiedName); ;
-            Check();
-            // Force it to configure xml repository.
+            _dataProtector = provider.CreateProtector(nameof(SecurityKeyWithPrivate)); ;
         }
         public void Save(SecurityKeyWithPrivate securityParamteres)
         {
@@ -76,15 +73,6 @@ namespace NetDevPack.Security.Jwt.DefaultStore
             var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}-{1:D}", securityParamteres.JwkType.ToString(), securityParamteres.Id);
             KeyRepository.StoreElement(keyElement, friendlyName);
             ClearCache();
-        }
-
-        private void Check()
-        {
-            KeyRepository = _keyManagementOptions.Value.XmlRepository;
-            if (KeyRepository == null)
-            {
-                KeyRepository = GetFallbackKeyRepositoryEncryptorPair();
-            }
         }
 
 

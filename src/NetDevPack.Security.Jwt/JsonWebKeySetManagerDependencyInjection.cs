@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NetDevPack.Security.Jwt.DefaultStore;
 using NetDevPack.Security.Jwt.DefaultStore.Memory;
 using NetDevPack.Security.Jwt.Interfaces;
 using NetDevPack.Security.Jwt.Jwk;
 using NetDevPack.Security.Jwt.Jwks;
+using System;
 
 namespace NetDevPack.Security.Jwt
 {

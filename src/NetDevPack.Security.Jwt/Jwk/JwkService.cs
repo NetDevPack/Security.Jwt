@@ -14,19 +14,8 @@ namespace NetDevPack.Security.Jwt.Jwk
         private JsonWebKey GenerateECDsa(Algorithm algorithm)
         {
             var key = CryptoService.CreateECDsaSecurityKey(algorithm);
-            var parameters = key.ECDsa.ExportParameters(true);
-            return new JsonWebKey()
-            {
-                Kty = JsonWebAlgorithmsKeyTypes.EllipticCurve,
-                Use = "sig",
-                Kid = key.KeyId,
-                KeyId = key.KeyId,
-                X = Base64UrlEncoder.Encode(parameters.Q.X),
-                Y = Base64UrlEncoder.Encode(parameters.Q.Y),
-                D = Base64UrlEncoder.Encode(parameters.D),
-                Crv = CryptoService.GetCurveType(algorithm),
-                Alg = algorithm
-            };
+            return JsonWebKeyConverter.ConvertFromECDsaSecurityKey(key);
+
         }
         private JsonWebKey GenerateHMAC(Algorithm jwsAlgorithms)
         {
@@ -45,15 +34,15 @@ namespace NetDevPack.Security.Jwt.Jwk
             return jwk;
         }
 
-        public JsonWebKey Generate(Algorithm jwsAlgorithm)
+        public JsonWebKey Generate(Algorithm algorithm)
         {
-            return jwsAlgorithm.KeyType switch
+            return algorithm.KeyType switch
             {
                 KeyType.RSA => GenerateRsa(),
-                KeyType.ECDsa => GenerateECDsa(jwsAlgorithm),
-                KeyType.HMAC => GenerateHMAC(jwsAlgorithm),
-                KeyType.AES => GenerateAES(jwsAlgorithm),
-                _ => throw new ArgumentOutOfRangeException(nameof(jwsAlgorithm), jwsAlgorithm, null)
+                KeyType.ECDsa => GenerateECDsa(algorithm),
+                KeyType.HMAC => GenerateHMAC(algorithm),
+                KeyType.AES => GenerateAES(algorithm),
+                _ => throw new ArgumentOutOfRangeException(nameof(algorithm), algorithm, null)
             };
         }
 
