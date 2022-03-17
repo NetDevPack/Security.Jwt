@@ -16,7 +16,7 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/files")));
+            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "files")));
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
         }
