@@ -16,15 +16,14 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "filestore")));
-
+            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "files")));
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
         }
 
         public async Task Clear()
         {
-           await _jsonWebKeyStore.Clear();
+            await _jsonWebKeyStore.Clear();
         }
     }
 }

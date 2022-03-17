@@ -16,7 +16,7 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
 
         public WarmupDataProtectionStore()
         {
-            _keysRepository = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "local-test"));
+            _keysRepository = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "local_test"));
             _keysRepository.Create();
 
             if (!_keysRepository.Exists)

@@ -11,7 +11,9 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: src
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -42,9 +44,6 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Test
-        run: dotnet test
-
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v2
@@ -61,4 +60,4 @@ jobs:
         run: dotnet pack -c Release -o out -p:PackageVersion=${{ steps.semantic.outputs.new_release_version }} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
 
       - name: Publish the package to nuget.org
-        run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true -k ${{ secrets.NUGET_AUTH_TOKEN}} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./out/*.nupkg --no-symbols true -k ${{ secrets.NUGET_AUTH_TOKEN}} -s https://api.nuget.org/v3/index.json
