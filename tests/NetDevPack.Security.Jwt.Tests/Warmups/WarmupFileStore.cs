@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NetDevPack.Security.Jwt.Core;
@@ -16,7 +17,8 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/filestore")));
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/filestore")));
 
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
