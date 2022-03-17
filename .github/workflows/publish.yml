@@ -44,9 +44,6 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      - name: Test
-        run: dotnet test
-
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v2
