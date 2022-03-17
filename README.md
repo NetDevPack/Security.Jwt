@@ -1,3 +1,4 @@
+# Key Managemente for JWT - Generate and auto rotate Cryptographic Keys for Jwt
 <p align="center">
     <img alt="read before" src="docs/important.png" />
 </p>
@@ -8,7 +9,7 @@
 </p>
 
 
-## Let me tell you: You have a SECURITY problem.
+## Let me tell you: You have a problem.
 
 ------------------
 <br>
@@ -16,15 +17,27 @@
 ![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml)
 
 
-The goal of this project is to help your application security. It generates token way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518#section-3.1).
+The goal of this project is to help your application security by Managing your JWT.
 
-Example:
+* Auto create RSA or ECDsa keys
+* Support for JWE
+* Publish a endpoint with your public key in JWKS format
+* Support for another API's to consume the JWKS endpoint
+* Auto rotate key every 90 days
+* Remove old private keys after key rotation
+* Use recommended settings for RSA & ECDSA
+* Uses random number generator to generate keys for JWE with AES CBC (dotnet does not support RSA-OAEP with Aes128GCM)
+* By default Save keys in same room of ASP.NET DataProtection (The same place where ASP.NET save the keys to generate MVC cookies)
+
+ It generates Keys way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518).
+
+## Generating Tokens:
 
 ```c#
 
-public AuthController(IJsonWebKeySetService jwksService)
+public AuthController(IJwtService jwtService)
 {
-    _jwksService = jwksService;
+    _jwtService = jwtService;
 }
 
 private string GenerateToken(User user)
@@ -32,7 +45,7 @@ private string GenerateToken(User user)
     var tokenHandler = new JwtSecurityTokenHandler();
     var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-    var key = _jwksService.GetCurrent(); // ECDsa auto generated key
+    var key = _jwtService.GetCurrent(); // (ECDsa or RSA) auto generated key
     var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
     {
         Issuer = currentIssuer,
@@ -43,12 +56,41 @@ private string GenerateToken(User user)
     return tokenHandler.WriteToken(token);
 }
 ```
+
+## Token Validation
+
+```c#
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "NetDevPack",
+        ValidAudience = "NetDevPack.AspNet.SymetricKey"
+    };
+});
+builder.Services.AddAuthorization();
+builder.Services.AddJwksManager().UseJwtValidation();
+builder.Services.AddMemoryCache();
+```
+
+
 <p align="center">
     <img width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
 </p>
 
 ## Table of Contents ##
 
+- [Key Managemente for JWT - Generate and auto rotate Cryptographic Keys for Jwt](#key-managemente-for-jwt---generate-and-auto-rotate-cryptographic-keys-for-jwt)
+  - [Are you creating Jwt like this?](#are-you-creating-jwt-like-this)
+  - [Let me tell you: You have a problem.](#let-me-tell-you-you-have-a-problem)
+  - [Generating Tokens:](#generating-tokens)
+  - [Token Validation](#token-validation)
+  - [Table of Contents](#table-of-contents)
 - [🛡️ What is](#️-what-is)
 - [ℹ️ Installing](#ℹ️-installing)
 - [❤️ Generating Tokens](#️-generating-tokens)
@@ -103,7 +145,7 @@ Go to your `startup.cs` and change Configure:
 ```c#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddJwksManager();
+    services.AddJwksManager().UseJwtValidation();
 }
 ```
 
@@ -113,9 +155,9 @@ Usually we say Jwt. But in most cases we are trying to create a Jws.
 
 
 ```c#
-public AuthController(IJsonWebKeySetService jwksService)
+public AuthController(IJwtService jwtService)
 {
-    _jwksService = jwksService;
+    _jwtService = jwtService;
 }
 
 private string GenerateToken(User user)
@@ -123,7 +165,7 @@ private string GenerateToken(User user)
     var tokenHandler = new JwtSecurityTokenHandler();
     var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-    var key = _jwksService.GetCurrentSigningCredentials(); // ECDsa auto generated key
+    var key = _jwtService.GetCurrentSigningCredentials(); // (ECDsa or RSA) auto generated key
     var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
     {
         Issuer = currentIssuer,
@@ -141,9 +183,9 @@ Use the same service to get the current key and validate the token.
 
 ```csharp
 
-public AuthController(IJsonWebKeySetService jwksService)
+public AuthController(IJwtService jwtService)
 {
-    _jwksService = jwksService;
+    _jwtService = jwtService;
 }
 
 private string ValidateToken(string jwt)
@@ -155,7 +197,7 @@ private string ValidateToken(string jwt)
         new TokenValidationParameters
         {
             ValidIssuer = currentIssuer,
-            SigningCredentials = _keyService.GetCurrentSigningCredentials()
+            SigningCredentials = _jwtService.GetCurrentSigningCredentials()
         });
     
     result.IsValid.Should().BeTrue();
@@ -164,7 +206,9 @@ private string ValidateToken(string jwt)
 
 # ⛅ Multiple API's - Use Jwks
 
-In most cases we are using Jwt to share between our API's. To accomplish it you have an Identity API, who emits a token. At other side a API who consumes the token. Right? Peace of cake 🎂
+One of the biggest problem at Key Management is: How to distribute keys in a security way. HMAC relies on sharing the key between many projects. To accomplish it `NetDevPack.Security.Jwt` use Public Key Cryptosystem to generate your keys. So you can share you public key at `https://<your_api_adrress>/jwks`!  
+
+**Peace of cake 🎂**
 
 ### Identity API (Who emits the token)
 Install `NetDevPack.Security.Jwt.AspNetCore` in your API that emit JWT Tokens. Change your Startup.cs:
@@ -172,7 +216,7 @@ Install `NetDevPack.Security.Jwt.AspNetCore` in your API that emit JWT Tokens. C
 ```csharp
 public void Configure(IApplicationBuilder app)
 {
-    app.UseJwksDiscovery();
+    app.UseJwksDiscovery().UseJwtValidation();
 }
 ```
 Generating the token:
@@ -196,7 +240,7 @@ Generating the token:
 ```
 ## Client API
 
-Then at your Client API, which need to load Jwt, install `NetDevPack.Security.JwtExtensions`. Then change your `Startup.cs`:
+Then at your Client API, which need to validate Jwt, install `NetDevPack.Security.JwtExtensions`. Then change your `Startup.cs`:
 
 
 ```csharp
@@ -315,16 +359,20 @@ There are few demos [here](samples/Server.AsymmetricKey)
 It's possible to change default Algorithm at configuration routine.
 
 ``` c#
-public void ConfigureServices(IServiceCollection services)
+build.Services.AddJwksManager(o =>
 {
-    services.AddJwksManager(o =>
-    {
-        o.Jws = JwsAlgorithm.ES256;
-        o.Jwe = JweAlgorithm.RsaOAEP.WithEncryption(Encryption.Aes128CbcHmacSha256);
-    });
+    o.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.RsaSsaPssSha256);
+    o.Jwe = Algorithm.Create(EncryptionAlgorithmKey.RsaOAEP).WithContentEncryption(EncryptionAlgorithmContent.Aes128CbcHmacSha256);
+});
+```
+By default it uses recommended algorithms by [RFC7518](https://datatracker.ietf.org/doc/html/rfc7518)
+```c#
+build.Services.AddJwksManager(o =>
+{
+    o.Jws { get; set; } = Algorithm.Create(AlgorithmType.RSA, JwtType.Jws);
+    o.Jwe { get; set; } = Algorithm.Create(AlgorithmType.RSA, JwtType.Jwe);
 }
 ```
-
 The Algorithm object has a list of possibilities.
 
 ## Jws
@@ -368,7 +416,7 @@ Encryption options
 
 # IdentityServer4 - Auto jwks_uri Management
 
-If you have an IdentityServer4 OAuth 2.0 Server, you can use this component plugin.
+`NetDevPack.Security.Jwt`  provides `IdentityServer4` key material. It auto generates and rotate key.
 
 
 First install 
