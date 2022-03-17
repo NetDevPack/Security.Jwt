@@ -265,7 +265,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256)]
     [InlineData(DigitalSignaturesAlgorithm.EcdsaSha384)]
     [InlineData(DigitalSignaturesAlgorithm.EcdsaSha512)]
-    public async Task Should_Save_Probabilistic_Jwk_Recover_And_Signing(Algorithm algorithm)
+    public async Task Should_Save_Probabilistic_Jwk_Recover_And_Signing(string algorithm)
     {
         var handler = new JsonWebTokenHandler();
         var now = DateTime.Now;
@@ -317,7 +317,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     [InlineData(DigitalSignaturesAlgorithm.RsaSha256)]
     [InlineData(DigitalSignaturesAlgorithm.RsaSha384)]
     [InlineData(DigitalSignaturesAlgorithm.RsaSha512)]
-    public async Task ShouldSaveDeterministicJwkRecoverAndSigning(Algorithm algorithm)
+    public async Task ShouldSaveDeterministicJwkRecoverAndSigning(string algorithm)
     {
         await this.WarmupData.Clear();
 
@@ -373,7 +373,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     [InlineData(EncryptionAlgorithmKey.RsaPKCS1, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
     [InlineData(EncryptionAlgorithmKey.Aes128KW, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
     [InlineData(EncryptionAlgorithmKey.Aes256KW, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
-    public async Task ShouldSaveJweRecoverAndEncrypt(EncryptionAlgorithmKey algorithm, EncryptionAlgorithmContent encryption)
+    public async Task ShouldSaveJweRecoverAndEncrypt(string algorithm, string encryption)
     {
         await WarmupData.Clear();
 

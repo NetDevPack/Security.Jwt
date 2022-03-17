@@ -41,7 +41,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         [InlineData(EncryptionAlgorithmKey.RsaPKCS1, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
         [InlineData(EncryptionAlgorithmKey.Aes128KW, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
         [InlineData(EncryptionAlgorithmKey.Aes256KW, EncryptionAlgorithmContent.Aes192CbcHmacSha384)]
-        public void ShouldValidateJwe(EncryptionAlgorithmKey algorithm, EncryptionAlgorithmContent encryption)
+        public void ShouldValidateJwe(string algorithm, string encryption)
         {
             
             var key = new CryptographicKey(Algorithm.Create(algorithm).WithContentEncryption(encryption));

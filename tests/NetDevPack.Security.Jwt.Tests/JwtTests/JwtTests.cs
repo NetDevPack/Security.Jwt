@@ -30,7 +30,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         [InlineData(DigitalSignaturesAlgorithm.RsaSha256)]
         [InlineData(DigitalSignaturesAlgorithm.RsaSha384)]
         [InlineData(DigitalSignaturesAlgorithm.RsaSha512)]
-        public void ShouldBeSameJwtWhenDeterministicToken(Algorithm algorithm)
+        public void ShouldBeSameJwtWhenDeterministicToken(string algorithm)
         {
             IdentityModelEventSource.ShowPII = true;
             var signingCredentials = new SigningCredentials(new CryptographicKey(algorithm), algorithm);
@@ -60,7 +60,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha384)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha512)]
-        public void ShouldNotBeSameJwtWhenProbabilisticToken(Algorithm algorithm)
+        public void ShouldNotBeSameJwtWhenProbabilisticToken(string algorithm)
         {
             var signingCredentials = new SigningCredentials(new CryptographicKey(algorithm), algorithm);
             var handler = new JsonWebTokenHandler();
@@ -95,7 +95,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha384)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha512)]
-        public void ShouldValidateJws(Algorithm algorithm)
+        public void ShouldValidateJws(string algorithm)
         {
 
             var signingCredentials = new SigningCredentials(new CryptographicKey(algorithm), algorithm);
@@ -137,7 +137,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha384)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha512)]
-        public void ShouldGetCurrentToSignAndValidateJws(Algorithm algorithm)
+        public void ShouldGetCurrentToSignAndValidateJws(string algorithm)
         {
 
             var signingCredentials = new SigningCredentials(new CryptographicKey(algorithm), algorithm);

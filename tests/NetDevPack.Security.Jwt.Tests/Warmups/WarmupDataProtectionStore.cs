@@ -35,7 +35,7 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            foreach (var fileInfo in _keysRepository.GetFiles("*jw*.xml"))
+            foreach (var fileInfo in _keysRepository.GetFiles("*.xml"))
             {
                 try
                 {

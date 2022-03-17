@@ -90,11 +90,11 @@ namespace NetDevPack.Security.Jwt.Tests.JwaTests
         [Theory]
         [InlineData(AlgorithmType.AES, EncryptionAlgorithmKey.Aes128KW, EncryptionAlgorithmContent.Aes128CbcHmacSha256)]
         [InlineData(AlgorithmType.RSA, EncryptionAlgorithmKey.RsaOAEP, EncryptionAlgorithmContent.Aes128CbcHmacSha256)]
-        public void Should_Return_Recommended_Algorithm_For_Jwe(AlgorithmType algorithmType, EncryptionAlgorithmKey algorithm, EncryptionAlgorithmContent enc)
+        public void Should_Return_Recommended_Algorithm_For_Jwe(AlgorithmType algorithmType, string algorithm, string enc)
     {   
             var key = Algorithm.Create(algorithmType, JwtType.Jwe);
-            key.Alg.Should().Be(algorithm.Alg);
-            key.EncryptionAlgorithmContent.Enc.Should().Be(enc.Enc);
+            key.Alg.Should().Be(algorithm);
+            key.EncryptionAlgorithmContent.Enc.Should().Be(enc);
             key.CryptographyType.Should().Be(CryptographyType.Encryption);
         }
 
@@ -123,7 +123,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwaTests
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256, EncryptionAlgorithmContent.Aes192Gcm)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256, EncryptionAlgorithmContent.Aes256CbcHmacSha512)]
         [InlineData(DigitalSignaturesAlgorithm.EcdsaSha256, EncryptionAlgorithmContent.Aes256Gcm)]
-        public void Should_Not_Accept_Encryption_Info_For_Jws(DigitalSignaturesAlgorithm algorithmType, EncryptionAlgorithmContent enc)
+        public void Should_Not_Accept_Encryption_Info_For_Jws(string algorithmType, string enc)
         {
             Action act = () => Algorithm.Create(algorithmType).WithContentEncryption(enc);
 
@@ -141,11 +141,10 @@ namespace NetDevPack.Security.Jwt.Tests.JwaTests
             act.Should().Throw<InvalidOperationException>();
         }
 
-        [Theory]
-        [InlineData(AlgorithmType.AES)]
-        public void Should_Not_Accept_EncryptionScheme_For_Jws(AlgorithmType type)
+        [Fact]
+        public void Should_Not_Accept_EncryptionScheme_For_Jws()
         {
-            Action act = () => Algorithm.Create(type, JwtType.Jws);
+            Action act = () => Algorithm.Create(AlgorithmType.AES, JwtType.Jws);
 
             act.Should().Throw<InvalidOperationException>();
         }
