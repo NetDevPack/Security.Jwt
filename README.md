@@ -1,4 +1,4 @@
-# Key Managemente for JWT - Generate and auto rotate Cryptographic Keys for Jwt
+# JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt
 <p align="center">
     <img alt="read before" src="docs/important.png" />
 </p>
@@ -22,14 +22,14 @@ The goal of this project is to help your application security by Managing your J
 * Auto create RSA or ECDsa keys
 * Support for JWE
 * Publish a endpoint with your public key in JWKS format
-* Support for another API's to consume the JWKS endpoint
-* Auto rotate key every 90 days
-* Remove old private keys after key rotation
-* Use recommended settings for RSA & ECDSA
+* Support for multiple API's to consume the JWKS endpoint
+* Auto rotate key every 90 days (Best current practices for Public Key Rotation)
+* Remove old private keys after key rotation (NIST Recommendations)
+* Use recommended settings for RSA & ECDSA (RFC 7518 Recommendations)
 * Uses random number generator to generate keys for JWE with AES CBC (dotnet does not support RSA-OAEP with Aes128GCM)
-* By default Save keys in same room of ASP.NET DataProtection (The same place where ASP.NET save the keys to generate MVC cookies)
+* By default Save keys in same room of ASP.NET DataProtection (The same place where ASP.NET save the keys to to cryptograph MVC cookies)
 
- It generates Keys way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518).
+It generates Keys way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518).
 
 ## Generating Tokens:
 
