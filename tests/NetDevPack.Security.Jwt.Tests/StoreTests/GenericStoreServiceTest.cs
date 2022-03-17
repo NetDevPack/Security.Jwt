@@ -16,7 +16,7 @@ using NetDevPack.Security.Jwt.Tests.Warmups;
 using Xunit;
 
 namespace NetDevPack.Security.Jwt.Tests.StoreTests;
-
+[CollectionDefinition("Non-Parallel Collection", DisableParallelization = false)]
 public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     where TWarmup : class, IWarmupTest
 {
