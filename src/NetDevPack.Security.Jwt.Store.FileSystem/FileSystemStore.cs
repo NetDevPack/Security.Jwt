@@ -20,6 +20,8 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             _options = options;
             _memoryCache = memoryCache;
             KeysPath = keysPath;
+            if (!KeysPath.Exists)
+                KeysPath.Create();
         }
 
         private string GetCurrentFile()
