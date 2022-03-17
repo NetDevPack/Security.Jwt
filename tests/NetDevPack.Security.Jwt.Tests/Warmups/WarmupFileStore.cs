@@ -20,6 +20,8 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/filestore")));
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + "/filestore"));
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
         }
