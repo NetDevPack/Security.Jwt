@@ -154,7 +154,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         /*Remove private*/
         await _store.Revoke(keyMaterial);
 
-        var keyDb = (await _store.GetLastKeys(5)).First(w => w.KeyId == keyMaterial.KeyId);
+        var keyDb = (await _store.GetLastKeys(5)).FirstOrDefault(w => w.KeyId == keyMaterial.KeyId);
         var jsonWebKey = keyDb.GetSecurityKey();
 
         jsonWebKey.Kty.Should().NotBeNullOrEmpty();

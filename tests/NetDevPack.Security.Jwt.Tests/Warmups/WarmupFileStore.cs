@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NetDevPack.Security.Jwt.Core;
@@ -17,18 +16,14 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/filestore")));
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory() + "/filestore"));
+            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "/files")));
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
         }
 
         public async Task Clear()
         {
-           await _jsonWebKeyStore.Clear();
+            await _jsonWebKeyStore.Clear();
         }
     }
 }
