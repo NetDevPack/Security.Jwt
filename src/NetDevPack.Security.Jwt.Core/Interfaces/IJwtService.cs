@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Core.Model;
 
