@@ -17,8 +17,8 @@ namespace NetDevPack.Security.Jwt.Core
                 services.Configure(action);
 
             services.AddDataProtection();
-            services.AddSingleton<IJwtService, JwtService>();
-            services.AddSingleton<IJsonWebKeyStore, DataProtectionStore>();
+            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IJsonWebKeyStore, DataProtectionStore>();
             
             return new JwksBuilder(services);
         }
@@ -29,7 +29,7 @@ namespace NetDevPack.Security.Jwt.Core
         /// <returns></returns>
         public static IJwksBuilder PersistKeysInMemory(this IJwksBuilder builder)
         {
-            builder.Services.AddSingleton<IJsonWebKeyStore, InMemoryStore>();
+            builder.Services.AddScoped<IJsonWebKeyStore, InMemoryStore>();
 
             return builder;
         }
