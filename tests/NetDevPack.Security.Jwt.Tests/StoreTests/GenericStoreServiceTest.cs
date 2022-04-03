@@ -15,7 +15,7 @@ using NetDevPack.Security.Jwt.Core.Model;
 using NetDevPack.Security.Jwt.Tests.Warmups;
 using Xunit;
 
-namespace NetDevPack.Security.Jwt.Tests.StoreTests;
+namespace NetDevPack.Security.Jwt.Tests.StoreTests; 
 public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     where TWarmup : class, IWarmupTest
 {
