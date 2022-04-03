@@ -45,7 +45,7 @@ private string GenerateToken(User user)
     var tokenHandler = new JwtSecurityTokenHandler();
     var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-    var key = _jwtService.GetCurrent(); // (ECDsa or RSA) auto generated key
+    var key = _jwtService.GetCurrentSigningCredentials(); // (ECDsa or RSA) auto generated key
     var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
     {
         Issuer = currentIssuer,
@@ -85,7 +85,7 @@ builder.Services.AddMemoryCache();
 
 ## Table of Contents ##
 
-- [Key Managemente for JWT - Generate and auto rotate Cryptographic Keys for Jwt](#key-managemente-for-jwt---generate-and-auto-rotate-cryptographic-keys-for-jwt)
+- [JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt](#jwt-key-management-for-net---generate-and-auto-rotate-cryptographic-keys-for-your-jwt)
   - [Are you creating Jwt like this?](#are-you-creating-jwt-like-this)
   - [Let me tell you: You have a problem.](#let-me-tell-you-you-have-a-problem)
   - [Generating Tokens:](#generating-tokens)
@@ -227,7 +227,7 @@ Generating the token:
     var tokenHandler = new JwtSecurityTokenHandler();
     var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
 
-    var key = _jwksService.GetCurrent();
+    var key = _jwksService.GetCurrentSigningCredentials();
     var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
     {
         Issuer = currentIssuer,
