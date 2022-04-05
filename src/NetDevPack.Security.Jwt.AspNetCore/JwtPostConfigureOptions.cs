@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 
@@ -9,9 +10,10 @@ public class JwtPostConfigureOptions : IPostConfigureOptions<JwtBearerOptions>
     private readonly IJwtService _jwtService;
     // private readonly MyCustomSecurityTokenValidator _tokenValidator; //example dependancy
 
-    public JwtPostConfigureOptions(IJwtService jwtService)
+    public JwtPostConfigureOptions(IServiceProvider service)
     {
-        _jwtService = jwtService;
+        using var scope = service.CreateScope();
+        _jwtService = scope.ServiceProvider.GetRequiredService<IJwtService>();
     }
 
     public void PostConfigure(string name, JwtBearerOptions options)

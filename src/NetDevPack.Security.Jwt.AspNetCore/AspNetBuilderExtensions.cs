@@ -28,7 +28,7 @@ public static class AspNetBuilderExtensions
     public static IJwksBuilder UseJwtValidation(this IJwksBuilder builder)
     {
 
-        builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, JwtPostConfigureOptions>();
+        builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>>(s => new JwtPostConfigureOptions(s));
 
         return builder;
     }

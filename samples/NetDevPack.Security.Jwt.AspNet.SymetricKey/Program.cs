@@ -1,8 +1,6 @@
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -11,7 +9,6 @@ using NetDevPack.Security.Jwt.AspNet.SymetricKey;
 using NetDevPack.Security.Jwt.AspNetCore;
 using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
-using NetDevPack.Security.Jwt.Core.Jwa;
 
 
 var builder = WebApplication.CreateBuilder(args);
