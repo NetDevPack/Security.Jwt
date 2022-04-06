@@ -7,7 +7,7 @@ namespace NetDevPack.Security.Jwt.Core.DefaultStore;
 internal class InMemoryStore : IJsonWebKeyStore
 {
 
-    private List<KeyMaterial> _store = new();
+    private static List<KeyMaterial> _store = new();
     private SemaphoreSlim Slim = new(1);
     public Task Store(KeyMaterial keyMaterial)
     {

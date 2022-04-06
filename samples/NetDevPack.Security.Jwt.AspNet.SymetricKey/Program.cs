@@ -9,6 +9,7 @@ using NetDevPack.Security.Jwt.AspNet.SymetricKey;
 using NetDevPack.Security.Jwt.AspNetCore;
 using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using NetDevPack.Security.Jwt.Core.Jwa;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,7 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 builder.Services.AddAuthorization();
-builder.Services.AddJwksManager().UseJwtValidation();
+builder.Services.AddJwksManager().UseJwtValidation().PersistKeysInMemory();
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
@@ -73,14 +74,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.MapGet("/get-random-jwt", [AllowAnonymous]async (IJwtService service) =>
+app.MapGet("/random-jws", [AllowAnonymous]async (IJwtService service) =>
    {
        var handler = new JsonWebTokenHandler();
        var now = DateTime.Now;
        var descriptor = new SecurityTokenDescriptor
        {
            Issuer = "NetDevPack",
-           Audience = "NetDevPack.AspNet.SymetricKey",
+           Audience = "NetDevPack.Security.Jwt.AspNet",
            IssuedAt = now,
            NotBefore = now,
            Expires = now.AddMinutes(5),
@@ -90,7 +91,28 @@ app.MapGet("/get-random-jwt", [AllowAnonymous]async (IJwtService service) =>
 
        return handler.CreateToken(descriptor);
    })
-    .WithName("Generate random JWT");
+    .WithName("Generate random JWS")
+    .WithTags("JWS");
+
+app.MapGet("/random-jwe", [AllowAnonymous] async (IJwtService service) =>
+    {
+        var handler = new JsonWebTokenHandler();
+        var now = DateTime.Now;
+        var descriptor = new SecurityTokenDescriptor
+        {
+            Issuer = "NetDevPack",
+            Audience = "NetDevPack.Security.Jwt.AspNet",
+            IssuedAt = now,
+            NotBefore = now,
+            Expires = now.AddMinutes(5),
+            Subject = new ClaimsIdentity(FakeClaims.GenerateClaim().Generate(5)),
+            EncryptingCredentials = await service.GetCurrentEncryptingCredentials()
+        };
+
+        return handler.CreateToken(descriptor);
+    })
+    .WithName("Generate random JWE")
+    .WithTags("JWE");
 
 app.MapGet("/validate-jwt/{jwt}", [Authorize]async (IJwtService service, string jwt) =>
 {
@@ -100,13 +122,34 @@ app.MapGet("/validate-jwt/{jwt}", [Authorize]async (IJwtService service, string 
         new TokenValidationParameters
         {
             ValidIssuer = "NetDevPack",
-            ValidAudience = "NetDevPack.AspNet.SymetricKey",
+            ValidAudience = "NetDevPack.Security.Jwt.AspNet",
             RequireSignedTokens = false,
             IssuerSigningKey = await service.GetCurrentSecurityKey(),
         });
 
     return result.Claims;
 })
-.WithName("Validate JWT");
+.WithName("Validate JWT")
+.WithTags("Validate");
+
+
+app.MapGet("/validate-jwe/{jwe}", async (IJwtService service, string jwe) =>
+    {
+        var handler = new JsonWebTokenHandler();
+
+        var result = handler.ValidateToken(jwe,
+            new TokenValidationParameters
+            {
+                ValidIssuer = "NetDevPack",
+                ValidAudience = "NetDevPack.Security.Jwt.AspNet",
+                RequireSignedTokens = false,
+                TokenDecryptionKey = await service.GetCurrentSecurityKey(),
+            });
+
+        return result.Claims;
+    })
+    .WithName("Validate JWE")
+    .WithTags("Validate");
+
 
 app.Run();

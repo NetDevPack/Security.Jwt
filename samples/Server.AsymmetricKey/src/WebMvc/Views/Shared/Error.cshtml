@@ -1,0 +1,18 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="container">
+    <div style="padding-top: 200px; text-align: center">
+        @{
+            if (Model == null)
+            {
+                <h2>Generic Error</h2>
+            }
+            else
+            {
+                <h2>@Html.Raw(Model.Message)</h2>
+            }
+        }
+    </div>
+</div>

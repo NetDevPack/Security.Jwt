@@ -1,0 +1,86 @@
+﻿@model IEnumerable<ProductViewModel>
+
+@{
+    ViewData["Title"] = "Catalog";
+}
+<style>
+    h4 {
+        font-weight: 600;
+    }
+
+    p {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .price {
+        font-size: 30px;
+        margin: 0 auto;
+        color: #333;
+    }
+
+    .right {
+        float: right;
+        border-bottom: 2px solid #4B8E4B;
+    }
+
+    .thumbnail {
+        opacity: 0.70;
+        -webkit-transition: all 0.5s;
+        transition: all 0.5s;
+    }
+
+        .thumbnail:hover {
+            opacity: 1.00;
+            box-shadow: 0px 0px 10px #4bc6ff;
+        }
+
+    .line {
+        margin-bottom: 5px;
+    }
+
+    @@media screen and (max-width: 770px) {
+        .right {
+            float: left;
+            width: 100%;
+        }
+    }
+
+    .product_view .modal-dialog {
+        max-width: 800px;
+        width: 100%;
+    }
+
+    .pre-cost {
+        text-decoration: line-through;
+        color: #a5a5a5;
+    }
+
+    .space-ten {
+        padding: 10px 0;
+    }
+</style>
+<div class="container">
+    <br />
+    <div class="row">
+        @{
+            foreach (var product in Model)
+            {
+                <div class="col-md-3 col-sm-6">
+                    <span class="thumbnail">
+                        <img width="200" height="200" src="~/images/@product.Image" />
+                        <h4>@product.Name</h4>
+                        <p>@product.Description</p>
+                        <hr class="line">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6">
+                                <p class="price">@product.Price.ToString("C")</p>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            }
+        }
+    </div>
+</div>
+

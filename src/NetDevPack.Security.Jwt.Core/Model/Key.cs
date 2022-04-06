@@ -12,7 +12,7 @@ public class KeyMaterial
     public KeyMaterial(CryptographicKey cryptographicKey)
     {
         CreationDate = DateTime.Now;
-        Parameters = JsonSerializer.Serialize(cryptographicKey.GetJsonWebKey(), typeof(JsonWebKey), new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault, });
+        Parameters = JsonSerializer.Serialize(cryptographicKey.GetJsonWebKey(), typeof(JsonWebKey));
         Type = cryptographicKey.Algorithm.Kty();
         KeyId = cryptographicKey.Key.KeyId;
     }

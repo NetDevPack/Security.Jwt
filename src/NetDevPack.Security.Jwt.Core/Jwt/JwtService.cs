@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Core.Interfaces;
@@ -17,7 +16,6 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             _store = store;
             _options = options;
         }
-
         public async Task<SecurityKey> GenerateKey()
         {
             var key = new CryptographicKey(_options.Value.Jws);
