@@ -59,7 +59,7 @@ public class Algorithm
     public CryptographyType CryptographyType { get; internal set; }
     public JwtType JwtType => CryptographyType == CryptographyType.Encryption ? JwtType.Jwe : JwtType.Jws;
     public string Alg { get; internal set; }
-    public string? Curve { get; set; }
+    public string Curve { get; set; }
 
 
     public Algorithm WithCurve(string curve)
@@ -129,14 +129,14 @@ public class Algorithm
                 AlgorithmType.RSA => new Algorithm(DigitalSignaturesAlgorithm.RsaSsaPssSha256),
                 AlgorithmType.ECDsa => new Algorithm(DigitalSignaturesAlgorithm.EcdsaSha256).WithCurve(JsonWebKeyECTypes.P256),
                 AlgorithmType.HMAC => new Algorithm(DigitalSignaturesAlgorithm.HmacSha256),
-                _ => throw new InvalidOperationException($"Invalid algorithm for Json Web Signature (JWS): {algorithmType.ToString()}")
+                _ => throw new InvalidOperationException($"Invalid algorithm for Json Web Signature (JWS): {algorithmType}")
             };
 
         return algorithmType switch
         {
             AlgorithmType.RSA => new Algorithm(EncryptionAlgorithmKey.RsaOAEP).WithContentEncryption(EncryptionAlgorithmContent.Aes128CbcHmacSha256),
             AlgorithmType.AES => new Algorithm(EncryptionAlgorithmKey.Aes128KW).WithContentEncryption(EncryptionAlgorithmContent.Aes128CbcHmacSha256),
-            _ => throw new InvalidOperationException($"Invalid algorithm for Json Web Encryption (JWE): {algorithmType.ToString()}")
+            _ => throw new InvalidOperationException($"Invalid algorithm for Json Web Encryption (JWE): {algorithmType}")
         };
     }
 

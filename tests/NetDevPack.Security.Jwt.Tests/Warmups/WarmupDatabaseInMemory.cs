@@ -41,7 +41,7 @@ public class WarmupDatabaseInMemory : IWarmupTest
     {
 
         var database = Services.GetService<AspNetGeneralContext>();
-        foreach (var dbEntityEntry in database.ChangeTracker.Entries())
+        foreach (var dbEntityEntry in database!.ChangeTracker.Entries())
         {
             if (dbEntityEntry.Entity != null)
             {

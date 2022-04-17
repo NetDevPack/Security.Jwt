@@ -76,7 +76,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
 
 
-    public async Task<KeyMaterial?> GetCurrent()
+    public async Task<KeyMaterial> GetCurrent()
     {
         if (!_memoryCache.TryGetValue(JwkContants.CurrentJwkCache, out KeyMaterial keyMaterial))
         {
@@ -123,7 +123,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
                 if (key.IsExpired(_options.Value.DaysUntilExpire))
                 {
-                    Revoke(key);
+                    Revoke(key).Wait();
                     revokedKeys.Add(key.Id.ToString());
                 }
 
@@ -166,7 +166,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
             .AsReadOnly());
     }
 
-    public Task<KeyMaterial>? Get(string keyId)
+    public Task<KeyMaterial> Get(string keyId)
     {
         var keys = GetKeys();
         return Task.FromResult(keys.FirstOrDefault(f => f.KeyId == keyId));
@@ -181,7 +181,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
     }
 
 
-    public async Task Revoke(KeyMaterial? keyMaterial)
+    public async Task Revoke(KeyMaterial keyMaterial)
     {
         if(keyMaterial == null)
             return;
@@ -235,6 +235,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
             }
             else
             {
+#pragma warning disable CA1416
                 RegistryKey registryKey = null;
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     registryKey = RegistryXmlRepository.DefaultRegistryKey;
@@ -249,6 +250,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                     throw new Exception(
                         "Is not possible to determine which folder are the protection keys. NetDevPack.Security.JwtSigningCredentials.Store.FileSystem or NetDevPack.Security.JwtSigningCredentials.Store.EntityFrameworkCore");
                 }
+#pragma warning restore CA1416
             }
         }
         return key;

@@ -74,7 +74,7 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             return true;
         }
 
-        private bool NeedsUpdate(KeyMaterial? current)
+        private bool NeedsUpdate(KeyMaterial current)
         {
             return current == null || current.IsExpired(_options.Value.DaysUntilExpire);
         }

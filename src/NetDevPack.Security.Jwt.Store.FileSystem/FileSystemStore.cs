@@ -60,8 +60,8 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             foreach (var fileInfo in KeysPath.GetFiles("*.key"))
             {
                 var key = GetKey(fileInfo.FullName);
-                if (key.Id != securityKeyWithPrivate.Id) continue;
-                await File.WriteAllTextAsync(fileInfo.FullName, JsonSerializer.Serialize(securityKeyWithPrivate, new JsonSerializerOptions() { IgnoreNullValues = true }));
+                if (key.Id != securityKeyWithPrivate?.Id) continue;
+                await File.WriteAllTextAsync(fileInfo.FullName, JsonSerializer.Serialize(securityKeyWithPrivate, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
                 break;
             }
             ClearCache();
@@ -88,7 +88,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         {
             if (!File.Exists(file)) throw new FileNotFoundException("Check configuration - cannot find auth key file: " + file);
             var keyParams = JsonSerializer.Deserialize<KeyMaterial>(File.ReadAllText(file));
-            return keyParams;
+            return keyParams!;
 
         }
 
@@ -117,9 +117,9 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         {
             var files = Directory.GetFiles(KeysPath.FullName, $"*{keyId}*.key");
             if (files.Any())
-                return Task.FromResult(GetKey(files.First()));
+                return Task.FromResult(GetKey(files.First()))!;
 
-            return Task.FromResult((KeyMaterial)null);
+            return Task.FromResult(null as KeyMaterial);
         }
 
         public Task Clear()

@@ -7,23 +7,23 @@ namespace NetDevPack.Security.Jwt.Core.DefaultStore;
 internal class InMemoryStore : IJsonWebKeyStore
 {
 
-    private static List<KeyMaterial> _store = new();
-    private SemaphoreSlim Slim = new(1);
+    private static readonly List<KeyMaterial> _store = new();
+    private readonly SemaphoreSlim _slim = new(1);
     public Task Store(KeyMaterial keyMaterial)
     {
-        Slim.Wait();
+        _slim.Wait();
         _store.Add(keyMaterial);
-        Slim.Release();
+        _slim.Release();
 
         return Task.CompletedTask;
     }
 
-    public Task<KeyMaterial?> GetCurrent()
+    public Task<KeyMaterial> GetCurrent()
     {
         return Task.FromResult(_store.OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }
 
-    public async Task Revoke(KeyMaterial? keyMaterial)
+    public async Task Revoke(KeyMaterial keyMaterial)
     {
         if(keyMaterial == null)
             return;
@@ -33,10 +33,10 @@ internal class InMemoryStore : IJsonWebKeyStore
         if (oldOne != null)
         {
             var index = _store.FindIndex(f => f.Id == keyMaterial.Id);
-            await Slim.WaitAsync();
+            await _slim.WaitAsync();
             _store.RemoveAt(index);
             _store.Insert(index, keyMaterial);
-            Slim.Release();
+            _slim.Release();
         }
     }
 
@@ -48,7 +48,7 @@ internal class InMemoryStore : IJsonWebKeyStore
                 .Take(quantity).ToList().AsReadOnly());
     }
 
-    public Task<KeyMaterial>? Get(string keyId)
+    public Task<KeyMaterial> Get(string keyId)
     {
         return Task.FromResult(_store.FirstOrDefault(w => w.KeyId == keyId));
     }

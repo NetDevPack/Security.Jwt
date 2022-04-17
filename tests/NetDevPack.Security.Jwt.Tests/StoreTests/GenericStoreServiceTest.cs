@@ -56,7 +56,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
             Issuer = "test.jwt",
             Subject = new ClaimsIdentity(),
             Expires = DateTime.UtcNow.AddMinutes(3),
-            SigningCredentials = new SigningCredentials(currentD.GetSecurityKey(), _options.Value.Jws)
+            SigningCredentials = new SigningCredentials(currentD?.GetSecurityKey(), _options.Value.Jws)
         };
     }
 
@@ -84,7 +84,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         await _store.Revoke(keyMaterial);
 
         var current = await _store.Get(keyMaterial.KeyId);
-        current.GetSecurityKey().HasPrivateKey.Should().BeFalse();
+        current?.GetSecurityKey().HasPrivateKey.Should().BeFalse();
     }
 
 
@@ -156,9 +156,9 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         await _store.Revoke(keyMaterial);
 
         var keyDb = (await _store.GetLastKeys(5)).FirstOrDefault(w => w.KeyId == keyMaterial.KeyId);
-        var jsonWebKey = keyDb.GetSecurityKey();
+        var jsonWebKey = keyDb?.GetSecurityKey();
 
-        jsonWebKey.Kty.Should().NotBeNullOrEmpty();
+        jsonWebKey!.Kty.Should().NotBeNullOrEmpty();
         jsonWebKey.HasPrivateKey.Should().BeFalse();
         switch (jsonWebKey.Kty)
         {
@@ -255,7 +255,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         (await _store.GetLastKeys(5)).Count.Should().BePositive();
 
         var currentKey = await _store.GetCurrent();
-        newKey.KeyId.Should().Be(currentKey.KeyId);
+        newKey?.KeyId.Should().Be(currentKey?.KeyId);
     }
 
 
@@ -278,7 +278,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         // recovered from database
         var currentKey = await _store.GetCurrent();
 
-        newKey.KeyId.Should().Be(currentKey.KeyId);
+        newKey.KeyId.Should().Be(currentKey?.KeyId);
         var claims = new ClaimsIdentity(GenerateClaim().Generate(5));
         var descriptor = new SecurityTokenDescriptor
         {
@@ -331,7 +331,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         // recovered from database
         var currentKey = await _store.GetCurrent();
 
-        newKey.Key.KeyId.Should().Be(currentKey.KeyId);
+        newKey.Key.KeyId.Should().Be(currentKey?.KeyId);
 
         var claims = new ClaimsIdentity(GenerateClaim().Generate(5));
         var descriptor = new SecurityTokenDescriptor
@@ -388,7 +388,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         var currentKey = await _store.Get(newKey.KeyId);
 
 
-        newKey.KeyId.Should().Be(currentKey.KeyId);
+        newKey.KeyId.Should().Be(currentKey?.KeyId);
         var claims = new ClaimsIdentity(GenerateClaim().Generate(5));
         var descriptor = new SecurityTokenDescriptor
         {
