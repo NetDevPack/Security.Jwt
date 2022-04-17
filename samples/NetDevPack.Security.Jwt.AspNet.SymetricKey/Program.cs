@@ -1,15 +1,15 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NetDevPack.Security.Jwt.AspNet.SymetricKey;
 using NetDevPack.Security.Jwt.AspNetCore;
-using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
-using NetDevPack.Security.Jwt.Core.Jwa;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Insira o token JWT desta maneira: Bearer {seu token}",
+        Description = "Bearer {token}",
         Name = "Authorization",
         Scheme = "Bearer",
         BearerFormat = "JWT",
@@ -54,12 +54,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = "NetDevPack",
-        ValidAudience = "NetDevPack.AspNet.SymetricKey"
+        ValidAudience = "NetDevPack.Security.Jwt.AspNet"
     };
 });
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory()));
 builder.Services.AddAuthorization();
-builder.Services.AddJwksManager().UseJwtValidation().PersistKeysInMemory();
+builder.Services.AddJwksManager().UseJwtValidation();
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 IdentityModelEventSource.ShowPII = true;
@@ -74,7 +76,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.MapGet("/random-jws", [AllowAnonymous]async (IJwtService service) =>
+app.MapGet("/random-jws", async (IJwtService service) =>
    {
        var handler = new JsonWebTokenHandler();
        var now = DateTime.Now;
@@ -94,27 +96,27 @@ app.MapGet("/random-jws", [AllowAnonymous]async (IJwtService service) =>
     .WithName("Generate random JWS")
     .WithTags("JWS");
 
-app.MapGet("/random-jwe", [AllowAnonymous] async (IJwtService service) =>
-    {
-        var handler = new JsonWebTokenHandler();
-        var now = DateTime.Now;
-        var descriptor = new SecurityTokenDescriptor
-        {
-            Issuer = "NetDevPack",
-            Audience = "NetDevPack.Security.Jwt.AspNet",
-            IssuedAt = now,
-            NotBefore = now,
-            Expires = now.AddMinutes(5),
-            Subject = new ClaimsIdentity(FakeClaims.GenerateClaim().Generate(5)),
-            EncryptingCredentials = await service.GetCurrentEncryptingCredentials()
-        };
+app.MapGet("/random-jwe", async (IJwtService service) =>
+   {
+       var handler = new JsonWebTokenHandler();
+       var now = DateTime.Now;
+       var descriptor = new SecurityTokenDescriptor
+       {
+           Issuer = "NetDevPack",
+           Audience = "NetDevPack.Security.Jwt.AspNet",
+           IssuedAt = now,
+           NotBefore = now,
+           Expires = now.AddMinutes(5),
+           Subject = new ClaimsIdentity(FakeClaims.GenerateClaim().Generate(5)),
+           EncryptingCredentials = await service.GetCurrentEncryptingCredentials()
+       };
 
-        return handler.CreateToken(descriptor);
-    })
+       return handler.CreateToken(descriptor);
+   })
     .WithName("Generate random JWE")
     .WithTags("JWE");
 
-app.MapGet("/validate-jwt/{jwt}", [Authorize]async (IJwtService service, string jwt) =>
+app.MapGet("/validate-jwt/{jwt}", async (IJwtService service, string jwt) =>
 {
     var handler = new JsonWebTokenHandler();
 
@@ -151,5 +153,10 @@ app.MapGet("/validate-jwe/{jwe}", async (IJwtService service, string jwe) =>
     .WithName("Validate JWE")
     .WithTags("Validate");
 
+app.MapGet("/protected-endpoint", [Authorize] ([FromServices] IHttpContextAccessor context) =>
+{
+    return Results.Ok(context.HttpContext?.User.Claims.Select(s => new { s.Type, s.Value }));
+}).WithName("Protected Endpoint")
+    .WithTags("Validate");
 
 app.Run();

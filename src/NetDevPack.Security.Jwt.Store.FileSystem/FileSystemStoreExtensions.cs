@@ -3,8 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using NetDevPack.Security.Jwt.Store.FileSystem;
 
-namespace NetDevPack.Security.Jwt.Store.FileSystem;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Builder extension methods for registering crypto services
@@ -17,7 +18,6 @@ public static class FileSystemStoreExtensions
     /// <returns></returns>
     public static IJwksBuilder PersistKeysToFileSystem(this IJwksBuilder builder, DirectoryInfo directory)
     {
-
         builder.Services.AddScoped<IJsonWebKeyStore, FileSystemStore>(provider => new FileSystemStore(directory, provider.GetRequiredService<IOptions<JwtOptions>>(), provider.GetRequiredService<IMemoryCache>()));
 
         return builder;
