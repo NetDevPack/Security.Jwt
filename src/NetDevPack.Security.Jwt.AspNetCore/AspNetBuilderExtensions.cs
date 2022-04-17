@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using NetDevPack.Security.Jwt.AspNetCore;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 
-namespace NetDevPack.Security.Jwt.AspNetCore;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class AspNetBuilderExtensions
 {

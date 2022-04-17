@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
@@ -15,10 +16,11 @@ using NetDevPack.Security.Jwt.Core.Model;
 using NetDevPack.Security.Jwt.Tests.Warmups;
 using Xunit;
 
-namespace NetDevPack.Security.Jwt.Tests.StoreTests; 
+namespace NetDevPack.Security.Jwt.Tests.StoreTests;
 public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     where TWarmup : class, IWarmupTest
 {
+    private static SemaphoreSlim TestSync = new(1);
     private readonly IJsonWebKeyStore _store;
     private readonly IOptions<JwtOptions> _options;
     public TWarmup WarmupData { get; }
@@ -375,18 +377,18 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     public async Task ShouldSaveJweRecoverAndEncrypt(string algorithm, string encryption)
     {
         await WarmupData.Clear();
-
         var handler = new JsonWebTokenHandler();
         var now = DateTime.Now;
 
         // Generate right now and in memory
-        var newKey = new CryptographicKey(Algorithm.Create(algorithm).WithContentEncryption(encryption));
-        await _store.Store(new KeyMaterial(newKey));
+        var newKey = new KeyMaterial(new CryptographicKey(Algorithm.Create(algorithm).WithContentEncryption(encryption)));
 
+        await _store.Store(newKey);
         // recovered from database
-        var currentKey = await _store.GetCurrent();
+        var currentKey = await _store.Get(newKey.KeyId);
 
-        newKey.Key.KeyId.Should().Be(currentKey.KeyId);
+
+        newKey.KeyId.Should().Be(currentKey.KeyId);
         var claims = new ClaimsIdentity(GenerateClaim().Generate(5));
         var descriptor = new SecurityTokenDescriptor
         {
@@ -442,7 +444,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
 
         var handler = new JsonWebTokenHandler();
         var now = DateTime.Now;
-        
+
         // Generate right now and in memory
         var newKey = new CryptographicKey(Algorithm.Create(AlgorithmType.RSA, JwtType.Both));
 
