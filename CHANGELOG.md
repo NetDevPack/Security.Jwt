@@ -1,3 +1,10 @@
+## [6.0.4](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.3...v6.0.4) (2022-04-17)
+
+
+### Bug Fixes
+
+* sample and namespaces ([0b07d26](https://github.com/NetDevPack/Security.Jwt/commit/0b07d26a651b4222b63af364c565a379f13b4de9))
+
 ## [6.0.3](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.2...v6.0.3) (2022-04-06)
 
 
