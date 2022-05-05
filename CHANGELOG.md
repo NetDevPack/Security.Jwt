@@ -1,3 +1,11 @@
+## [6.0.6](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.5...v6.0.6) (2022-05-05)
+
+
+### Bug Fixes
+
+* datetime kind problem use npgsql [issues [#23](https://github.com/NetDevPack/Security.Jwt/issues/23)] ([04134d2](https://github.com/NetDevPack/Security.Jwt/commit/04134d201773ece578013e6704c0068b1c3ca273))
+* warnings [skip ci] ([7b0c06f](https://github.com/NetDevPack/Security.Jwt/commit/7b0c06f121ac01c71e4f2289b5b3677dee67d2d9))
+
 ## [6.0.5](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.4...v6.0.5) (2022-04-17)
 
 
