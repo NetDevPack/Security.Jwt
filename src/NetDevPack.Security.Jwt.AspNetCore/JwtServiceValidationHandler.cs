@@ -2,25 +2,29 @@
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NetDevPack.Security.Jwt.AspNetCore;
 
 public class JwtServiceValidationHandler : JwtSecurityTokenHandler
 {
-    private readonly IJwtService _jwtService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public JwtServiceValidationHandler(IJwtService jwtService)
+    public JwtServiceValidationHandler(IServiceProvider serviceProvider)
     {
-        _jwtService = jwtService;
+        _serviceProvider = serviceProvider;
     }
 
     public override ClaimsPrincipal ValidateToken(string token, TokenValidationParameters validationParameters, out SecurityToken validatedToken)
     {
+        using var scope = _serviceProvider.CreateScope();
+        var jwtService = scope.ServiceProvider.GetRequiredService<IJwtService>();
+
         //We can read the token before we've begun validating it.
         //JwtSecurityToken incomingToken = ReadJwtToken(token);
 
         //Retrieve the corresponding Public Key from our data store
-        var keyMaterialTask = _jwtService.GetCurrentSecurityKey();
+        var keyMaterialTask = jwtService.GetCurrentSecurityKey();
         Task.WaitAll(keyMaterialTask);
         validationParameters.IssuerSigningKey = keyMaterialTask.Result;
 
