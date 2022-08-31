@@ -214,7 +214,7 @@ private string ValidateToken(string jwt)
 
 # ⛅ Multiple API's - Use Jwks
 
-One of the biggest problem at Key Management is: How to distribute keys in a security way. HMAC relies on sharing the key between many projects. To accomplish it `NetDevPack.Security.Jwt` use Public Key Cryptosystem to generate your keys. So you can share you public key at `https://<your_api_adrress>/jwks`!  
+One of the biggest problem at multi api's environment is about Key Management, a classical problem of cryptography: How to distribute keys in a security way? JWT with HMAC Key relies on sharing the key between many projects and people. But instead, to accomplish it `NetDevPack.Security.Jwt.Core` use Public Key Cryptosystem to generate your keys. So you can share you public key at `https://<your_api_adrress>/jwks`! While the private key only lives in one secure place.
 
 **Peace of cake 🎂**
 
