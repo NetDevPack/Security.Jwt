@@ -139,13 +139,13 @@ You can expose the JWK through a JWKS endpoint and share it with your API's.
 At your API install `NetDevPack.Security.Jwt`:
 
 ```bash
-dotnet add package NetDevPack.Security.Jwt
+dotnet add package NetDevPack.Security.Jwt.AspNetCore
 ```
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package NetDevPack.Security.Jwt
+    dotnet add package NetDevPack.Security.Jwt.AspNetCore
 ```
 
 Go to your `startup.cs` and change Configure:
