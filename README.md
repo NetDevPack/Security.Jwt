@@ -31,6 +31,34 @@ The goal of this project is to help your application security by Managing your J
 
 It generates Keys way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518).
 
+# Installing
+
+```bash
+dotnet add package NetDevPack.Security.Jwt.AspNetCore
+```
+
+Now you need to configure `Startup.cs` and inject `IJwtService` to generate tokens.
+
+## Token Configuration
+
+```c#
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "NetDevPack", 
+        ValidAudience = "NetDevPack.AspNet.SymetricKey"
+    };
+});
+builder.Services.AddAuthorization();
+builder.Services.AddJwksManager().UseJwtValidation();
+builder.Services.AddMemoryCache();
+```
+
 ## Generating Tokens:
 
 ```c#
@@ -57,26 +85,6 @@ private string GenerateToken(User user)
 }
 ```
 
-## Token Validation
-
-```c#
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = "NetDevPack",
-        ValidAudience = "NetDevPack.AspNet.SymetricKey"
-    };
-});
-builder.Services.AddAuthorization();
-builder.Services.AddJwksManager().UseJwtValidation();
-builder.Services.AddMemoryCache();
-```
 
 
 <p align="center">
