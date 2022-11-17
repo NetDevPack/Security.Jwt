@@ -1,3 +1,15 @@
+# [7.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.7...v7.0.0) (2022-11-17)
+
+
+### Features
+
+* net 7 support ([3e50c4d](https://github.com/NetDevPack/Security.Jwt/commit/3e50c4d50b9512d75d2a35f29d7e745ee083970b))
+
+
+### BREAKING CHANGES
+
+* net 5 drop
+
 ## [6.0.7](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.6...v6.0.7) (2022-08-22)
 
 
