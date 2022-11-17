@@ -23,21 +23,16 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - name: Setup .NET
+      - name: Setup .NET 7
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 5.0.x
+          dotnet-version: 7.0.x
 
       - name: Setup .NET Core 3.1
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 3.1.x
           
-      - name: Setup .NET Core 2.1
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 2.1.x
-
       - name: Restore dependencies
         run: dotnet restore 
 
