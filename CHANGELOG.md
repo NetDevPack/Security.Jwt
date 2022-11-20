@@ -1,3 +1,30 @@
+# [7.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.7...v7.0.0) (2022-11-17)
+
+
+### Features
+
+* net 7 support ([3e50c4d](https://github.com/NetDevPack/Security.Jwt/commit/3e50c4d50b9512d75d2a35f29d7e745ee083970b))
+
+
+### BREAKING CHANGES
+
+* net 5 drop
+
+## [6.0.7](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.6...v6.0.7) (2022-08-22)
+
+
+### Bug Fixes
+
+* revocation keys ([de446d8](https://github.com/NetDevPack/Security.Jwt/commit/de446d8cb1b226230727944eef9c91f5c9f0a270))
+
+## [6.0.6](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.5...v6.0.6) (2022-05-05)
+
+
+### Bug Fixes
+
+* datetime kind problem use npgsql [issues [#23](https://github.com/NetDevPack/Security.Jwt/issues/23)] ([04134d2](https://github.com/NetDevPack/Security.Jwt/commit/04134d201773ece578013e6704c0068b1c3ca273))
+* warnings [skip ci] ([7b0c06f](https://github.com/NetDevPack/Security.Jwt/commit/7b0c06f121ac01c71e4f2289b5b3677dee67d2d9))
+
 ## [6.0.5](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.4...v6.0.5) (2022-04-17)
 
 

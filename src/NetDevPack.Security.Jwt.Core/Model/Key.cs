@@ -11,7 +11,7 @@ public class KeyMaterial
     public KeyMaterial() { }
     public KeyMaterial(CryptographicKey cryptographicKey)
     {
-        CreationDate = DateTime.Now;
+        CreationDate = DateTime.UtcNow;
         Parameters = JsonSerializer.Serialize(cryptographicKey.GetJsonWebKey(), typeof(JsonWebKey));
         Type = cryptographicKey.Algorithm.Kty();
         KeyId = cryptographicKey.Key.KeyId;
@@ -34,7 +34,7 @@ public class KeyMaterial
     {
         var jsonWebKey = GetSecurityKey();
         var publicWebKey = PublicJsonWebKey.FromJwk(jsonWebKey);
-        ExpiredAt = DateTime.Now;
+        ExpiredAt = DateTime.UtcNow;
         IsRevoked = true;
         Parameters = JsonSerializer.Serialize(publicWebKey.ToNativeJwk(), new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
     }

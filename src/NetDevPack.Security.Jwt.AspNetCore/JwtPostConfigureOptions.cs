@@ -7,18 +7,17 @@ namespace NetDevPack.Security.Jwt.AspNetCore;
 
 public class JwtPostConfigureOptions : IPostConfigureOptions<JwtBearerOptions>
 {
-    private readonly IJwtService _jwtService;
+    private readonly IServiceProvider _serviceProvider;
     // private readonly MyCustomSecurityTokenValidator _tokenValidator; //example dependancy
 
-    public JwtPostConfigureOptions(IServiceProvider service)
+    public JwtPostConfigureOptions(IServiceProvider serviceProvider)
     {
-        using var scope = service.CreateScope();
-        _jwtService = scope.ServiceProvider.GetRequiredService<IJwtService>();
+        _serviceProvider = serviceProvider;
     }
 
     public void PostConfigure(string name, JwtBearerOptions options)
     {
         options.SecurityTokenValidators.Clear();
-        options.SecurityTokenValidators.Add(new JwtServiceValidationHandler(_jwtService));
+        options.SecurityTokenValidators.Add(new JwtServiceValidationHandler(_serviceProvider));
     }
 }
