@@ -53,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "NetDevPack",
+        ValidIssuer = "https://www.devstore.academy", // <- Your website
         ValidAudience = "NetDevPack.Security.Jwt.AspNet"
     };
 });
@@ -82,11 +82,11 @@ app.MapGet("/random-jws", async (IJwtService service) =>
        var now = DateTime.Now;
        var descriptor = new SecurityTokenDescriptor
        {
-           Issuer = "NetDevPack",
+           Issuer = "https://www.devstore.academy", // <- Your website
            Audience = "NetDevPack.Security.Jwt.AspNet",
            IssuedAt = now,
            NotBefore = now,
-           Expires = now.AddMinutes(5),
+           Expires = now.AddMinutes(60),
            Subject = new ClaimsIdentity(FakeClaims.GenerateClaim().Generate(5)),
            SigningCredentials = await service.GetCurrentSigningCredentials()
        };
@@ -102,7 +102,7 @@ app.MapGet("/random-jwe", async (IJwtService service) =>
        var now = DateTime.Now;
        var descriptor = new SecurityTokenDescriptor
        {
-           Issuer = "NetDevPack",
+           Issuer = "https://www.devstore.academy",
            Audience = "NetDevPack.Security.Jwt.AspNet",
            IssuedAt = now,
            NotBefore = now,
@@ -116,14 +116,14 @@ app.MapGet("/random-jwe", async (IJwtService service) =>
     .WithName("Generate random JWE")
     .WithTags("JWE");
 
-app.MapGet("/validate-jwt/{jwt}", async (IJwtService service, string jwt) =>
+app.MapGet("/validate-jws/{jws}", async (IJwtService service, string jws) =>
 {
     var handler = new JsonWebTokenHandler();
 
-    var result = handler.ValidateToken(jwt,
+    var result = handler.ValidateToken(jws,
         new TokenValidationParameters
         {
-            ValidIssuer = "NetDevPack",
+            ValidIssuer = "https://www.devstore.academy",
             ValidAudience = "NetDevPack.Security.Jwt.AspNet",
             RequireSignedTokens = false,
             IssuerSigningKey = await service.GetCurrentSecurityKey(),
@@ -131,7 +131,7 @@ app.MapGet("/validate-jwt/{jwt}", async (IJwtService service, string jwt) =>
 
     return result.Claims;
 })
-.WithName("Validate JWT")
+.WithName("Validate JWT (In fact jws, but no one cares)")
 .WithTags("Validate");
 
 
@@ -142,7 +142,7 @@ app.MapGet("/validate-jwe/{jwe}", async (IJwtService service, string jwe) =>
         var result = handler.ValidateToken(jwe,
             new TokenValidationParameters
             {
-                ValidIssuer = "NetDevPack",
+                ValidIssuer = "https://www.devstore.academy",
                 ValidAudience = "NetDevPack.Security.Jwt.AspNet",
                 RequireSignedTokens = false,
                 TokenDecryptionKey = await service.GetCurrentSecurityKey(),

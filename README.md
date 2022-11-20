@@ -1,4 +1,7 @@
-# JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt
+# JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt (jws) / Jwe
+
+One of the biggest problem at Key Management is: How to distribute keys in a security way. HMAC relies on sharing the key between many projects. To accomplish it `NetDevPack.Security.Jwt` use Public Key Cryptosystem to generate your keys. So you can share you public key at `https://<your_api_adrress>/jwks`!  
+
 <p align="center">
     <img alt="read before" src="docs/important.png" />
 </p>
@@ -14,48 +17,21 @@
 ------------------
 <br>
 
-![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![Master - Publish packages](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml/badge.svg)](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish-package.yml)
-
+![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt)![coverage](https://img.shields.io/badge/coverage-93%25-green)[![NetDevPack - MASTER Publish](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish.yml/badge.svg)](https://github.com/NetDevPack/Security.Jwt/actions/workflows/publish.yml)
 
 The goal of this project is to help your application security by Managing your JWT.
 
 * Auto create RSA or ECDsa keys
 * Support for JWE
-* Publish a endpoint with your public key in JWKS format
-* Support for multiple API's to consume the JWKS endpoint
-* Auto rotate key every 90 days (Best current practices for Public Key Rotation)
+* Support public `jwks_uri` endpoint with your public key in JWKS format
+* Extensions for your client API's to consume the JWKS endpoint. See more at [NetDevack.Security.JwtExtensions](https://github.com/NetDevPack/Security.JwtExtensions)
+* Auto rotate key every 90 days (Following NIST Best current practices for Public Key Rotation)
 * Remove old private keys after key rotation (NIST Recommendations)
 * Use recommended settings for RSA & ECDSA (RFC 7518 Recommendations)
 * Uses random number generator to generate keys for JWE with AES CBC (dotnet does not support RSA-OAEP with Aes128GCM)
 * By default Save keys in same room of ASP.NET DataProtection (The same place where ASP.NET save the keys to to cryptograph MVC cookies)
 
 It generates Keys way better with RSA and ECDsa algorithms. Which is most recommended by [RFC 7518](https://datatracker.ietf.org/doc/html/rfc7518).
-
-## Generating Tokens:
-
-```c#
-
-public AuthController(IJwtService jwtService)
-{
-    _jwtService = jwtService;
-}
-
-private string GenerateToken(User user)
-{
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var currentIssuer = $"{ControllerContext.HttpContext.Request.Scheme}://{ControllerContext.HttpContext.Request.Host}";
-
-    var key = _jwtService.GetCurrentSigningCredentials(); // (ECDsa or RSA) auto generated key
-    var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
-    {
-        Issuer = currentIssuer,
-        Subject = identityClaims,
-        Expires = DateTime.UtcNow.AddHours(1),
-        SigningCredentials = key
-    });
-    return tokenHandler.WriteToken(token);
-}
-```
 
 ## Token Validation
 
@@ -69,15 +45,42 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "NetDevPack",
-        ValidAudience = "NetDevPack.AspNet.SymetricKey"
+        ValidIssuer = "https://www.devstore.academy",
+        ValidAudience = "NetDevPack.Security.Jwt.AspNet"
     };
 });
 builder.Services.AddAuthorization();
 builder.Services.AddJwksManager().UseJwtValidation();
-builder.Services.AddMemoryCache();
 ```
 
+## Generating Tokens:
+
+```c#
+
+public AuthController(IJwtService jwtService)
+{
+    _jwtService = jwtService;
+}
+
+private string GenerateToken(User user)
+{
+    var key = _jwtService.GetCurrentSigningCredentials(); // (ECDsa or RSA) auto generated key
+ 
+    var handler = new JsonWebTokenHandler();
+    var now = DateTime.Now;
+    var descriptor = new SecurityTokenDescriptor
+    {
+        Issuer = "https://www.devstore.academy", // <- Your website
+        Audience = "NetDevPack.Security.Jwt.AspNet",
+        IssuedAt = now,
+        NotBefore = now,
+        Expires = now.AddMinutes(60),
+        Subject = new ClaimsIdentity(FakeClaims.GenerateClaim().Generate(5)),
+        SigningCredentials = await service.GetCurrentSigningCredentials()
+    };
+    return tokenHandler.WriteToken(token);
+}
+```
 
 <p align="center">
     <img width="100px" src="https://jpproject.blob.core.windows.net/images/helldog-site.png" />
