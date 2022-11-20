@@ -298,13 +298,13 @@ The `NetDevPack.Security.Jwt` package provides a mechanism for storing yor Keys 
 
 Install
 ```
-    Install-Package Jwks.Manager.Store.EntityFrameworkCore
+    Install-Package NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 ``` 
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package Jwks.Manager.Store.EntityFrameworkCore
+    dotnet add package NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 ```
 
 Add `ISecurityKeyContext` to your DbContext:
@@ -335,13 +335,13 @@ The `NetDevPack.Security.Jwt` package provides a mechanism for storing yor Keys 
 
 Install
 ```
-    Install-Package Jwks.Manager.Store.FileSystem
+    Install-Package NetDevPack.Security.Jwt.Store.FileSystem
 ``` 
 
 Or via the .NET Core command line interface:
 
 ```
-    dotnet add package Jwks.Manager.Store.FileSystem
+    dotnet add package NetDevPack.Security.Jwt.Store.FileSystem
 ```
 
 Now change your `startup.cs`
@@ -466,5 +466,5 @@ Many developers has no clue about which Algorithm to use for sign their JWT. Thi
 
 # License
 
-Jwks.Manager is Open Source software and is released under the MIT license. This license allow the use of Jwks.Manager in free and commercial applications and libraries without restrictions.
-
+NetDevPack.Security.Jwt is Open Source software and is released under the MIT license. This license allow the use of NetDevPack.Security.Jwt in free and commercial applications and libraries without restrictions.
+p
