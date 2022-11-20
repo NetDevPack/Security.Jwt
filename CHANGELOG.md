@@ -1,3 +1,11 @@
+## [7.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.0...v7.0.1) (2022-11-20)
+
+
+### Bug Fixes
+
+* demo bug fix & README.md ([c260a77](https://github.com/NetDevPack/Security.Jwt/commit/c260a774fe25fa8bb74461aa4adc9f501346afdd))
+* readme ([8564980](https://github.com/NetDevPack/Security.Jwt/commit/8564980c592b36f579db8a73f9a8fdd3e4a561b1))
+
 # [7.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v6.0.7...v7.0.0) (2022-11-17)
 
 
