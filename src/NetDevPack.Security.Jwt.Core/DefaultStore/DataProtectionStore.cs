@@ -123,7 +123,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 // IXmlRepository doesn't allow us to update. So remove from Get to prevent errors
                 if (key.IsExpired(_options.Value.DaysUntilExpire))
                 {
-                    Revoke(key).Wait();
+                    //Revoke(key).Wait();
                     revokedKeys.Add(key.Id.ToString());
                 }
 
