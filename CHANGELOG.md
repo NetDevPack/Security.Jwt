@@ -1,3 +1,10 @@
+## [7.0.2](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.1...v7.0.2) (2022-12-05)
+
+
+### Bug Fixes
+
+* revoke key ([47df6c2](https://github.com/NetDevPack/Security.Jwt/commit/47df6c241047e168b109f1b61ebc0dc7cc58ccfd))
+
 ## [7.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.0...v7.0.1) (2022-11-20)
 
 
