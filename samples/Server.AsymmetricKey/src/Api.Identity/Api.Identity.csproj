@@ -22,9 +22,5 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />
-  </ItemGroup>
-
 
 </Project>

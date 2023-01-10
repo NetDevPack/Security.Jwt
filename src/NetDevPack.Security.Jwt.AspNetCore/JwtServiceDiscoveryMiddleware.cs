@@ -19,7 +19,6 @@ public class JwtServiceDiscoveryMiddleware
 
     public async Task Invoke(HttpContext httpContext, IJwtService keyService, IOptions<JwtOptions> options)
     {
-
         var storedKeys = await keyService.GetLastKeys(options.Value.AlgorithmsToKeep);
         var keys = new
         {
