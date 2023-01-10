@@ -1,50 +1,26 @@
 using System.Security.Claims;
+using AspNet.Default;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using NetDevPack.Security.Jwt.AspNet.SymetricKey;
-using NetDevPack.Security.Jwt.AspNetCore;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "Bearer {token}",
-        Name = "Authorization",
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey
-    });
+builder.Services.AddSwagger();
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] { }
-        }
-    });
-});
+builder.Services
+    .AddJwksManager() // <- Use component
+    .UseJwtValidation(); // <- This will instruct ASP.NET to validate the JWT token using JwksManager component
 
+
+// Here we're setting a secure validation of token. Like issuer, audience.
+// But instead setting a custom key, this validation was overrided by `.UseJwtValidation()`
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -57,17 +33,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidAudience = "NetDevPack.Security.Jwt.AspNet"
     };
 });
-builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Directory.GetCurrentDirectory()));
+
 builder.Services.AddAuthorization();
-builder.Services.AddJwksManager().UseJwtValidation();
+
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-IdentityModelEventSource.ShowPII = true;
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    IdentityModelEventSource.ShowPII = true;
     app.UseSwagger();
     app.UseSwaggerUI();
 }

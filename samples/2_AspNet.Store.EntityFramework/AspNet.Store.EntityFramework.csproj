@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
@@ -17,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\NetDevPack.Security.Jwt.AspNetCore\NetDevPack.Security.Jwt.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />
+    <ProjectReference Include="..\..\src\NetDevPack.Security.Jwt.Store.EntityFrameworkCore\NetDevPack.Security.Jwt.Store.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
 </Project>

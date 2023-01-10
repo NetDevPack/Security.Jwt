@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NetDevPack.Security.Jwt.AspNetCore;
-using NetDevPack.Security.Jwt.Core;
 using Newtonsoft.Json;
 
 namespace NetDevPack.Security.Jwt.IdentityServer4.Tests
