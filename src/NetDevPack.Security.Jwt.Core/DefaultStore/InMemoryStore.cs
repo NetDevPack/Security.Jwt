@@ -6,7 +6,7 @@ namespace NetDevPack.Security.Jwt.Core.DefaultStore;
 
 internal class InMemoryStore : IJsonWebKeyStore
 {
-
+    internal const string DefaultRevocationReason = "Revoked";
     private static readonly List<KeyMaterial> _store = new();
     private readonly SemaphoreSlim _slim = new(1);
     public Task Store(KeyMaterial keyMaterial)
@@ -27,8 +27,8 @@ internal class InMemoryStore : IJsonWebKeyStore
     {
         if(keyMaterial == null)
             return;
-
-        keyMaterial.Revoke();
+        var revokeReason = reason ?? DefaultRevocationReason;
+        keyMaterial.Revoke(revokeReason);
         var oldOne = _store.Find(f => f.Id == keyMaterial.Id);
         if (oldOne != null)
         {
