@@ -51,7 +51,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             return !File.Exists(GetCurrentFile()) || File.GetCreationTimeUtc(GetCurrentFile()).AddDays(_options.Value.DaysUntilExpire) < DateTime.UtcNow.Date;
         }
 
-        public async Task Revoke(KeyMaterial? securityKeyWithPrivate)
+        public async Task Revoke(KeyMaterial securityKeyWithPrivate, string reason = null)
         {
             if (securityKeyWithPrivate == null)
                 return;

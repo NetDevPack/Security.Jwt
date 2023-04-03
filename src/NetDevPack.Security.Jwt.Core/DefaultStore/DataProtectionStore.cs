@@ -37,6 +37,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
     private IXmlRepository KeyRepository => _keyManagementOptions.Value.XmlRepository ?? GetFallbackKeyRepositoryEncryptorPair();
 
     private const string Name = "NetDevPackSecurityJwt";
+    internal const string DefaultRevocationReason = "Revoked";
 
     public DataProtectionStore(
         ILoggerFactory loggerFactory,
@@ -98,7 +99,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
     {
         var allElements = KeyRepository.GetAllElements();
         var keys = new List<KeyMaterial>();
-        var revokedKeys = new List<string>();
+        var revokedKeys = new List<RevokedKeyInfo>();
         foreach (var element in allElements)
         {
             if (element.Name == Name)
@@ -124,7 +125,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 if (key.IsExpired(_options.Value.DaysUntilExpire))
                 {
                     //Revoke(key).Wait();
-                    revokedKeys.Add(key.Id.ToString());
+                    revokedKeys.Add(new RevokedKeyInfo(key.Id.ToString()));
                 }
 
                 keys.Add(key);
@@ -132,13 +133,14 @@ internal class DataProtectionStore : IJsonWebKeyStore
             else if (element.Name == RevocationElementName)
             {
                 var keyIdAsString = (string)element.Element(Name)!.Attribute(IdAttributeName)!;
-                revokedKeys.Add(keyIdAsString);
+                var reason = (string)element.Element(ReasonElementName);
+                revokedKeys.Add(new RevokedKeyInfo(keyIdAsString, reason));
             }
         }
 
         foreach (var revokedKey in revokedKeys)
         {
-            keys.FirstOrDefault(a => a.Id.ToString().Equals(revokedKey))?.Revoke();
+            keys.FirstOrDefault(a => a.Id.ToString().Equals(revokedKey.Id))?.Revoke(revokedKey.RevokedReason);
         }
         return keys.ToList();
     }
@@ -181,7 +183,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
     }
 
 
-    public async Task Revoke(KeyMaterial keyMaterial)
+    public async Task Revoke(KeyMaterial keyMaterial, string reason = null)
     {
         if(keyMaterial == null)
             return;
@@ -193,12 +195,13 @@ internal class DataProtectionStore : IJsonWebKeyStore
             return;
 
         keyMaterial.Revoke();
+        var revokeReason = reason ?? DefaultRevocationReason;
         var revocationElement = new XElement(RevocationElementName,
             new XAttribute(VersionAttributeName, 1),
             new XElement(RevocationDateElementName, DateTimeOffset.UtcNow),
             new XElement(Name,
                 new XAttribute(IdAttributeName, keyMaterial.Id)),
-            new XElement(ReasonElementName, "Revoked"));
+            new XElement(ReasonElementName, revokeReason));
 
 
         // Persist it to the underlying repository and trigger the cancellation token

@@ -23,7 +23,7 @@ internal class InMemoryStore : IJsonWebKeyStore
         return Task.FromResult(_store.OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }
 
-    public async Task Revoke(KeyMaterial keyMaterial)
+    public async Task Revoke(KeyMaterial keyMaterial, string reason = null)
     {
         if(keyMaterial == null)
             return;
