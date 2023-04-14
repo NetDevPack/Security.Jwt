@@ -22,6 +22,7 @@ public class KeyMaterial
     public string Type { get; set; }
     public string Parameters { get; set; }
     public bool IsRevoked { get; set; }
+    public string? RevokedReason { get; set; }
     public DateTime CreationDate { get; set; }
     public DateTime? ExpiredAt { get; set; }
 
@@ -30,14 +31,17 @@ public class KeyMaterial
         return JsonSerializer.Deserialize<JsonWebKey>(Parameters);
     }
 
-    public void Revoke()
+    public void Revoke(string reason=default)
     {
         var jsonWebKey = GetSecurityKey();
         var publicWebKey = PublicJsonWebKey.FromJwk(jsonWebKey);
         ExpiredAt = DateTime.UtcNow;
         IsRevoked = true;
+        RevokedReason = reason;
         Parameters = JsonSerializer.Serialize(publicWebKey.ToNativeJwk(), new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
     }
+
+    
 
     public bool IsExpired(int valueDaysUntilExpire)
     {

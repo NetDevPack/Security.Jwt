@@ -24,6 +24,11 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="7.0.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>NetDevPack.Security.Jwt.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
   <Target Name="CopyHook" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Debug'">
     <ItemGroup>
