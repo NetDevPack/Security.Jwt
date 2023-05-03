@@ -1,3 +1,12 @@
+# [7.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.2...v7.1.0) (2023-04-14)
+
+
+### Features
+
+* new demos [skip ci] ([a0a5f62](https://github.com/NetDevPack/Security.Jwt/commit/a0a5f622f48dc98361ffbe327905feef2a816722))
+* Revoked Reason ([c7f10bc](https://github.com/NetDevPack/Security.Jwt/commit/c7f10bcdb392ebef79140b9c3dff00b49c2aab7a))
+* **revoke:** revoke key with given reason ([350fcaa](https://github.com/NetDevPack/Security.Jwt/commit/350fcaa26ba3645344d3d060a42787aa55f98fa1))
+
 ## [7.0.2](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.1...v7.0.2) (2022-12-05)
 
 

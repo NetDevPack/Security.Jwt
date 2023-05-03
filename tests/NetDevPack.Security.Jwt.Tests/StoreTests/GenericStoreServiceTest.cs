@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Core;
+using NetDevPack.Security.Jwt.Core.DefaultStore;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 using NetDevPack.Security.Jwt.Core.Jwa;
 using NetDevPack.Security.Jwt.Core.Model;
@@ -21,7 +22,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     where TWarmup : class, IWarmupTest
 {
     private static SemaphoreSlim TestSync = new(1);
-    private readonly IJsonWebKeyStore _store;
+    protected readonly IJsonWebKeyStore _store;
     private readonly IOptions<JwtOptions> _options;
     public TWarmup WarmupData { get; }
 
@@ -496,6 +497,42 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
 
         result.IsValid.Should().BeTrue();
 
+    }
+
+    [Fact]
+    public async Task Should_Read_Default_Revocation_Reason()
+    {
+        var keyMaterial = await StoreRandomKey();
+        /*Revoke*/
+        await _store.Revoke(keyMaterial);
+        await CheckRevocationReasonIsStored(keyMaterial.KeyId, DataProtectionStore.DefaultRevocationReason);
+    }
+
+    [Theory]
+    [InlineData("ManualRevocation")]
+    [InlineData("StolenKey")]
+    public async Task Should_Read_NonDefault_Revocation_Reason(string reason)
+    {
+        var keyMaterial = await StoreRandomKey();
+        /*Revoke with reason*/
+        await _store.Revoke(keyMaterial, reason);
+        await CheckRevocationReasonIsStored(keyMaterial.KeyId, reason);
+    }
+
+    private async Task CheckRevocationReasonIsStored(string keyId, string revocationReason)
+    {
+        var dbKey = (await _store.GetLastKeys(5)).First(w => w.KeyId == keyId);
+        dbKey.Type.Should().NotBeNullOrEmpty();
+        dbKey.RevokedReason.Should().BeEquivalentTo(revocationReason);
+    }
+
+    private async Task<KeyMaterial> StoreRandomKey()
+    {
+        var alg = Algorithm.Create(DigitalSignaturesAlgorithm.RsaSha512);
+        var key = new CryptographicKey(alg);
+        var keyMaterial = new KeyMaterial(key);
+        await _store.Store(keyMaterial);
+        return keyMaterial;
     }
 
 
