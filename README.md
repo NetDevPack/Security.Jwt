@@ -208,7 +208,8 @@ A major challenge in key management is securely distributing keys. HMAC depends 
 
 **Peace of cake 🎂**
 
-### Identity API (Who emits the token)
+## Identity API (Who emits the token)
+
 Install `NetDevPack.Security.Jwt.AspNetCore` in the API that issues JWT Tokens. Modify your Startup.cs:
 
 ```csharp
