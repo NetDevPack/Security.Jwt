@@ -1,3 +1,11 @@
+## [7.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.0...v7.1.1) (2023-05-03)
+
+
+### Bug Fixes
+
+* KeyMaterialMap for database store ([5cc9fdf](https://github.com/NetDevPack/Security.Jwt/commit/5cc9fdfdceaf23b0c0f6d2b59cd55ad68ee6903a))
+* README.md typos ([2c3d1d5](https://github.com/NetDevPack/Security.Jwt/commit/2c3d1d5446503b923b81f4705fb680d637993a94))
+
 # [7.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v7.0.2...v7.1.0) (2023-04-14)
 
 
