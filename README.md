@@ -96,12 +96,12 @@ private string GenerateToken(User user)
   - [Table of Contents](#table-of-contents)
 - [🛡️ What is](#️-what-is)
 - [ℹ️ Installing](#ℹ️-installing)
-- [❤️ Generating Tokens](#️-generating-tokens)
-- [✔️ Validating Token (Jws)](#️-validating-token-jws)
+- [❤️ Token Generation](#️-token-generation)
+- [✔️ Token Validation (Jws)](#️-token-validation-jws)
 - [⛅ Multiple API's - Use Jwks](#-multiple-apis---use-jwks)
     - [Identity API (Who emits the token)](#identity-api-who-emits-the-token)
   - [Client API](#client-api)
-- [💾 Store](#-store)
+- [💾 Storage](#-storage)
   - [Database](#database)
   - [File system](#file-system)
 - [Samples](#samples)
@@ -119,42 +119,37 @@ private string GenerateToken(User user)
 # 🛡️ What is
 
 
-The JSON Web Key Set (JWKS) is a set of keys which contains the public keys used to verify any JSON Web Token (JWT) issued by the authorization server. 
-The main goal of this component is to provide a centralized store and Key Rotation of your JWK. It also provide features to generate best practices JWK.
-It has a plugin for IdentityServer4, giving hability to rotating jwks_uri every 90 days and auto manage your jwks_uri.
+The JSON Web Key Set (JWKS) is a collection of public keys used for verifying JSON Web Tokens (JWTs) issued by an authorization server. This component's primary objective is to provide a centralized storage and key rotation for your JWKs while adhering to best practices in JWK generation. It features a plugin for IdentityServer4, enabling automatic rotation of the jwks_uri every 90 days and seamless management of your jwks_uri.
 
-If your API or OAuth 2.0 is under Load Balance in Kubernetes, or docker swarm it's a must have component. It work in the same way DataProtection Key of ASP.NET Core.
+If your API or OAuth 2.0 is deployed under a Load Balancer in Kubernetes or Docker Swarm, this component is essential. Its functionality is similar to the DataProtection Key in ASP.NET Core.
 
-This component generate, store and manage your JWK. It keep a centralized store to share between your instances. By default after a 3 months a new key will be generated. 
+This component generates, stores, and manages your JWKs while maintaining a centralized storage accessible across instances. By default, a new key is generated every three months.
 
-You can expose the JWK through a JWKS endpoint and share it with your API's.
+You can expose your JWKs through a JWKS endpoint and share them with your APIs.
 
 # ℹ️ Installing
 
-At your API install `NetDevPack.Security.Jwt`:
+To install `NetDevPack.Security.Jwt` in your API, use the following command
 
 ```bash
 dotnet add package NetDevPack.Security.Jwt
 ```
 
-Or via the .NET Core command line interface:
+Alternatively, you can use the .NET Core command line interface:
 
 ```
-    dotnet add package NetDevPack.Security.Jwt
+dotnet add package NetDevPack.Security.Jwt
 ```
 
-Go to your `startup.cs` and change Configure:
+Next, modify the Configure method in your `startup.cs` or `program.cs` file:
 
 ```c#
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddJwksManager().UseJwtValidation();
-}
+builder.Services.AddJwksManager().UseJwtValidation();
 ```
 
-# ❤️ Generating Tokens
+# ❤️ Token Generation
 
-Usually we say Jwt. But in most cases we are trying to create a Jws.
+In most cases, when we say JWT, we're actually referring to JWS.
 
 
 ```c#
@@ -180,9 +175,9 @@ private string GenerateToken(User user)
 }
 ```
 
-# ✔️ Validating Token (Jws)
+# ✔️ Token Validation (JWS)
 
-Use the same service to get the current key and validate the token.
+Utilize the same service to obtain the current key and validate the token..
 
 ```csharp
 
@@ -209,12 +204,12 @@ private string ValidateToken(string jwt)
 
 # ⛅ Multiple API's - Use Jwks
 
-One of the biggest problem at Key Management is: How to distribute keys in a security way. HMAC relies on sharing the key between many projects. To accomplish it `NetDevPack.Security.Jwt` use Public Key Cryptosystem to generate your keys. So you can share you public key at `https://<your_api_adrress>/jwks`!  
+A major challenge in key management is securely distributing keys. HMAC depends on sharing a key among multiple projects. To address this, `NetDevPack.Security.Jwt` employs a Public Key Cryptosystem for generating keys. As a result, you can share your public key at `https://<your_api_address>/jwks`! 
 
 **Peace of cake 🎂**
 
 ### Identity API (Who emits the token)
-Install `NetDevPack.Security.Jwt.AspNetCore` in your API that emit JWT Tokens. Change your Startup.cs:
+Install `NetDevPack.Security.Jwt.AspNetCore` in the API that issues JWT Tokens. Modify your Startup.cs:
 
 ```csharp
 public void Configure(IApplicationBuilder app)
@@ -243,7 +238,7 @@ Generating the token:
 ```
 ## Client API
 
-Then at your Client API, which need to validate Jwt, install `NetDevPack.Security.JwtExtensions`. Then change your `Startup.cs`:
+In your Client API, where JWT validation is required, install `NetDevPack.Security.JwtExtensions`. Next, update your `Startup.cs`:
 
 
 ```csharp
@@ -268,7 +263,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     // ...
 }
 ```
-The `Controller`:
+At your `Controller`:
 
 ```csharp
 
@@ -284,24 +279,24 @@ public class IdentityController : ControllerBase
 
 Done 👌!
 
-# 💾 Store
+# 💾 Storage
 
-By default `NetDevPack.Security.Jwt` are stored in same place where ASP.NET Core store their Cryptographic Key Material. We use the [IXmlRepository](https://github.com/dotnet/aspnetcore/blob/d8906c8523f071371ce95d4e2d2fdfa89858047e/src/DataProtection/DataProtection/src/KeyManagement/XmlKeyManager.cs). 
+By default, `NetDevPack.Security.Jwt` stores keys in the same location where ASP.NET Core stores its Cryptographic Key Material. It utilizes the [IXmlRepository](https://github.com/dotnet/aspnetcore/blob/d8906c8523f071371ce95d4e2d2fdfa89858047e/src/DataProtection/DataProtection/src/KeyManagement/XmlKeyManager.cs).
 
-So every change you made at [DataProtection](https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/introduction?view=aspnetcore-5.0) it will apply
+Any changes made to DataProtection will apply to this as well.
 
-You can override the default behavior by adding another provider and control it under your needs.
+You can override the default behavior by adding another provider and customizing it according to your needs.
 
 ## Database
 
-The `NetDevPack.Security.Jwt` package provides a mechanism for storing yor Keys to a database using EntityFramework Core. 
+The `NetDevPack.Security.Jwt` package offers a method for storing your keys in a database using EntityFramework Core.
 
-Install
+Install via NuGet Package Manager:
 ```
     Install-Package NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 ``` 
 
-Or via the .NET Core command line interface:
+Or through the .NET Core command line interface:
 
 ```
     dotnet add package NetDevPack.Security.Jwt.Store.EntityFrameworkCore
@@ -355,11 +350,11 @@ public void ConfigureServices(IServiceCollection services)
 
 # Samples
 
-There are few demos [here](samples/Server.AsymmetricKey)
+You can find several examples [here](samples/Server.AsymmetricKey)
 
 # Changing Algorithm
 
-It's possible to change default Algorithm at configuration routine.
+It's possible to modify the default algorithm during the configuration process.
 
 ``` c#
 build.Services.AddJwksManager(o =>
@@ -368,7 +363,7 @@ build.Services.AddJwksManager(o =>
     o.Jwe = Algorithm.Create(EncryptionAlgorithmKey.RsaOAEP).WithContentEncryption(EncryptionAlgorithmContent.Aes128CbcHmacSha256);
 });
 ```
-By default it uses recommended algorithms by [RFC7518](https://datatracker.ietf.org/doc/html/rfc7518)
+By default, it uses recommended algorithms according to [RFC7518](https://datatracker.ietf.org/doc/html/rfc7518)
 ```c#
 build.Services.AddJwksManager(o =>
 {
@@ -376,7 +371,7 @@ build.Services.AddJwksManager(o =>
     o.Jwe { get; set; } = Algorithm.Create(AlgorithmType.RSA, JwtType.Jwe);
 }
 ```
-The Algorithm object has a list of possibilities.
+The Algorithm object offers a variety of options to choose from.
 
 ## Jws
 
@@ -451,16 +446,15 @@ If you wanna use Database, follow instructions to DatabaseStore instead.
 
 # Why
 
-When creating applications and APIs in OAuth 2.0 or simpling Signing a JWT Key, many algorithms are supported. While there a subset of alg's, some of them are considered best practices, and better than others. Like Elliptic Curve with PS256 algorithm. Some Auth Servers works with Deterministic and other with Probabilist. Some servers like Auth0 doesn't support more than one JWK. But IdentityServer4 support as many as you configure. So this component came to abstract this layer and offer for your application the current best practies for JWK.
+When developing applications and APIs using OAuth 2.0 or simply signing a JWT key, various algorithms are supported. Among these algorithms, some are considered best practices and superior to others, such as the Elliptic Curve with PS256 algorithm. Certain Auth servers operate with deterministic algorithms, while others use probabilistic ones. Some servers, like Auth0, do not support multiple JWKs, but IdentityServer4 supports as many as you configure. This component is designed to abstract this layer and offer your application the current best practices for JWK management.
 
 ## Load Balance scenarios
 
-When working in containers with Kubernetes or Docker Swarm, if your application scale them you became to have some problems, like DataProtection Keys that must be stored in a centralized place. While isn't recommended to avoid this situation Symmetric Key is a way. So this component, like DataProtection, provide a Centralized store for your JWKS.
+When working with containers in Kubernetes or Docker Swarm, scaling your applications can lead to certain issues, such as needing to store DataProtection keys in a centralized location. While it is not recommended to bypass this situation, using symmetric keys is one possible solution. Similar to DataProtection, this component provides a centralized store for your JWKS.
 
 ## Best practices
 
-Many developers has no clue about which Algorithm to use for sign their JWT. This component uses Elliptic Curve with ECDSA using P-256 and SHA-256 as default. It should help to build more secure API's and environments providing JWKS management.
-
+Many developers are unsure about which algorithm to use for signing their JWTs. By default, this component uses Elliptic Curve with ECDSA, utilizing P-256 and SHA-256 to help build more secure APIs and environments. It simplifies JWKS management by providing a better understanding of best practices and ensuring the use of secure algorithms.
 
 ---------------
 

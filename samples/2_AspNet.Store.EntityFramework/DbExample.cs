@@ -9,5 +9,11 @@ namespace AspNet.Store.EntityFramework
     {
         public DbExample(DbContextOptions<DbExample> options) : base(options) { }
         public DbSet<KeyMaterial> SecurityKeys { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new KeyMaterialMap());
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
