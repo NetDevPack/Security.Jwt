@@ -59,12 +59,8 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
                 return credentials;
             }
-            // Put logger in a local such that `this` isn't captured.
-#if NET5_0_OR_GREATER
-            return await _context.SecurityKeys.OrderByDescending(d => d.CreationDate).AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync();
-#else
-            return await _context.SecurityKeys.OrderByDescending(d => d.CreationDate).AsNoTracking().FirstOrDefaultAsync();
-#endif
+
+            return credentials;
         }
 
         public async Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5)
@@ -86,12 +82,8 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
                 return keys;
             }
-#if NET5_0_OR_GREATER
-            var query = await _context.SecurityKeys.OrderByDescending(d => d.CreationDate).Take(quantity).AsNoTrackingWithIdentityResolution().ToListAsync();
-#else
-            var query = await _context.SecurityKeys.OrderByDescending(d => d.CreationDate).Take(quantity).AsNoTracking().ToListAsync();
-#endif
-            return query.AsReadOnly();
+
+            return keys;
         }
 
         public Task<KeyMaterial> Get(string keyId)
