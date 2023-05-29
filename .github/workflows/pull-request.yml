@@ -6,7 +6,7 @@ on:
 
 jobs:
   pull-request:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: src
