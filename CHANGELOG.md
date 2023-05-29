@@ -1,3 +1,14 @@
+## [7.1.2](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.1...v7.1.2) (2023-05-29)
+
+
+### Bug Fixes
+
+* cache bug ([f26f7d5](https://github.com/NetDevPack/Security.Jwt/commit/f26f7d5e660d1cad26b30a59325ac4cbc711d09f)), closes [#40](https://github.com/NetDevPack/Security.Jwt/issues/40)
+* ci ([8baeb3e](https://github.com/NetDevPack/Security.Jwt/commit/8baeb3ef873c04a5c7e96cf28c01db6409ca8c5e))
+* dependencies ([6bf5f0a](https://github.com/NetDevPack/Security.Jwt/commit/6bf5f0aba99d7f8358e6b47a8e96af133160eac1))
+* dependencies [skip ci] ([45a5c89](https://github.com/NetDevPack/Security.Jwt/commit/45a5c89283a4435dd0a81fe5a1be57a3c1ae6adf))
+* semantic-release v3 ([2bdd8b7](https://github.com/NetDevPack/Security.Jwt/commit/2bdd8b7f359686fbfec2e0ca752e8e207a29dd25))
+
 ## [7.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.0...v7.1.1) (2023-05-03)
 
 
