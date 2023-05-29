@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 using NetDevPack.Security.Jwt.Core.Jwa;
-using NetDevPack.Security.Jwt.Store.EntityFrameworkCore;
 
 namespace NetDevPack.Security.Jwt.Tests.Warmups;
 
