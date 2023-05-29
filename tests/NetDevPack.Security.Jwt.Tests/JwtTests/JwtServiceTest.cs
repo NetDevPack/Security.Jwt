@@ -64,6 +64,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
             }
         }
 
+#if NET5_0_OR_GREATER
 
         [Fact]
         public async Task ShouldValidateJweAndJws()
@@ -118,7 +119,7 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
 
             jweResult.IsValid.Should().BeTrue();
         }
-
+#endif
 
 
         public Faker<Claim> GenerateClaim()
