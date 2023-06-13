@@ -24,9 +24,9 @@ public class JwtServiceValidationHandler : JwtSecurityTokenHandler
         //JwtSecurityToken incomingToken = ReadJwtToken(token);
 
         //Retrieve the corresponding Public Key from our data store
-        var keyMaterialTask = jwtService.GetCurrentSecurityKey();
+        var keyMaterialTask = jwtService.GetLastKeys();
         Task.WaitAll(keyMaterialTask);
-        validationParameters.IssuerSigningKey = keyMaterialTask.Result;
+        validationParameters.IssuerSigningKeys = keyMaterialTask.Result.Select(s => s.GetSecurityKey());
 
         //And let the framework take it from here.
         //var handler = new JsonWebTokenHandler();

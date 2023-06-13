@@ -58,11 +58,10 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             return new EncryptingCredentials(current, _options.Value.Jwe.Alg, _options.Value.Jwe.EncryptionAlgorithmContent);
         }
 
-        public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int i)
+        public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int? i = null)
         {
-            return _store.GetLastKeys(5);
+            return _store.GetLastKeys(_options.Value.AlgorithmsToKeep);
         }
-
 
         private async Task<bool> CheckCompatibility(KeyMaterial currentKey)
         {
@@ -74,9 +73,15 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             return true;
         }
 
+        public async Task RevokeKey(string keyId, string reason = null)
+        {
+            var key = await _store.Get(keyId);
+
+            await _store.Revoke(key, reason);
+        }
         private bool NeedsUpdate(KeyMaterial current)
         {
-            return current == null || current.IsExpired(_options.Value.DaysUntilExpire);
+            return current == null || current.IsExpired(_options.Value.DaysUntilExpire) || current.IsRevoked;
         }
 
 

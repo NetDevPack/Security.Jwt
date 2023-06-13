@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using NetDevPack.Security.Jwt.Core.Interfaces;
 
 namespace NetDevPack.Security.Jwt.AspNetCore;
 

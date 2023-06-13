@@ -18,5 +18,7 @@
     <ProjectReference Include="..\..\src\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />
     <ProjectReference Include="..\..\src\NetDevPack.Security.Jwt.Store.EntityFrameworkCore\NetDevPack.Security.Jwt.Store.EntityFrameworkCore.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetDevPack.Security.Jwt.AspNetCoreTests" />
+  </ItemGroup>
 </Project>

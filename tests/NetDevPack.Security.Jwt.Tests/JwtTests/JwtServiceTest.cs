@@ -32,6 +32,17 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         }
 
         [Fact]
+        public async Task ShouldExpireCurrentAndGenerateNewToSignAndValidateJws()
+        {
+            var current = await _jwksService.GetCurrentSigningCredentials();
+
+            await _jwksService.GenerateKey();
+            var newCurrent = await _jwksService.GetCurrentSigningCredentials();
+
+            current.Kid.Should().NotBe(newCurrent.Kid);
+        }
+
+        [Fact]
         public async Task ShouldNotThrowExceptionWhenGetSignManyTimes()
         {
             var currentA = await _jwksService.GetCurrentSigningCredentials();
