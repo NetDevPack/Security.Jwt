@@ -141,7 +141,7 @@ Alternatively, you can use the .NET Core command line interface:
 dotnet add package NetDevPack.Security.Jwt
 ```
 
-Next, modify the Configure method in your `startup.cs` or `program.cs` file:
+Next, modify the Configure method in your `Startup.cs` or `program.cs` file:
 
 ```c#
 builder.Services.AddJwksManager().UseJwtValidation();
