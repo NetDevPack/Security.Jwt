@@ -129,10 +129,10 @@ You can expose your JWKs through a JWKS endpoint and share them with your APIs.
 
 # ℹ️ Installing
 
-To install `NetDevPack.Security.Jwt` in your API, use the following command
+To install `NetDevPack.Security.Jwt` in your API, use the following command in the NuGet Package Manager console:
 
 ```bash
-dotnet add package NetDevPack.Security.Jwt
+Install-Package NetDevPack.Security.Jwt
 ```
 
 Alternatively, you can use the .NET Core command line interface:
