@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "NetDevPack.Security.Jwt.AspNet.SymetricKey": {
+    "AspNet.Store.EntityFramework": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

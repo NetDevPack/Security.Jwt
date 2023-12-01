@@ -119,12 +119,12 @@ namespace Identity.Controllers
             identityClaims.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
             var handler = new JwtSecurityTokenHandler();
-
+            var key = await _jwtService.GetCurrentSigningCredentials();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {
                 Issuer = "https://www.devstore.academy", // <- Your website
                 Audience = "NetDevPack.Security.Jwt.AspNet",
-                SigningCredentials = await _jwtService.GetCurrentSigningCredentials(),
+                SigningCredentials = key,
                 Subject = identityClaims,
                 NotBefore = DateTime.UtcNow,
                 Expires = DateTime.UtcNow.AddMinutes(60),
