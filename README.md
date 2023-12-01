@@ -129,10 +129,10 @@ You can expose your JWKs through a JWKS endpoint and share them with your APIs.
 
 # ℹ️ Installing
 
-To install `NetDevPack.Security.Jwt` in your API, use the following command
+To install `NetDevPack.Security.Jwt` in your API, use the following command in the NuGet Package Manager console:
 
 ```bash
-dotnet add package NetDevPack.Security.Jwt
+Install-Package NetDevPack.Security.Jwt
 ```
 
 Alternatively, you can use the .NET Core command line interface:
@@ -141,7 +141,7 @@ Alternatively, you can use the .NET Core command line interface:
 dotnet add package NetDevPack.Security.Jwt
 ```
 
-Next, modify the Configure method in your `startup.cs` or `program.cs` file:
+Next, modify the Configure method in your `Startup.cs` or `program.cs` file:
 
 ```c#
 builder.Services.AddJwksManager().UseJwtValidation();
@@ -462,4 +462,3 @@ Many developers are unsure about which algorithm to use for signing their JWTs. 
 # License
 
 NetDevPack.Security.Jwt is Open Source software and is released under the MIT license. This license allow the use of NetDevPack.Security.Jwt in free and commercial applications and libraries without restrictions.
-p

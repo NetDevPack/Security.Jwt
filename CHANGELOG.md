@@ -1,3 +1,13 @@
+## [7.1.3](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.2...v7.1.3) (2023-06-13)
+
+
+### Bug Fixes
+
+* releaserc ([bb25404](https://github.com/NetDevPack/Security.Jwt/commit/bb254042f6a859129df240c938f7ffcf1102dddc))
+* releaserc ([aeaa484](https://github.com/NetDevPack/Security.Jwt/commit/aeaa484743096bfdda99de730beb9d88b103f2f8))
+* semantic ([f3d2532](https://github.com/NetDevPack/Security.Jwt/commit/f3d25325a3458e3bdff706b9a1c87a260eb15c90))
+* signing validate jwks instead a single jwk ([e756c37](https://github.com/NetDevPack/Security.Jwt/commit/e756c37d5ee131952eb487904785f0aefa9714d4))
+
 ## [7.1.2](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.1...v7.1.2) (2023-05-29)
 
 
