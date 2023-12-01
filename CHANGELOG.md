@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.0.0...v8.1.0) (2023-12-01)
+
+
+### Features
+
+* Generate new key ([3de819d](https://github.com/NetDevPack/Security.Jwt/commit/3de819d078dc2c5760a746f234d5333a8cb9cb0e))
+
 # [8.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.3...v8.0.0) (2023-12-01)
 
 
