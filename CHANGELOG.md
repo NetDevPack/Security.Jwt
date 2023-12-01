@@ -1,3 +1,15 @@
+# [8.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.3...v8.0.0) (2023-12-01)
+
+
+### Features
+
+* dotnet 8 ([5814e03](https://github.com/NetDevPack/Security.Jwt/commit/5814e03d62bc2480147e0ad3c9ebb177a33ef118))
+
+
+### BREAKING CHANGES
+
+* .NET 8. Use of TokenHandlers instead SecurityTokenValidators see https://aka.ms/aspnetcore8/security-token-changes
+
 ## [7.1.3](https://github.com/NetDevPack/Security.Jwt/compare/v7.1.2...v7.1.3) (2023-06-13)
 
 
