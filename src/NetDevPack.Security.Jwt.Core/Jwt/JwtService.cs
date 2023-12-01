@@ -79,6 +79,15 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
 
             await _store.Revoke(key, reason);
         }
+
+        public async Task<SecurityKey> GenerateNewKey()
+        {
+            var oldCurrent = await _store.GetCurrent();
+            await _store.Revoke(oldCurrent);
+            return await GenerateKey();
+
+        }
+
         private bool NeedsUpdate(KeyMaterial current)
         {
             return current == null || current.IsExpired(_options.Value.DaysUntilExpire) || current.IsRevoked;

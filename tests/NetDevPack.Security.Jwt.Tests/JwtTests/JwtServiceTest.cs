@@ -23,6 +23,20 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
         }
 
 
+
+        [Fact]
+        public async Task Should_Create_New_Key()
+        {
+            var currentKey = await _jwksService.GetCurrentSigningCredentials();
+
+            var newKey = await _jwksService.GenerateNewKey();
+
+            newKey.KeyId.Should().NotBe(currentKey.Kid);
+            var newCurrentKey = await _jwksService.GetCurrentSigningCredentials();
+
+            newKey.KeyId.Should().Be(newCurrentKey.Kid);
+        }
+
         [Fact]
         public async Task ShouldGenerateDefaultSigning()
         {

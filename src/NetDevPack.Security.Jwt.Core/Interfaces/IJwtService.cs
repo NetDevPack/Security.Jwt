@@ -17,6 +17,7 @@ public interface IJwtService
     Task<EncryptingCredentials> GetCurrentEncryptingCredentials();
     Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int? i = null);
     Task RevokeKey(string keyId, string reason = null);
+    Task<SecurityKey> GenerateNewKey();
 }
 [Obsolete("Deprecate, use IJwtServiceInstead")]
 public interface IJsonWebKeySetService : IJwtService{}
