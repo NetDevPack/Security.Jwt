@@ -1,3 +1,10 @@
+## [8.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.0...v8.1.1) (2024-02-08)
+
+
+### Bug Fixes
+
+* dotnet 8 release ([35c407b](https://github.com/NetDevPack/Security.Jwt/commit/35c407bac77d4b07d0f8aec9619207b32b1b0522))
+
 # [8.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.0.0...v8.1.0) (2023-12-01)
 
 
