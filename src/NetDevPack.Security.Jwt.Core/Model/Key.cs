@@ -28,7 +28,10 @@ public class KeyMaterial
 
     public JsonWebKey GetSecurityKey()
     {
-        return JsonSerializer.Deserialize<JsonWebKey>(Parameters);
+        //problem here are default Serializer options. If these options don't have the property PropertyNameCaseInsensitive = true, the deserialization will fail.
+        //var jsonWebKey = JsonSerializer.Deserialize<JsonWebKey>(Parameters);
+        var jsonWebKey = JsonWebKey.Create(Parameters);
+        return jsonWebKey;
     }
 
     public void Revoke(string reason=default)
