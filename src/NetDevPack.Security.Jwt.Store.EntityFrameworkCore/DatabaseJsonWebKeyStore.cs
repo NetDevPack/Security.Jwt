@@ -108,7 +108,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             if (securityKeyWithPrivate == null)
                 return;
 
-            securityKeyWithPrivate.Revoke();
+            securityKeyWithPrivate.Revoke(reason);
             _context.Attach(securityKeyWithPrivate);
             _context.SecurityKeys.Update(securityKeyWithPrivate);
             await _context.SaveChangesAsync();
