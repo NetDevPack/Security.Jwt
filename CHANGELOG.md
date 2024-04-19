@@ -1,3 +1,17 @@
+## [8.1.2](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.1...v8.1.2) (2024-04-18)
+
+
+### Bug Fixes
+
+* revoke reason to EF store ([3e99b2d](https://github.com/NetDevPack/Security.Jwt/commit/3e99b2d6791b884b5e081b3e95d337e116034a6a))
+
+## [8.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.0...v8.1.1) (2024-02-08)
+
+
+### Bug Fixes
+
+* dotnet 8 release ([35c407b](https://github.com/NetDevPack/Security.Jwt/commit/35c407bac77d4b07d0f8aec9619207b32b1b0522))
+
 # [8.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.0.0...v8.1.0) (2023-12-01)
 
 
