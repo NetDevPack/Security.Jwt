@@ -1,3 +1,10 @@
+## [8.1.3](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.2...v8.1.3) (2024-04-19)
+
+
+### Bug Fixes
+
+* JsonWebKey deserialization ([fd4199e](https://github.com/NetDevPack/Security.Jwt/commit/fd4199e2bbc93aa171f716df388bc0db4ae8835c))
+
 ## [8.1.2](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.1...v8.1.2) (2024-04-18)
 
 
