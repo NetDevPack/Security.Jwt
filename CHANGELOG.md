@@ -1,3 +1,10 @@
+## [8.1.4](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.3...v8.1.4) (2024-04-19)
+
+
+### Bug Fixes
+
+* HS256 incompatibility ([8f688b1](https://github.com/NetDevPack/Security.Jwt/commit/8f688b1745a6ecbfc1dec9cd9f57cb918ffd6237)), closes [#47](https://github.com/NetDevPack/Security.Jwt/issues/47) [#54](https://github.com/NetDevPack/Security.Jwt/issues/54)
+
 ## [8.1.3](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.2...v8.1.3) (2024-04-19)
 
 
