@@ -28,10 +28,8 @@ public class KeyMaterial
 
     public JsonWebKey GetSecurityKey()
     {
-        return JsonSerializer.Deserialize<JsonWebKey>(Parameters, new JsonSerializerOptions()
-        {
-            PropertyNameCaseInsensitive = true,
-        });
+        var jsonWebKey = JsonWebKey.Create(Parameters);
+        return jsonWebKey;
     }
 
     public void Revoke(string reason=default)
