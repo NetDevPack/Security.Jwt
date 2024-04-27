@@ -1,3 +1,10 @@
+## [8.1.5](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.4...v8.1.5) (2024-04-27)
+
+
+### Bug Fixes
+
+* deps ([c78f08e](https://github.com/NetDevPack/Security.Jwt/commit/c78f08ea28d69c1eb7a5e014cedf76d4b7a5ae8a))
+
 ## [8.1.4](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.3...v8.1.4) (2024-04-19)
 
 
