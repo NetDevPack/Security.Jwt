@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 using NetDevPack.Security.Jwt.Core.Model;
+using NetDevPack.Security.Jwt.Core.Jwa;
 
 namespace NetDevPack.Security.Jwt.Store.FileSystem
 {
@@ -68,9 +69,11 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         }
 
 
-        public Task<KeyMaterial?> GetCurrent()
+        public Task<KeyMaterial?> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
-            if (!_memoryCache.TryGetValue(JwkContants.CurrentJwkCache, out KeyMaterial credentials))
+            var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
+
+            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 credentials = GetKey(GetCurrentFile());
                 // Set cache options.
@@ -78,7 +81,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
                     // Keep in cache for this time, reset time if accessed.
                     .SetSlidingExpiration(_options.Value.CacheTime);
                 if (credentials != null)
-                    _memoryCache.Set(JwkContants.CurrentJwkCache, credentials, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
             }
 
             return Task.FromResult(credentials);
@@ -92,9 +95,11 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
         }
 
-        public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5)
+        public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5, JwtKeyType? jwtKeyType = null)
         {
-            if (!_memoryCache.TryGetValue(JwkContants.JwksCache, out IReadOnlyCollection<KeyMaterial> keys))
+            var cacheKey = JwkContants.JwksCache + jwtKeyType;
+
+            if (!_memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<KeyMaterial> keys))
             {
                 keys = KeysPath.GetFiles("*.key")
                     .Take(quantity)
@@ -107,7 +112,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
                     .SetSlidingExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
-                    _memoryCache.Set(JwkContants.JwksCache, keys, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, keys, cacheEntryOptions);
             }
 
             return Task.FromResult(keys.ToList().AsReadOnly());
@@ -141,7 +146,11 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         private void ClearCache()
         {
             _memoryCache.Remove(JwkContants.JwksCache);
+            _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jws);
+            _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jwe);
             _memoryCache.Remove(JwkContants.CurrentJwkCache);
+            _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jws);
+            _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jwe);
         }
     }
 }

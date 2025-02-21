@@ -23,14 +23,22 @@ namespace NetDevPack.Security.Jwt.Core.Model
         public Algorithm Algorithm { get; set; }
         public SecurityKey Key { get; set; }
 
-        public JsonWebKey GetJsonWebKey() => Algorithm.AlgorithmType switch
+        public JsonWebKey GetJsonWebKey()
         {
-            AlgorithmType.RSA => JsonWebKeyConverter.ConvertFromRSASecurityKey((RsaSecurityKey)Key),
-            AlgorithmType.ECDsa => JsonWebKeyConverter.ConvertFromECDsaSecurityKey((ECDsaSecurityKey)Key),
-            AlgorithmType.HMAC => JsonWebKeyConverter.ConvertFromSymmetricSecurityKey((SymmetricSecurityKey)Key),
-            AlgorithmType.AES => JsonWebKeyConverter.ConvertFromSymmetricSecurityKey((SymmetricSecurityKey)Key),
-            _ => throw new ArgumentOutOfRangeException()
-        };
+            var jsonWebKey = Algorithm.AlgorithmType switch
+            {
+                AlgorithmType.RSA => JsonWebKeyConverter.ConvertFromRSASecurityKey((RsaSecurityKey)Key),
+                AlgorithmType.ECDsa => JsonWebKeyConverter.ConvertFromECDsaSecurityKey((ECDsaSecurityKey)Key),
+                AlgorithmType.HMAC => JsonWebKeyConverter.ConvertFromSymmetricSecurityKey((SymmetricSecurityKey)Key),
+                AlgorithmType.AES => JsonWebKeyConverter.ConvertFromSymmetricSecurityKey((SymmetricSecurityKey)Key),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            jsonWebKey.Use = Algorithm.CryptographyType == CryptographyType.DigitalSignature ? "sig" : "enc";
+            jsonWebKey.Alg = Algorithm.Alg; // Assure-toi que `Algorithm.Name` contient l'algorithme correct
+
+            return jsonWebKey;
+        }
 
         private SecurityKey GenerateRsa()
         {
