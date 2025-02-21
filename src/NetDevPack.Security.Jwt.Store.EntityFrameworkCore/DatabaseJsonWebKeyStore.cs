@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetDevPack.Security.Jwt.Core;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using NetDevPack.Security.Jwt.Core.Jwa;
 using NetDevPack.Security.Jwt.Core.Model;
 
 namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
@@ -39,9 +40,11 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             ClearCache();
         }
 
-        public async Task<KeyMaterial> GetCurrent()
+        public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
-            if (!_memoryCache.TryGetValue(JwkContants.CurrentJwkCache, out KeyMaterial credentials))
+            var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
+
+            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
 #if NET5_0_OR_GREATER
                 credentials = await _context.SecurityKeys.Where(X => X.IsRevoked == false).OrderByDescending(d => d.CreationDate).AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync();
@@ -55,7 +58,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
                     .SetSlidingExpiration(_options.Value.CacheTime);
 
                 if (credentials != null)
-                    _memoryCache.Set(JwkContants.CurrentJwkCache, credentials, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
 
                 return credentials;
             }
@@ -63,9 +66,11 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             return credentials;
         }
 
-        public async Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5)
+        public async Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5, JwtKeyType? jwtKeyType = null)
         {
-            if (!_memoryCache.TryGetValue(JwkContants.JwksCache, out ReadOnlyCollection<KeyMaterial> keys))
+            var cacheKey = JwkContants.JwksCache + jwtKeyType;
+
+            if (!_memoryCache.TryGetValue(cacheKey, out ReadOnlyCollection<KeyMaterial> keys))
             {
 #if NET5_0_OR_GREATER
                 keys = _context.SecurityKeys.OrderByDescending(d => d.CreationDate).Take(quantity).AsNoTrackingWithIdentityResolution().ToList().AsReadOnly();
@@ -78,7 +83,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
                     .SetSlidingExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
-                    _memoryCache.Set(JwkContants.JwksCache, keys, cacheEntryOptions);
+                    _memoryCache.Set(cacheKey, keys, cacheEntryOptions);
 
                 return keys;
             }
@@ -118,7 +123,11 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
         private void ClearCache()
         {
             _memoryCache.Remove(JwkContants.JwksCache);
+            _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jws);
+            _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jwe);
             _memoryCache.Remove(JwkContants.CurrentJwkCache);
+            _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jws);
+            _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jwe);
         }
     }
 }
