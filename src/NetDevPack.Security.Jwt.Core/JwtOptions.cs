@@ -10,4 +10,5 @@ public class JwtOptions
     public string KeyPrefix { get; set; } = $"{Environment.MachineName}_";
     public int AlgorithmsToKeep { get; set; } = 2;
     public TimeSpan CacheTime { get; set; } = TimeSpan.FromMinutes(15);
+    public JwtType ExposedKeyType { get; set; } = JwtType.Jws;
 }

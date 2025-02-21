@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using NetDevPack.Security.Jwt.Core.Jwa;
 using NetDevPack.Security.Jwt.Core.Model;
 
 namespace NetDevPack.Security.Jwt.Core.DefaultStore;
@@ -52,13 +54,13 @@ internal class DataProtectionStore : IJsonWebKeyStore
         _memoryCache = memoryCache;
         _dataProtector = provider.CreateProtector(nameof(KeyMaterial)); ;
     }
-    public Task Store(KeyMaterial securityParamteres)
+    public Task Store(KeyMaterial securityParameters)
     {
-        var possiblyEncryptedKeyElement = _dataProtector.Protect(JsonSerializer.Serialize(securityParamteres));
+        var possiblyEncryptedKeyElement = _dataProtector.Protect(JsonSerializer.Serialize(securityParameters));
 
         // build the <key> element
         var keyElement = new XElement(Name,
-            new XAttribute(IdAttributeName, securityParamteres.Id),
+            new XAttribute(IdAttributeName, securityParameters.Id),
             new XAttribute(VersionAttributeName, 1),
             new XElement(CreationDateElementName, DateTimeOffset.UtcNow),
             new XElement(ActivationDateElementName, DateTimeOffset.UtcNow),
@@ -68,7 +70,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 possiblyEncryptedKeyElement));
 
         // Persist it to the underlying repository and trigger the cancellation token.
-        var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}", securityParamteres.KeyId);
+        var friendlyName = string.Format(CultureInfo.InvariantCulture, "key-{0}", securityParameters.KeyId);
         KeyRepository.StoreElement(keyElement, friendlyName);
         ClearCache();
 
@@ -77,11 +79,13 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
 
 
-    public async Task<KeyMaterial> GetCurrent()
+    public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
     {
-        if (!_memoryCache.TryGetValue(JwkContants.CurrentJwkCache, out KeyMaterial keyMaterial))
+        var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
+
+        if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial keyMaterial))
         {
-            var keys = await GetLastKeys(1);
+            var keys = await GetLastKeys(1, jwtKeyType);
             keyMaterial = keys.FirstOrDefault();
             // Set cache options.
             var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -89,7 +93,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 .SetSlidingExpiration(_options.Value.CacheTime);
 
             if (keyMaterial != null)
-                _memoryCache.Set(JwkContants.CurrentJwkCache, keyMaterial, cacheEntryOptions);
+                _memoryCache.Set(cacheKey, keyMaterial, cacheEntryOptions);
         }
 
         return keyMaterial;
@@ -146,10 +150,11 @@ internal class DataProtectionStore : IJsonWebKeyStore
     }
 
 
-    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5)
+    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity = 5, JwtKeyType? jwtKeyType = null)
     {
+        var cacheKey = JwkContants.JwksCache + jwtKeyType;
 
-        if (!_memoryCache.TryGetValue(JwkContants.JwksCache, out IReadOnlyCollection<KeyMaterial> keys))
+        if (!_memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<KeyMaterial> keys))
         {
             keys = GetKeys();
 
@@ -159,13 +164,20 @@ internal class DataProtectionStore : IJsonWebKeyStore
                 .SetSlidingExpiration(_options.Value.CacheTime);
 
             if (keys.Any())
-                _memoryCache.Set(JwkContants.JwksCache, keys, cacheEntryOptions);
+            {
+                keys = keys
+                     .Where(s => jwtKeyType == null || s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc"))
+                     .OrderByDescending(s => s.CreationDate)
+                     .ToList().AsReadOnly();
+
+                _memoryCache.Set(cacheKey, keys, cacheEntryOptions);
+            }
         }
 
         return Task.FromResult(keys
-            .OrderByDescending(s => s.CreationDate)
-            .ToList()
-            .AsReadOnly());
+                     .GroupBy(s => s.Use)
+                     .SelectMany(g => g.Take(quantity))
+                     .ToList().AsReadOnly());
     }
 
     public Task<KeyMaterial> Get(string keyId)
@@ -185,10 +197,10 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
     public async Task Revoke(KeyMaterial keyMaterial, string reason = null)
     {
-        if(keyMaterial == null)
+        if (keyMaterial == null)
             return;
-        
-        var keys = await GetLastKeys();
+
+        var keys = await GetLastKeys(jwtKeyType: keyMaterial.Use.Equals("sig", StringComparison.InvariantCultureIgnoreCase) ? JwtKeyType.Jws : JwtKeyType.Jwe);
         var key = keys.First(f => f.Id == keyMaterial.Id);
 
         if (key is { IsRevoked: true })
@@ -214,7 +226,11 @@ internal class DataProtectionStore : IJsonWebKeyStore
     private void ClearCache()
     {
         _memoryCache.Remove(JwkContants.JwksCache);
+        _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jws);
+        _memoryCache.Remove(JwkContants.JwksCache + JwtKeyType.Jwe);
         _memoryCache.Remove(JwkContants.CurrentJwkCache);
+        _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jws);
+        _memoryCache.Remove(JwkContants.CurrentJwkCache + JwtKeyType.Jwe);
     }
 
     /// <summary>

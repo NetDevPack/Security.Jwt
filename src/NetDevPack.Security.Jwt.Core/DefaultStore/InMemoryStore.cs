@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using NetDevPack.Security.Jwt.Core.Interfaces;
+using NetDevPack.Security.Jwt.Core.Jwa;
 using NetDevPack.Security.Jwt.Core.Model;
 
 namespace NetDevPack.Security.Jwt.Core.DefaultStore;
@@ -18,7 +19,7 @@ internal class InMemoryStore : IJsonWebKeyStore
         return Task.CompletedTask;
     }
 
-    public Task<KeyMaterial> GetCurrent()
+    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType)
     {
         return Task.FromResult(_store.OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }
@@ -40,12 +41,15 @@ internal class InMemoryStore : IJsonWebKeyStore
         }
     }
 
-    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity)
+    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity, JwtKeyType? jwtKeyType)
     {
         return Task.FromResult(
             _store
-                .OrderByDescending(s => s.CreationDate)
-                .Take(quantity).ToList().AsReadOnly());
+                .Where(s => jwtKeyType == null || s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc"))
+                    .OrderByDescending(s => s.CreationDate)
+                    .GroupBy(s => s.Use)
+                    .SelectMany(g => g.Take(quantity))
+                    .ToList().AsReadOnly());
     }
 
     public Task<KeyMaterial> Get(string keyId)

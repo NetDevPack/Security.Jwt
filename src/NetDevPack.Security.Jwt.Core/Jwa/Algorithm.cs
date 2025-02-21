@@ -58,6 +58,7 @@ public class Algorithm
     public AlgorithmType AlgorithmType { get; internal set; }
     public CryptographyType CryptographyType { get; internal set; }
     public JwtType JwtType => CryptographyType == CryptographyType.Encryption ? JwtType.Jwe : JwtType.Jws;
+    public string Use => CryptographyType == CryptographyType.Encryption ? "enc" : "sig";
     public string Alg { get; internal set; }
     public string Curve { get; set; }
 

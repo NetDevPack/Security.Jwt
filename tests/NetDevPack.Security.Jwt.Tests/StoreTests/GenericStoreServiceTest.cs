@@ -21,7 +21,7 @@ namespace NetDevPack.Security.Jwt.Tests.StoreTests;
 public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     where TWarmup : class, IWarmupTest
 {
-    private static SemaphoreSlim TestSync = new(1);
+    private static SemaphoreSlim TestSync = new(1,1);
     protected readonly IJsonWebKeyStore _store;
     private readonly IOptions<JwtOptions> _options;
     public TWarmup WarmupData { get; }
