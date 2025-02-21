@@ -1,3 +1,11 @@
+# [8.2.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.5...v8.2.0) (2025-02-21)
+
+
+### Features
+
+* **jwe:** Adding full support Jwe in jwks store ([3635232](https://github.com/NetDevPack/Security.Jwt/commit/36352326d83f4418c1a6200c37654aec07678a9a))
+* **jwe:** Adding full support Jwe in jwks store ([68ef7b3](https://github.com/NetDevPack/Security.Jwt/commit/68ef7b34ecb2285bf2cd790a0380d6f202f961a3))
+
 ## [8.1.5](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.4...v8.1.5) (2024-04-27)
 
 
