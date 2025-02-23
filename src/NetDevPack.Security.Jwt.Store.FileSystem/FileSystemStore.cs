@@ -12,6 +12,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 {
     public class FileSystemStore : IJsonWebKeyStore
     {
+        internal const string DefaultRevocationReason = "Revoked";
         private readonly IOptions<JwtOptions> _options;
         private readonly IMemoryCache _memoryCache;
         public DirectoryInfo KeysPath { get; }
@@ -25,13 +26,13 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
                 KeysPath.Create();
         }
 
-        private string GetCurrentFile()
+        private string GetCurrentFile(JwtKeyType jwtKeyType)
         {
-            var files = Directory.GetFiles(KeysPath.FullName, $"*current*.key");
+            var files = Directory.GetFiles(KeysPath.FullName, $"*current*.{jwtKeyType}.key");
             if (files.Any())
-                return Path.Combine(KeysPath.FullName, files.First());
+                return files.First();
 
-            return Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current.key");
+            return Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current.{jwtKeyType}.key");
         }
 
         public async Task Store(KeyMaterial securityParamteres)
@@ -39,17 +40,21 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             if (!KeysPath.Exists)
                 KeysPath.Create();
 
-            // Datetime it's just to be easy searchable.
-            if (File.Exists(GetCurrentFile()))
-                File.Copy(GetCurrentFile(), Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}old-{DateTime.Now:yyyy-MM-dd}-{securityParamteres.KeyId}.key"));
+            JwtKeyType keyType = securityParamteres.Use.Equals("enc", StringComparison.InvariantCultureIgnoreCase) ? JwtKeyType.Jwe : JwtKeyType.Jws;
 
-            await File.WriteAllTextAsync(Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current-{securityParamteres.KeyId}.key"), JsonSerializer.Serialize(securityParamteres, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
+            // Datetime it's just to be easy searchable.
+            if (File.Exists(GetCurrentFile(keyType)))
+                File.Copy(GetCurrentFile(keyType), Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}old-{DateTime.Now:yyyy-MM-dd}-{securityParamteres.KeyId}.key"));
+
+            await File.WriteAllTextAsync(Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current-{securityParamteres.KeyId}.{keyType}.key"), JsonSerializer.Serialize(securityParamteres, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
             ClearCache();
         }
 
-        public bool NeedsUpdate()
+        public bool NeedsUpdate(KeyMaterial current)
         {
-            return !File.Exists(GetCurrentFile()) || File.GetCreationTimeUtc(GetCurrentFile()).AddDays(_options.Value.DaysUntilExpire) < DateTime.UtcNow.Date;
+            JwtKeyType keyType = current.Use.Equals("enc", StringComparison.InvariantCultureIgnoreCase) ? JwtKeyType.Jwe : JwtKeyType.Jws;
+
+            return !File.Exists(GetCurrentFile(keyType)) || File.GetCreationTimeUtc(GetCurrentFile(keyType)).AddDays(_options.Value.DaysUntilExpire) < DateTime.UtcNow.Date;
         }
 
         public async Task Revoke(KeyMaterial securityKeyWithPrivate, string reason = null)
@@ -57,7 +62,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             if (securityKeyWithPrivate == null)
                 return;
 
-            securityKeyWithPrivate?.Revoke();
+            securityKeyWithPrivate?.Revoke(reason ?? DefaultRevocationReason);
             foreach (var fileInfo in KeysPath.GetFiles("*.key"))
             {
                 var key = GetKey(fileInfo.FullName);
@@ -75,7 +80,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
             if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
-                credentials = GetKey(GetCurrentFile());
+                credentials = GetKey(GetCurrentFile(jwtKeyType));
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     // Keep in cache for this time, reset time if accessed.
@@ -87,9 +92,9 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             return Task.FromResult(credentials);
         }
 
-        private KeyMaterial GetKey(string file)
+        private KeyMaterial? GetKey(string file)
         {
-            if (!File.Exists(file)) throw new FileNotFoundException("Check configuration - cannot find auth key file: " + file);
+            if (!File.Exists(file)) return null;
             var keyParams = JsonSerializer.Deserialize<KeyMaterial>(File.ReadAllText(file));
             return keyParams!;
 
@@ -101,8 +106,9 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
             if (!_memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<KeyMaterial> keys))
             {
-                keys = KeysPath.GetFiles("*.key")
-                    .Take(quantity)
+                var type = jwtKeyType == null ? "*" : jwtKeyType.ToString();
+
+                keys = KeysPath.GetFiles($"*.{type}.key")
                     .Select(s => s.FullName)
                     .Select(GetKey).ToList().AsReadOnly();
 
@@ -115,7 +121,10 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
                     _memoryCache.Set(cacheKey, keys, cacheEntryOptions);
             }
 
-            return Task.FromResult(keys.ToList().AsReadOnly());
+            return Task.FromResult(keys
+                         .GroupBy(s => s.Use)
+                         .SelectMany(g => g.Take(quantity))
+                         .ToList().AsReadOnly());
         }
 
         public Task<KeyMaterial?> Get(string keyId)

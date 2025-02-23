@@ -6,12 +6,12 @@ using NetDevPack.Security.Jwt.Core.Jwa;
 
 namespace NetDevPack.Security.Jwt.Tests.Warmups;
 
-public class WarmupDatabaseInMemory : IWarmupTest
+public class WarmupDatabaseInMemoryStore : IWarmupTest
 {
     private readonly IJsonWebKeyStore _jsonWebKeyStore;
     public ServiceProvider Services { get; set; }
 
-    public WarmupDatabaseInMemory()
+    public WarmupDatabaseInMemoryStore()
     {
         var serviceCollection = new ServiceCollection();
 
@@ -21,11 +21,7 @@ public class WarmupDatabaseInMemory : IWarmupTest
         serviceCollection.AddLogging();
         serviceCollection.AddDbContext<AspNetGeneralContext>(DatabaseOptions);
 
-        serviceCollection.AddJwksManager(o =>
-            {
-                o.Jws = Algorithm.Create(AlgorithmType.AES, JwtType.Jws);
-                o.Jwe = Algorithm.Create(AlgorithmType.AES, JwtType.Jwe);
-            })
+        serviceCollection.AddJwksManager()
             .PersistKeysToDatabaseStore<AspNetGeneralContext>();
         Services = serviceCollection.BuildServiceProvider();
         _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();

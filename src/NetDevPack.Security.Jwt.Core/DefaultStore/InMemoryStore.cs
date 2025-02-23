@@ -7,11 +7,14 @@ namespace NetDevPack.Security.Jwt.Core.DefaultStore;
 
 internal class InMemoryStore : IJsonWebKeyStore
 {
-    internal const string DefaultRevocationReason = "Revoked";
     private static readonly List<KeyMaterial> _store = new();
     private readonly SemaphoreSlim _slim = new(1);
+    internal const string DefaultRevocationReason = "Revoked";
+
     public Task Store(KeyMaterial keyMaterial)
     {
+        if (keyMaterial is null) throw new InvalidOperationException("Can't store empty value.");
+
         _slim.Wait();
         _store.Add(keyMaterial);
         _slim.Release();
@@ -19,9 +22,9 @@ internal class InMemoryStore : IJsonWebKeyStore
         return Task.CompletedTask;
     }
 
-    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType)
+    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
     {
-        return Task.FromResult(_store.OrderByDescending(s => s.CreationDate).FirstOrDefault());
+        return Task.FromResult(_store.Where(s => s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc")).OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }
 
     public async Task Revoke(KeyMaterial keyMaterial, string reason = null)
@@ -41,7 +44,7 @@ internal class InMemoryStore : IJsonWebKeyStore
         }
     }
 
-    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity, JwtKeyType? jwtKeyType)
+    public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity, JwtKeyType? jwtKeyType = null)
     {
         return Task.FromResult(
             _store

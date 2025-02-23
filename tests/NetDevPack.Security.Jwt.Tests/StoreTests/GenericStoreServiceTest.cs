@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -23,6 +24,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
 {
     private static SemaphoreSlim TestSync = new(1);
     protected readonly IJsonWebKeyStore _store;
+    protected readonly IJwtService _jwtService;
     private readonly IOptions<JwtOptions> _options;
     public TWarmup WarmupData { get; }
 
@@ -30,6 +32,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
     {
         WarmupData = warmup;
         _store = WarmupData.Services.GetRequiredService<IJsonWebKeyStore>();
+        _jwtService = WarmupData.Services.GetRequiredService<IJwtService>();
         _options = WarmupData.Services.GetRequiredService<IOptions<JwtOptions>>();
         this.WarmupData.Clear();
     }
@@ -517,6 +520,28 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         /*Revoke with reason*/
         await _store.Revoke(keyMaterial, reason);
         await CheckRevocationReasonIsStored(keyMaterial.KeyId, reason);
+    }
+
+    [Fact]
+    public async Task Should_Generate_Different_Keys_For_JWS_And_JWE_And_Retrieve_Them_Correctly()
+    {
+        var defaultVal =  await _jwtService.GetCurrentSecurityKey();
+        var jwe =  await _jwtService.GetCurrentSecurityKey(JwtKeyType.Jwe);
+        var jws =  await _jwtService.GetCurrentSecurityKey(JwtKeyType.Jws);
+
+        var getLast2DefaultVal =  await _jwtService.GetLastKeys(1);
+        var getLastJwe =  (await _jwtService.GetLastKeys(1, JwtKeyType.Jwe)).First();
+        var getLastJws =  (await _jwtService.GetLastKeys(1, JwtKeyType.Jws)).First();
+
+        jws.KeyId.Should().NotBe(jwe.KeyId);
+        getLastJws.KeyId.Should().NotBe(getLastJwe.KeyId);
+        defaultVal.KeyId.Should().Be(jws.KeyId);
+        jwe.KeyId.Should().Be(getLastJwe.KeyId);
+        jws.KeyId.Should().Be(getLastJws.KeyId);
+
+        getLast2DefaultVal.Should().HaveCount(2);
+        getLast2DefaultVal.Should().ContainSingle(x => x.Use == "enc");
+        getLast2DefaultVal.Should().ContainSingle(x => x.Use == "sig");
     }
 
     private async Task CheckRevocationReasonIsStored(string keyId, string revocationReason)
