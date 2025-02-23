@@ -13,6 +13,8 @@ internal class InMemoryStore : IJsonWebKeyStore
 
     public Task Store(KeyMaterial keyMaterial)
     {
+        if (keyMaterial is null) throw new InvalidOperationException("Can't store empty value.");
+
         _slim.Wait();
         _store.Add(keyMaterial);
         _slim.Release();

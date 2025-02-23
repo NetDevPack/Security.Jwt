@@ -30,7 +30,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         {
             var files = Directory.GetFiles(KeysPath.FullName, $"*current*.{jwtKeyType}.key");
             if (files.Any())
-                return Path.Combine(KeysPath.FullName, files.First());
+                return files.First();
 
             return Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current.{jwtKeyType}.key");
         }
