@@ -22,8 +22,6 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
             _jwksService = warmup.Services.GetRequiredService<IJwtService>();
         }
 
-
-
         [Fact]
         public async Task Should_Create_New_Key()
         {

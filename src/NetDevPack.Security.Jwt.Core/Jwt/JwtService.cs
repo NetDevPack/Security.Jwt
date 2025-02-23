@@ -61,14 +61,7 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
 
         public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int? i = null)
         {
-            JwtKeyType? jwtKeyType = null;
-
-            if (_options.Value.ExposedKeyType == JwtType.Jws)
-                jwtKeyType = JwtKeyType.Jws;
-            else if (_options.Value.ExposedKeyType == JwtType.Jwe)
-                jwtKeyType = JwtKeyType.Jwe;
-
-            return _store.GetLastKeys(_options.Value.AlgorithmsToKeep, jwtKeyType);
+            return _store.GetLastKeys(_options.Value.AlgorithmsToKeep, null);
         }
 
         public Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int i, JwtKeyType jwtKeyType)

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NetDevPack.Security.Jwt.Core;
@@ -16,9 +17,16 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            serviceCollection.AddJwksManager().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "files")));
+            serviceCollection.AddJwksManager().PersistKeysToFileSystem(TempDirectoryTest());
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
+        }
+
+        public DirectoryInfo TempDirectoryTest()
+        {
+            // Créer un répertoire temporaire unique
+            var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            return Directory.CreateDirectory(tempDir);
         }
 
         public async Task Clear()
