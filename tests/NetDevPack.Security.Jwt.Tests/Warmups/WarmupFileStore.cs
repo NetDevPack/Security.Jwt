@@ -12,12 +12,16 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
     {
         private readonly IJsonWebKeyStore _jsonWebKeyStore;
         public ServiceProvider Services { get; set; }
+        public DirectoryInfo _directoryInfo;
+
         public WarmupFileStore()
         {
+            _directoryInfo = TempDirectoryTest();
+
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             serviceCollection.AddMemoryCache();
-            serviceCollection.AddJwksManager().PersistKeysToFileSystem(TempDirectoryTest());
+            serviceCollection.AddJwksManager().PersistKeysToFileSystem(_directoryInfo);
             Services = serviceCollection.BuildServiceProvider();
             _jsonWebKeyStore = Services.GetRequiredService<IJsonWebKeyStore>();
         }
@@ -32,6 +36,8 @@ namespace NetDevPack.Security.Jwt.Tests.Warmups
         public async Task Clear()
         {
             await _jsonWebKeyStore.Clear();
+            _directoryInfo.Delete(true);
+            Directory.CreateDirectory(_directoryInfo.FullName);
         }
     }
 }
