@@ -23,7 +23,7 @@ The goal of this project is to help your application security by Managing your J
 
 * Auto create RSA or ECDsa keys
 * Support for JWE
-* Support public `jwks_uri` endpoint with your public key in JWKS format
+* Support public `jwks_uri` endpoint with your public key in JWKS format (Support for JWS and JWE)
 * Extensions for your client API's to consume the JWKS endpoint. See more at [NetDevack.Security.JwtExtensions](https://github.com/NetDevPack/Security.JwtExtensions)
 * Auto rotate key every 90 days (Following NIST Best current practices for Public Key Rotation)
 * Remove old private keys after key rotation (NIST Recommendations)
