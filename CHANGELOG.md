@@ -1,3 +1,11 @@
+## [8.2.1](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.0...v8.2.1) (2025-02-24)
+
+
+### Bug Fixes
+
+* correct new jwe bugs and older ones ([1cda155](https://github.com/NetDevPack/Security.Jwt/commit/1cda1550772bb38b798bcd2c666fe2aa857bec62))
+* **store:** fix some existing and new jwe bugs ([42467ab](https://github.com/NetDevPack/Security.Jwt/commit/42467ab8243c80f2b21ff6ce49eab9c04f6b4dc7))
+
 # [8.2.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.1.5...v8.2.0) (2025-02-21)
 
 
