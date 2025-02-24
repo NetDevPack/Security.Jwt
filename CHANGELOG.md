@@ -1,3 +1,10 @@
+## [8.2.2](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.1...v8.2.2) (2025-02-24)
+
+
+### Bug Fixes
+
+* nuget token and readme ([a5a6ec5](https://github.com/NetDevPack/Security.Jwt/commit/a5a6ec54a92dd54a8be4a42ddd4726a32a230e0a))
+
 ## [8.2.1](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.0...v8.2.1) (2025-02-24)
 
 
