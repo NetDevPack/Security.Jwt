@@ -35,7 +35,7 @@ namespace NetDevPack.Security.Jwt.Core.Model
             };
 
             jsonWebKey.Use = Algorithm.CryptographyType == CryptographyType.DigitalSignature ? "sig" : "enc";
-            jsonWebKey.Alg = Algorithm.Alg; // Assure-toi que `Algorithm.Name` contient l'algorithme correct
+            jsonWebKey.Alg = Algorithm.Alg;
 
             return jsonWebKey;
         }
