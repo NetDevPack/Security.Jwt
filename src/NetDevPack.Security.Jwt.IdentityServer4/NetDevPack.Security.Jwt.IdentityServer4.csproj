@@ -36,6 +36,9 @@
   </PackageReleaseNotes>
 </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="4.1.2" />

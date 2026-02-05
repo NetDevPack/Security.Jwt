@@ -27,7 +27,6 @@
     <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
 
     <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -44,6 +43,9 @@
   </PropertyGroup>
 
 
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />

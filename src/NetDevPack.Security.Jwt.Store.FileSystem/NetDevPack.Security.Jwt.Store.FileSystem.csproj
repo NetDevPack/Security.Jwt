@@ -33,6 +33,9 @@
   </PackageReleaseNotes>
 </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />

@@ -25,7 +25,6 @@
     <RepositoryBranch>main</RepositoryBranch>
     <PackageProjectUrl>https://github.com/NetDevPack/Security.PasswordHasher</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -38,6 +37,9 @@
     </PackageReleaseNotes>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
