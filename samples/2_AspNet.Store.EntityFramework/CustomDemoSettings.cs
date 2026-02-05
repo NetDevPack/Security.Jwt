@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using Bogus;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace AspNet.Store.EntityFramework
 {
@@ -27,21 +27,7 @@ namespace AspNet.Store.EntityFramework
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey
                 });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
+                
             });
         }
     }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using AspNet.Default;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

@@ -7,6 +7,7 @@ using System.Security.Claims;
 using AspNet.Default;
 using FluentAssertions;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace NetDevPack.Security.Jwt.AspNetCoreTests;
 
