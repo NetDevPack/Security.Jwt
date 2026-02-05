@@ -1,21 +1,39 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
-    <LangVersion>10.0</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <Version>5.0.0</Version>
-    <Authors>Bruno Brito</Authors>
-    <PackageIconUrl>https://raw.githubusercontent.com/NetDevPack/NetDevPack/master/assets/IconNuget.png</PackageIconUrl>
-    <PackageTags>jwt jwks rsa ecdsa hmac oauth2 key rotating</PackageTags>
-    <Title>JWT Signing Credentials - File System Store</Title>
-    <Description>Store you JWK at filesystem</Description>
-    <NeutralLanguage>en</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/NetDevPack/NetDevPack.Security.JwtSigningCredentials</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
+  <TargetFrameworks>netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+  <LangVersion>latest</LangVersion>
+  <PackageId>NetDevPack.Security.Jwt.Store.FileSystem</PackageId>
+  <Version>10.0.0</Version>
+  <Authors>brunobritodev</Authors>
+  <Company>NetDevPack</Company>
+  <Title>JWT Signing Credentials - File System Store</Title>
+  <Description>
+    File system storage provider for JWK/JWKS. Persist signing keys locally and
+    support automatic key rotation scenarios for JWT signing (RSA, ECDSA, HMAC).
+  </Description>
+  <PackageTags>jwt;jwks;jwk;filesystem;store;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
+  <NeutralLanguage>en</NeutralLanguage>
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  <RepositoryUrl>https://github.com/NetDevPack/Security.Jwt</RepositoryUrl>
+  <RepositoryType>git</RepositoryType>
+  <RepositoryBranch>main</RepositoryBranch>
+  <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
+  <PackageIcon>icon.png</PackageIcon>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <IncludeSymbols>true</IncludeSymbols>
+  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  <PackageReleaseNotes>
+    v10.0.0:
+    - File system provider for JWK/JWKS persistence
+    - Supports automatic key rotation workflows
+  </PackageReleaseNotes>
+</PropertyGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />

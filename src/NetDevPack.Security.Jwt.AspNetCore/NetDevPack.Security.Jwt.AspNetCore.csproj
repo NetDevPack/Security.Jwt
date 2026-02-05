@@ -1,32 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Frameworks -->
     <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Authors>Bruno Brito, Eduardo Pires</Authors>
-    <LangVersion>10.0</LangVersion>
-    <PackageIconUrl>https://raw.githubusercontent.com/NetDevPack/NetDevPack/master/assets/IconNuget.png</PackageIconUrl>
-    <PackageTags>jwt jwks rsa ecdsa hmac oauth2 key rotating</PackageTags>
-    <Title>JWT Signing Credentials - Expose JWKS public endpoint</Title>
-    <Description>Component to manage your JWKS. Auto generate and manage your JWK</Description>
+    <LangVersion>latest</LangVersion>
+    <PackageId>NetDevPack.Security.Jwt.AspNetCore</PackageId>
+    <VersionPrefix>10.0.0</VersionPrefix>
+    <Authors>brunobritodev</Authors>
+    <Company>NetDevPack</Company>
+
+    <Title>JWT Signing Credentials - Expose JWKS Public Endpoint</Title>
+    <Description>
+    ASP.NET Core integration package to expose a JWKS (JWK Set) public endpoint and
+    manage JWK generation with automatic key rotation for JWT signing (RSA, ECDSA, HMAC).
+    Suitable for OAuth2 / OpenID Connect scenarios.
+    </Description>
+    <PackageTags>jwt;jwks;jwk;aspnetcore;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/NetDevPack/NetDevPack.Security.JwtSigningCredentials</RepositoryUrl>
+    <RepositoryUrl>https://github.com/NetDevPack/Security.PasswordHasher</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-
+    <RepositoryBranch>main</RepositoryBranch>
+    <PackageProjectUrl>https://github.com/NetDevPack/Security.PasswordHasher</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PackageReleaseNotes>
+    Initial release:
+    - ASP.NET Core JWKS endpoint
+    - JWK/JWKS management and rotation support
+    - Compatible with OAuth2 / OpenID Connect
+    </PackageReleaseNotes>
   </PropertyGroup>
+
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.36" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.20" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
   </ItemGroup>

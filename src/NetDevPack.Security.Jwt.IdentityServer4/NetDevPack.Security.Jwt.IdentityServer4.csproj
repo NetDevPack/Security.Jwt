@@ -1,19 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-    <Version>5.0.0</Version>
-    <LangVersion>10.0</LangVersion>
-    <Authors>Bruno Brito</Authors>
-    <PackageIconUrl>https://raw.githubusercontent.com/NetDevPack/NetDevPack/master/assets/IconNuget.png</PackageIconUrl>
-    <PackageTags>jwt jwks rsa ecdsa hmac oauth2 key rotating</PackageTags>
-    <Title>JWT Signing Credentials - IdentityServer4 Support</Title>
-    <Description>Component to manage your IdentityServer4 jwks_uri. Auto generate and manage your JWK</Description>
-    <NeutralLanguage>en</NeutralLanguage>
+<PropertyGroup>
+  <!-- Frameworks -->
+  <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+  <LangVersion>latest</LangVersion>
+
+  <!-- Package identity -->
+  <PackageId>NetDevPack.Security.Jwt.IdentityServer4</PackageId>
+  <Version>10.0.0</Version>
+  <Authors>brunobritodev</Authors>
+  <Company>NetDevPack</Company>
+
+  <Title>JWT Signing Credentials - IdentityServer4 Support</Title>
+  <Description>
+    Integration package for IdentityServer4 to manage JWK/JWKS with automatic key rotation (RSA, ECDSA, HMAC).
+  </Description>
+  <PackageTags>jwt;jwks;jwk;identityserver4;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
+  <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/NetDevPack/NetDevPack.Security.JwtSigningCredentials</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
+  <RepositoryUrl>https://github.com/NetDevPack/Security.Jwt</RepositoryUrl>
+  <RepositoryType>git</RepositoryType>
+  <RepositoryBranch>main</RepositoryBranch>
+
+  <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
+  <PackageIcon>icon.png</PackageIcon>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  <IncludeSymbols>true</IncludeSymbols>
+  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  <PackageReleaseNotes>
+    v10.0.0:
+    - IdentityServer4 integration for JWK/JWKS management and automatic key rotation support
+  </PackageReleaseNotes>
+</PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
