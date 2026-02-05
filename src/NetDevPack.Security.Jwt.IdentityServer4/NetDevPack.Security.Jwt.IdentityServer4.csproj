@@ -26,7 +26,6 @@
 
   <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
   <PackageIcon>icon.png</PackageIcon>
-  <PackageReadmeFile>README.md</PackageReadmeFile>
   <GenerateDocumentationFile>true</GenerateDocumentationFile>
   <IncludeSymbols>true</IncludeSymbols>
   <SymbolPackageFormat>snupkg</SymbolPackageFormat>
