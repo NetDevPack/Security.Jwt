@@ -1,3 +1,10 @@
+## [9.0.2](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.1...v9.0.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* remove readme ([67f2559](https://github.com/NetDevPack/Security.Jwt/commit/67f255963b55a84dcbe1af0ce923e46e9b731438))
+
 ## [9.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.0...v9.0.1) (2026-02-05)
 
 
