@@ -1,3 +1,11 @@
+## [9.0.4](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.3...v9.0.4) (2026-02-05)
+
+
+### Bug Fixes
+
+* icon path all csproj ([ceee74a](https://github.com/NetDevPack/Security.Jwt/commit/ceee74af60a5529a6d19002ca7efecdcd0e35db2))
+* icon path all csproj ([78da12a](https://github.com/NetDevPack/Security.Jwt/commit/78da12a59c0c4edcfa2f5d71c498e93d60966e06))
+
 ## [9.0.3](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.2...v9.0.3) (2026-02-05)
 
 
