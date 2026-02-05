@@ -1,3 +1,10 @@
+## [9.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.0...v9.0.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* remove non supported versions ([c0642cf](https://github.com/NetDevPack/Security.Jwt/commit/c0642cf8b45244de7d988b247ca77e98f9a3fbf4))
+
 # [9.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.2...v9.0.0) (2026-02-05)
 
 
