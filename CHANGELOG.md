@@ -1,3 +1,15 @@
+# [9.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.2...v9.0.0) (2026-02-05)
+
+
+### Features
+
+* **runtime:** upgrade project to latest .NET version ([ce44aec](https://github.com/NetDevPack/Security.Jwt/commit/ce44aecd786609370cb36c9461e2f1ce40070bcb))
+
+
+### BREAKING CHANGES
+
+* **runtime:** dropped support for non-LTS .NET versions
+
 ## [8.2.2](https://github.com/NetDevPack/Security.Jwt/compare/v8.2.1...v8.2.2) (2025-02-24)
 
 
