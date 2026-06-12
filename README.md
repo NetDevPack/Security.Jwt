@@ -88,18 +88,18 @@ private string GenerateToken(User user)
 
 ## Table of Contents ##
 
-- [JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt](#jwt-key-management-for-net---generate-and-auto-rotate-cryptographic-keys-for-your-jwt)
+- [JWT Key Management for .NET - Generate and auto rotate Cryptographic Keys for your Jwt (jws) / Jwe](#jwt-key-management-for-net---generate-and-auto-rotate-cryptographic-keys-for-your-jwt-jws--jwe)
   - [Are you creating Jwt like this?](#are-you-creating-jwt-like-this)
   - [Let me tell you: You have a problem.](#let-me-tell-you-you-have-a-problem)
-  - [Generating Tokens:](#generating-tokens)
   - [Token Validation](#token-validation)
+  - [Generating Tokens:](#generating-tokens)
   - [Table of Contents](#table-of-contents)
 - [🛡️ What is](#️-what-is)
 - [ℹ️ Installing](#ℹ️-installing)
 - [❤️ Token Generation](#️-token-generation)
-- [✔️ Token Validation (Jws)](#️-token-validation-jws)
+- [✔️ Token Validation (JWS)](#️-token-validation-jws)
 - [⛅ Multiple API's - Use Jwks](#-multiple-apis---use-jwks)
-    - [Identity API (Who emits the token)](#identity-api-who-emits-the-token)
+  - [Identity API (Who emits the token)](#identity-api-who-emits-the-token)
   - [Client API](#client-api)
 - [💾 Storage](#-storage)
   - [Database](#database)
@@ -108,7 +108,7 @@ private string GenerateToken(User user)
 - [Changing Algorithm](#changing-algorithm)
   - [Jws](#jws)
   - [Jwe](#jwe)
-- [IdentityServer4 - Auto jwks_uri Management](#identityserver4---auto-jwks_uri-management)
+- [IdentityServer4 - Auto jwks\_uri Management](#identityserver4---auto-jwks_uri-management)
 - [Why](#why)
   - [Load Balance scenarios](#load-balance-scenarios)
   - [Best practices](#best-practices)
@@ -462,3 +462,4 @@ Many developers are unsure about which algorithm to use for signing their JWTs. 
 # License
 
 NetDevPack.Security.Jwt is Open Source software and is released under the MIT license. This license allow the use of NetDevPack.Security.Jwt in free and commercial applications and libraries without restrictions.
+
