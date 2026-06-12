@@ -1,3 +1,10 @@
+# [9.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.4...v9.1.0) (2026-06-12)
+
+
+### Features
+
+* version 10 ([eb501e7](https://github.com/NetDevPack/Security.Jwt/commit/eb501e7706cb8626aa1aa73106f5faba4f48bac1))
+
 ## [9.0.4](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.3...v9.0.4) (2026-02-05)
 
 
