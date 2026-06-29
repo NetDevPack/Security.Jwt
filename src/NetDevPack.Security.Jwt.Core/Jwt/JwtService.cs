@@ -11,6 +11,8 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
     {
         private readonly IJsonWebKeyStore _store;
         private readonly IOptions<JwtOptions> _options;
+        // Process-wide lock so a scoped service across concurrent requests rotates once, not once per request.
+        private static readonly SemaphoreSlim RotationLock = new(1, 1);
 
         public JwtService(IJsonWebKeyStore store, IOptions<JwtOptions> options)
         {
@@ -22,9 +24,11 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             var key = new CryptographicKey(jwtKeyType == JwtKeyType.Jws ? _options.Value.Jws : _options.Value.Jwe);
 
             var model = new KeyMaterial(key);
-            await _store.Store(model);
+            // Store returns the persisted key: itself when it wins the insert, 
+            // or the key another replica already stored for this slot — so we never sign with a key that isn't published.
+            var persisted = await _store.Store(model);
 
-            return model.GetSecurityKey();
+            return persisted.GetSecurityKey();
         }
 
         public async Task<SecurityKey> GetCurrentSecurityKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
@@ -33,10 +37,23 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
 
             if (NeedsUpdate(current))
             {
-                // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
-                await _store.Revoke(current);
-                var newKey = await GenerateKey(jwtKeyType);
-                return newKey;
+                await RotationLock.WaitAsync();
+                try
+                {
+                    // Re-check under the lock. Store/Revoke clear the cache, so a key created
+                    // while we were waiting is visible on this read.
+                    current = await _store.GetCurrent(jwtKeyType);
+                    if (NeedsUpdate(current))
+                    {
+                        // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
+                        await _store.Revoke(current);
+                        return await GenerateKey(jwtKeyType);
+                    }
+                }
+                finally
+                {
+                    RotationLock.Release();
+                }
             }
 
             // options has change. Change current key

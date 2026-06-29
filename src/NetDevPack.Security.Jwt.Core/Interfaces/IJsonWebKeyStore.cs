@@ -7,7 +7,7 @@ namespace NetDevPack.Security.Jwt.Core.Interfaces;
 
 public interface IJsonWebKeyStore
 {
-    Task Store(KeyMaterial keyMaterial);
+    Task<KeyMaterial> Store(KeyMaterial keyMaterial);
     Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws);
     Task Revoke(KeyMaterial keyMaterial, string reason=default);
     Task<ReadOnlyCollection<KeyMaterial>> GetLastKeys(int quantity, JwtKeyType? jwtKeyType = null);

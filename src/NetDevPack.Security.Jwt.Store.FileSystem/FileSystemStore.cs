@@ -35,7 +35,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             return Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current.{jwtKeyType}.key");
         }
 
-        public async Task Store(KeyMaterial securityParamteres)
+        public async Task<KeyMaterial> Store(KeyMaterial securityParamteres)
         {
             if (!KeysPath.Exists)
                 KeysPath.Create();
@@ -48,6 +48,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
             await File.WriteAllTextAsync(Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current-{securityParamteres.KeyId}.{keyType}.key"), JsonSerializer.Serialize(securityParamteres, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
             ClearCache();
+            return securityParamteres;
         }
 
         public bool NeedsUpdate(KeyMaterial current)

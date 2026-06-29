@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -32,13 +34,47 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             _logger = logger;
         }
 
-        public async Task Store(KeyMaterial securityParamteres)
+        public async Task<KeyMaterial> Store(KeyMaterial securityParamteres)
         {
-            await _context.SecurityKeys.AddAsync(securityParamteres);
+            // Deterministic Id per key type + rotation window: every replica computes the same Id,
+            // so concurrent first-start/rotation inserts collide on the primary key and only one wins.
+            // Uses PK/id uniqueness (no secondary unique index)
+            securityParamteres.Id = DeterministicId(securityParamteres.Use, CurrentSlot());
 
             _logger.LogInformation($"Saving new SecurityKeyWithPrivate {securityParamteres.Id}", typeof(TContext).Name);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SecurityKeys.AddAsync(securityParamteres);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                // Lost the race or a transient fault. 
+                _context.Entry(securityParamteres).State = EntityState.Detached;
+                var winner = await _context.SecurityKeys.AsNoTracking()
+                    .FirstOrDefaultAsync(k => k.Id == securityParamteres.Id);
+                if (winner == null)
+                    throw;
+
+                // Return the persisted winner so the caller signs with the published key, not our orphan.
+                ClearCache();
+                return winner;
+            }
             ClearCache();
+            return securityParamteres;
+        }
+
+        // slot = rotation window index. Same window => same Id on every replica.
+        private long CurrentSlot()
+            => DateTime.UtcNow.Ticks / TimeSpan.FromDays(Math.Max(1, _options.Value.DaysUntilExpire)).Ticks;
+
+        private static Guid DeterministicId(string use, long slot)
+        {
+            using var sha = SHA256.Create();
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{slot}"));
+            var guidBytes = new byte[16];
+            Array.Copy(hash, guidBytes, 16);
+            return new Guid(guidBytes);
         }
 
         public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)

@@ -54,7 +54,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
         _memoryCache = memoryCache;
         _dataProtector = provider.CreateProtector(nameof(KeyMaterial)); ;
     }
-    public Task Store(KeyMaterial securityParameters)
+    public Task<KeyMaterial> Store(KeyMaterial securityParameters)
     {
         var possiblyEncryptedKeyElement = _dataProtector.Protect(JsonSerializer.Serialize(securityParameters));
 
@@ -74,7 +74,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
         KeyRepository.StoreElement(keyElement, friendlyName);
         ClearCache();
 
-        return Task.CompletedTask;
+        return Task.FromResult(securityParameters);
     }
 
 
