@@ -75,11 +75,11 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         }
 
 
-        public Task<KeyMaterial?> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
+        public Task<KeyMaterial?> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
         {
             var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
+            if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 credentials = GetKey(GetCurrentFile(jwtKeyType));
                 // Set cache options.

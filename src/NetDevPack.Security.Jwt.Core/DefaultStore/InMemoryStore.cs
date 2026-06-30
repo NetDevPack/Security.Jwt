@@ -22,7 +22,7 @@ internal class InMemoryStore : IJsonWebKeyStore
         return Task.FromResult(keyMaterial);
     }
 
-    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
+    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
     {
         return Task.FromResult(_store.Where(s => s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc")).OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }

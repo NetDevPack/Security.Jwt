@@ -36,10 +36,10 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
         public async Task<KeyMaterial> Store(KeyMaterial securityParamteres)
         {
-            // Deterministic Id per key type + rotation window: every replica computes the same Id,
-            // so concurrent first-start/rotation inserts collide on the primary key and only one wins.
-            // Uses PK/id uniqueness (no secondary unique index)
-            securityParamteres.Id = DeterministicId(securityParamteres.Use, CurrentSlot());
+            // Deterministic Id per use + kty + rotation version
+            // every replica replacing the same key computes the same Id
+            // Concurrent inserts collide on the primary key
+            securityParamteres.Id = DeterministicId(securityParamteres.Use, securityParamteres.Type, securityParamteres.Version);
 
             _logger.LogInformation($"Saving new SecurityKeyWithPrivate {securityParamteres.Id}", typeof(TContext).Name);
             try
@@ -64,24 +64,20 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             return securityParamteres;
         }
 
-        // slot = rotation window index. Same window => same Id on every replica.
-        private long CurrentSlot()
-            => DateTime.UtcNow.Ticks / TimeSpan.FromDays(Math.Max(1, _options.Value.DaysUntilExpire)).Ticks;
-
-        private static Guid DeterministicId(string use, long slot)
+        private static Guid DeterministicId(string use, string kty, long version)
         {
             using var sha = SHA256.Create();
-            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{slot}"));
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{kty}:{version}"));
             var guidBytes = new byte[16];
             Array.Copy(hash, guidBytes, 16);
             return new Guid(guidBytes);
         }
 
-        public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
+        public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
         {
             var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
+            if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 var keyType = (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc");
 #if NET5_0_OR_GREATER

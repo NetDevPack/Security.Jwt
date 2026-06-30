@@ -79,11 +79,11 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
 
 
-    public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
+    public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
     {
         var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-        if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial keyMaterial))
+        if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial keyMaterial))
         {
             var keys = await GetLastKeys(1, jwtKeyType);
             keyMaterial = keys.FirstOrDefault();
