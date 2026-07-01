@@ -22,6 +22,8 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
         public async Task<SecurityKey> GenerateKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
             var current = await _store.GetCurrent(jwtKeyType, bypassCache: true);
+            // if current is null, get the highest version ever created (manually revoked/first-run)
+            current ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
             return await GenerateKey(jwtKeyType, current);
         }
 
@@ -50,6 +52,8 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
                 {
                     // Re-check under the lock, bypassing the cache
                     current = await _store.GetCurrent(jwtKeyType, bypassCache: true);
+                    // No active key: fall back to the newest key including revoked. 
+                    current ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
                     if (NeedsUpdate(current))
                     {
                         // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
@@ -114,6 +118,8 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
         public async Task<SecurityKey> GenerateNewKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
             var oldCurrent = await _store.GetCurrent(jwtKeyType, bypassCache: true);
+            // if current is null, get the highest version ever created (manually revoked/first-run)
+            oldCurrent ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
             await _store.Revoke(oldCurrent);
             return await GenerateKey(jwtKeyType, oldCurrent);
         }
