@@ -17,6 +17,7 @@ using Xunit;
 
 namespace NetDevPack.Security.Jwt.Tests.JwtTests
 {
+    [Collection(InMemoryStoreCollection.Name)]
     public class JweTests : IClassFixture<WarmupInMemoryStore>
     {
         private readonly IJwtService _jwksService;
