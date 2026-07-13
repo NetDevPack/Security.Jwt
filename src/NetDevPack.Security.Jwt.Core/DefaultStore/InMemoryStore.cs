@@ -11,7 +11,7 @@ internal class InMemoryStore : IJsonWebKeyStore
     private readonly SemaphoreSlim _slim = new(1);
     internal const string DefaultRevocationReason = "Revoked";
 
-    public Task<KeyMaterial> Store(KeyMaterial keyMaterial)
+    public Task Store(KeyMaterial keyMaterial)
     {
         if (keyMaterial is null) throw new InvalidOperationException("Can't store empty value.");
 
@@ -19,10 +19,10 @@ internal class InMemoryStore : IJsonWebKeyStore
         _store.Add(keyMaterial);
         _slim.Release();
 
-        return Task.FromResult(keyMaterial);
+        return Task.CompletedTask;
     }
 
-    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
+    public Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
     {
         return Task.FromResult(_store.Where(s => s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc")).OrderByDescending(s => s.CreationDate).FirstOrDefault());
     }

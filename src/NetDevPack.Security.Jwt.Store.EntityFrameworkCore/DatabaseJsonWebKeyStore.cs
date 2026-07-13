@@ -34,12 +34,17 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             _logger = logger;
         }
 
-        public async Task<KeyMaterial> Store(KeyMaterial securityParamteres)
+        public async Task Store(KeyMaterial securityParamteres)
         {
-            // Deterministic Id per use + kty + rotation version
-            // every replica replacing the same key computes the same Id
-            // Concurrent inserts collide on the primary key
-            securityParamteres.Id = DeterministicId(securityParamteres.Use, securityParamteres.Type, securityParamteres.Version);
+            // Deterministic Id chained off the newest row for this use: replicas replacing the same
+            // predecessor compute the same Id, so concurrent inserts collide on the primary key
+            // instead of multiplying keys.
+            var previousId = await _context.SecurityKeys.AsNoTracking()
+                .Where(k => k.Use == securityParamteres.Use)
+                .OrderByDescending(k => k.CreationDate)
+                .Select(k => (Guid?)k.Id)
+                .FirstOrDefaultAsync();
+            securityParamteres.Id = DeterministicId(securityParamteres.Use, securityParamteres.Type, previousId);
 
             _logger.LogInformation($"Saving new SecurityKeyWithPrivate {securityParamteres.Id}", typeof(TContext).Name);
             try
@@ -51,33 +56,28 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             {
                 // Lost the race or a transient fault. 
                 _context.Entry(securityParamteres).State = EntityState.Detached;
-                var winner = await _context.SecurityKeys.AsNoTracking()
-                    .FirstOrDefaultAsync(k => k.Id == securityParamteres.Id);
-                if (winner == null)
-                    throw;
 
-                // Return the persisted winner so the caller signs with the published key, not our orphan.
-                ClearCache();
-                return winner;
+                // Another replica inserted this Id first: drop ours
+                if (!await _context.SecurityKeys.AsNoTracking().AnyAsync(k => k.Id == securityParamteres.Id))
+                    throw;
             }
             ClearCache();
-            return securityParamteres;
         }
 
-        private static Guid DeterministicId(string use, string kty, long version)
+        private static Guid DeterministicId(string use, string kty, Guid? previousId)
         {
             using var sha = SHA256.Create();
-            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{kty}:{version}"));
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{kty}:{previousId?.ToString() ?? "genesis"}"));
             var guidBytes = new byte[16];
             Array.Copy(hash, guidBytes, 16);
             return new Guid(guidBytes);
         }
 
-        public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
+        public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
             var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-            if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
+            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 var keyType = (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc");
 #if NET5_0_OR_GREATER
@@ -88,8 +88,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (credentials != null)
                     _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
@@ -115,8 +114,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 #endif
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
                     _memoryCache.Set(cacheKey, keys, cacheEntryOptions);

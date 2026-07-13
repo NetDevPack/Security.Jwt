@@ -21,24 +21,21 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
         }
         public async Task<SecurityKey> GenerateKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
-            var current = await _store.GetCurrent(jwtKeyType, bypassCache: true);
-            // if current is null, get the highest version ever created (manually revoked/first-run)
-            current ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
-            return await GenerateKey(jwtKeyType, current);
-        }
+            async Task<KeyMaterial> StoreNewKey()
+            {
+                var key = new CryptographicKey(jwtKeyType == JwtKeyType.Jws ? _options.Value.Jws : _options.Value.Jwe);
+                await _store.Store(new KeyMaterial(key));
+                return await _store.GetCurrent(jwtKeyType);
+            }
 
-        private async Task<SecurityKey> GenerateKey(JwtKeyType jwtKeyType, KeyMaterial previous)
-        {
-            var key = new CryptographicKey(jwtKeyType == JwtKeyType.Jws ? _options.Value.Jws : _options.Value.Jwe);
+            var current = await StoreNewKey();
 
-            var model = new KeyMaterial(key);
-            // Next rotation version. Seeded at 1 on cold start and for pre-column rows (Version defaults to 0).
-            model.Version = (previous?.Version ?? 0) + 1;
-            // Store returns the persisted key when it wins the insert, or the key another replica already stored
-            // for this version, so we never sign with a key that isn't published.
-            var persisted = await _store.Store(model);
+            // If current is null, the last stored key was also revoked during the race
+            current ??= await StoreNewKey();
 
-            return persisted.GetSecurityKey();
+            // A second null means keys are being revoked as fast as we mint them
+            return current?.GetSecurityKey()
+                   ?? throw new InvalidOperationException($"Unable to persist an active {jwtKeyType} key: keys are being revoked concurrently.");
         }
 
         public async Task<SecurityKey> GetCurrentSecurityKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
@@ -50,15 +47,18 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
                 await RotationLock.WaitAsync();
                 try
                 {
-                    // Re-check under the lock, bypassing the cache
-                    current = await _store.GetCurrent(jwtKeyType, bypassCache: true);
-                    // No active key: fall back to the newest key including revoked. 
-                    current ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
+                    // Re-check: if another request on this pod already rotated, its Store cleared the cache
+                    // and this read comes back fresh.
+                    current = await _store.GetCurrent(jwtKeyType);
                     if (NeedsUpdate(current))
                     {
                         // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
                         await _store.Revoke(current);
-                        return await GenerateKey(jwtKeyType, current);
+                        // All stores would internally clear cache on revoke
+                        // So this GetCurrent is from the actual source, and could possibly be updated by someone else.
+                        current = await _store.GetCurrent(jwtKeyType);
+                        if (NeedsUpdate(current))
+                            return await GenerateKey(jwtKeyType);
                     }
                 }
                 finally
@@ -102,7 +102,7 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             if (jwtKeyType == JwtKeyType.Jws && currentKey.Type != _options.Value.Jws.Kty()
                 || jwtKeyType == JwtKeyType.Jwe && currentKey.Type != _options.Value.Jwe.Kty())
             {
-                await GenerateKey(jwtKeyType, currentKey);
+                await GenerateKey(jwtKeyType);
                 return false;
             }
             return true;
@@ -117,11 +117,9 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
 
         public async Task<SecurityKey> GenerateNewKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
-            var oldCurrent = await _store.GetCurrent(jwtKeyType, bypassCache: true);
-            // if current is null, get the highest version ever created (manually revoked/first-run)
-            oldCurrent ??= (await _store.GetLastKeys(1, jwtKeyType)).FirstOrDefault();
+            var oldCurrent = await _store.GetCurrent(jwtKeyType);
             await _store.Revoke(oldCurrent);
-            return await GenerateKey(jwtKeyType, oldCurrent);
+            return await GenerateKey(jwtKeyType);
         }
 
         private bool NeedsUpdate(KeyMaterial current)

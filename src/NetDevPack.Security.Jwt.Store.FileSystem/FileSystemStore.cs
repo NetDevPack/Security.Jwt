@@ -35,7 +35,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
             return Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current.{jwtKeyType}.key");
         }
 
-        public async Task<KeyMaterial> Store(KeyMaterial securityParamteres)
+        public async Task Store(KeyMaterial securityParamteres)
         {
             if (!KeysPath.Exists)
                 KeysPath.Create();
@@ -48,7 +48,6 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
             await File.WriteAllTextAsync(Path.Combine(KeysPath.FullName, $"{_options.Value.KeyPrefix}current-{securityParamteres.KeyId}.{keyType}.key"), JsonSerializer.Serialize(securityParamteres, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }));
             ClearCache();
-            return securityParamteres;
         }
 
         public bool NeedsUpdate(KeyMaterial current)
@@ -75,17 +74,16 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
         }
 
 
-        public Task<KeyMaterial?> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
+        public Task<KeyMaterial?> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
             var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-            if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
+            if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 credentials = GetKey(GetCurrentFile(jwtKeyType));
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
                 if (credentials != null)
                     _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
             }
@@ -115,8 +113,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
                     _memoryCache.Set(cacheKey, keys, cacheEntryOptions);

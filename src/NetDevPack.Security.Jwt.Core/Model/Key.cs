@@ -19,7 +19,6 @@ public class KeyMaterial
     }
 
     public Guid Id { get; set; } = Guid.NewGuid();
-    public long Version { get; set; }
     public string KeyId { get; set; }
     public string Type { get; set; }
     public string Use { get; set; }

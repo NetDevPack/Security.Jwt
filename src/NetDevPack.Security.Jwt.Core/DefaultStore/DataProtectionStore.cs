@@ -54,7 +54,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
         _memoryCache = memoryCache;
         _dataProtector = provider.CreateProtector(nameof(KeyMaterial)); ;
     }
-    public Task<KeyMaterial> Store(KeyMaterial securityParameters)
+    public Task Store(KeyMaterial securityParameters)
     {
         var possiblyEncryptedKeyElement = _dataProtector.Protect(JsonSerializer.Serialize(securityParameters));
 
@@ -74,23 +74,22 @@ internal class DataProtectionStore : IJsonWebKeyStore
         KeyRepository.StoreElement(keyElement, friendlyName);
         ClearCache();
 
-        return Task.FromResult(securityParameters);
+        return Task.CompletedTask;
     }
 
 
 
-    public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws, bool bypassCache = false)
+    public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
     {
         var cacheKey = JwkContants.CurrentJwkCache + jwtKeyType;
 
-        if (bypassCache || !_memoryCache.TryGetValue(cacheKey, out KeyMaterial keyMaterial))
+        if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial keyMaterial))
         {
             var keys = await GetLastKeys(1, jwtKeyType);
             keyMaterial = keys.FirstOrDefault();
             // Set cache options.
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(_options.Value.CacheTime);
+                .SetAbsoluteExpiration(_options.Value.CacheTime);
 
             if (keyMaterial != null)
                 _memoryCache.Set(cacheKey, keyMaterial, cacheEntryOptions);
@@ -160,8 +159,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
             // Set cache options.
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(_options.Value.CacheTime);
+                .SetAbsoluteExpiration(_options.Value.CacheTime);
 
             if (keys.Any())
             {
