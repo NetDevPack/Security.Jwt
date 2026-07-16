@@ -1,3 +1,14 @@
+## [9.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v9.1.0...v9.1.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* **JwtService:** fix racing using another Get ([ed8dc12](https://github.com/NetDevPack/Security.Jwt/commit/ed8dc127ebcce5235bcccc056aba751b79326127))
+* Lock while generating the Security Key ([2423b41](https://github.com/NetDevPack/Security.Jwt/commit/2423b417bb11a44edc3469449be2762f8c50d34e))
+* Lock while generating the Security Key ([599e0a7](https://github.com/NetDevPack/Security.Jwt/commit/599e0a76ff87235fe062afc7c8a0548fb946362d))
+* manually revoking tokens cause collision ([46d9143](https://github.com/NetDevPack/Security.Jwt/commit/46d91434fc160ef54460bbb05b8c88935123538f))
+* move away from time-based epochs ([2fc2770](https://github.com/NetDevPack/Security.Jwt/commit/2fc27702e07c9e994b30fde835caec6c9f87cae8))
+
 # [9.1.0](https://github.com/NetDevPack/Security.Jwt/compare/v9.0.4...v9.1.0) (2026-06-12)
 
 
