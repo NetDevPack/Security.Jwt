@@ -11,6 +11,8 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
     {
         private readonly IJsonWebKeyStore _store;
         private readonly IOptions<JwtOptions> _options;
+        // Process-wide lock so a scoped service across concurrent requests rotates once, not once per request.
+        private static readonly SemaphoreSlim RotationLock = new(1, 1);
 
         public JwtService(IJsonWebKeyStore store, IOptions<JwtOptions> options)
         {
@@ -19,12 +21,21 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
         }
         public async Task<SecurityKey> GenerateKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
         {
-            var key = new CryptographicKey(jwtKeyType == JwtKeyType.Jws ? _options.Value.Jws : _options.Value.Jwe);
+            async Task<KeyMaterial> StoreNewKey()
+            {
+                var key = new CryptographicKey(jwtKeyType == JwtKeyType.Jws ? _options.Value.Jws : _options.Value.Jwe);
+                await _store.Store(new KeyMaterial(key));
+                return await _store.GetCurrent(jwtKeyType);
+            }
 
-            var model = new KeyMaterial(key);
-            await _store.Store(model);
+            var current = await StoreNewKey();
 
-            return model.GetSecurityKey();
+            // If current is null, the last stored key was also revoked during the race
+            current ??= await StoreNewKey();
+
+            // A second null means keys are being revoked as fast as we mint them
+            return current?.GetSecurityKey()
+                   ?? throw new InvalidOperationException($"Unable to persist an active {jwtKeyType} key: keys are being revoked concurrently.");
         }
 
         public async Task<SecurityKey> GetCurrentSecurityKey(JwtKeyType jwtKeyType = JwtKeyType.Jws)
@@ -33,10 +44,27 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
 
             if (NeedsUpdate(current))
             {
-                // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
-                await _store.Revoke(current);
-                var newKey = await GenerateKey(jwtKeyType);
-                return newKey;
+                await RotationLock.WaitAsync();
+                try
+                {
+                    // Re-check: if another request on this pod already rotated, its Store cleared the cache
+                    // and this read comes back fresh.
+                    current = await _store.GetCurrent(jwtKeyType);
+                    if (NeedsUpdate(current))
+                    {
+                        // According NIST - https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf - Private key should be removed when no longer needs
+                        await _store.Revoke(current);
+                        // All stores would internally clear cache on revoke
+                        // So this GetCurrent is from the actual source, and could possibly be updated by someone else.
+                        current = await _store.GetCurrent(jwtKeyType);
+                        if (NeedsUpdate(current))
+                            return await GenerateKey(jwtKeyType);
+                    }
+                }
+                finally
+                {
+                    RotationLock.Release();
+                }
             }
 
             // options has change. Change current key
@@ -92,7 +120,6 @@ namespace NetDevPack.Security.Jwt.Core.Jwt
             var oldCurrent = await _store.GetCurrent(jwtKeyType);
             await _store.Revoke(oldCurrent);
             return await GenerateKey(jwtKeyType);
-
         }
 
         private bool NeedsUpdate(KeyMaterial current)

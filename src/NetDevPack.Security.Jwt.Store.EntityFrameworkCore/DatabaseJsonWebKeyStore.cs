@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,11 +36,41 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
         public async Task Store(KeyMaterial securityParamteres)
         {
-            await _context.SecurityKeys.AddAsync(securityParamteres);
+            // Deterministic Id chained off the newest row for this use: replicas replacing the same
+            // predecessor compute the same Id, so concurrent inserts collide on the primary key
+            // instead of multiplying keys.
+            var previousId = await _context.SecurityKeys.AsNoTracking()
+                .Where(k => k.Use == securityParamteres.Use)
+                .OrderByDescending(k => k.CreationDate)
+                .Select(k => (Guid?)k.Id)
+                .FirstOrDefaultAsync();
+            securityParamteres.Id = DeterministicId(securityParamteres.Use, securityParamteres.Type, previousId);
 
             _logger.LogInformation($"Saving new SecurityKeyWithPrivate {securityParamteres.Id}", typeof(TContext).Name);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SecurityKeys.AddAsync(securityParamteres);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                // Lost the race or a transient fault. 
+                _context.Entry(securityParamteres).State = EntityState.Detached;
+
+                // Another replica inserted this Id first: drop ours
+                if (!await _context.SecurityKeys.AsNoTracking().AnyAsync(k => k.Id == securityParamteres.Id))
+                    throw;
+            }
             ClearCache();
+        }
+
+        private static Guid DeterministicId(string use, string kty, Guid? previousId)
+        {
+            using var sha = SHA256.Create();
+            var hash = sha.ComputeHash(Encoding.UTF8.GetBytes($"{use}:{kty}:{previousId?.ToString() ?? "genesis"}"));
+            var guidBytes = new byte[16];
+            Array.Copy(hash, guidBytes, 16);
+            return new Guid(guidBytes);
         }
 
         public async Task<KeyMaterial> GetCurrent(JwtKeyType jwtKeyType = JwtKeyType.Jws)
@@ -56,8 +88,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (credentials != null)
                     _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
@@ -83,8 +114,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 #endif
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
                     _memoryCache.Set(cacheKey, keys, cacheEntryOptions);

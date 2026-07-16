@@ -83,8 +83,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
                 credentials = GetKey(GetCurrentFile(jwtKeyType));
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
                 if (credentials != null)
                     _memoryCache.Set(cacheKey, credentials, cacheEntryOptions);
             }
@@ -114,8 +113,7 @@ namespace NetDevPack.Security.Jwt.Store.FileSystem
 
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    // Keep in cache for this time, reset time if accessed.
-                    .SetSlidingExpiration(_options.Value.CacheTime);
+                    .SetAbsoluteExpiration(_options.Value.CacheTime);
 
                 if (keys.Any())
                     _memoryCache.Set(cacheKey, keys, cacheEntryOptions);
