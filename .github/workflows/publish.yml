@@ -5,8 +5,12 @@ on:
     branches: [ master ]
 
 env:
-  REPOSITORY_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
   CURRENT_REPO_URL: https://github.com/${{ github.repository }}
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   publish:
@@ -16,42 +20,42 @@ jobs:
         working-directory: src
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup .NET 6
-        uses: actions/setup-dotnet@v3
+        uses: actions/checkout@v4
         with:
-          dotnet-version: 6.0.x
+          fetch-depth: 0
 
-      - name: Setup .NET 7
-        uses: actions/setup-dotnet@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
 
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
-          
       - name: Restore dependencies
-        run: dotnet restore 
+        run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore -c Release
+
+      - name: Test
+        run: dotnet test --no-build -c Release
 
       - name: Semantic Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          semantic_version: 19.0.5
+          semantic_version: 24
           extra_plugins: |
-            @semantic-release/changelog
-            @semantic-release/git
+            @semantic-release/changelog@6
+            @semantic-release/git@10
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Package
-        run: dotnet pack -c Release -o out -p:PackageVersion=${{ steps.semantic.outputs.new_release_version }} -p:RepositoryUrl=${{env.CURRENT_REPO_URL}}
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: dotnet pack -c Release -o out -p:PackageVersion=${{ steps.semantic.outputs.new_release_version }} -p:RepositoryUrl=${{ env.CURRENT_REPO_URL }}
 
       - name: Publish the package to nuget.org
-        run: dotnet nuget push ./out/*.nupkg -n -d -k ${{ secrets.NUGET_AUTH_TOKEN}} -s https://api.nuget.org/v3/index.json
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: dotnet nuget push ./out/*.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s https://api.nuget.org/v3/index.json --skip-duplicate

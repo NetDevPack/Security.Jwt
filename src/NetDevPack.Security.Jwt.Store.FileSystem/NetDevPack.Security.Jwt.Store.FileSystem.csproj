@@ -1,41 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-  <TargetFrameworks>netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
-  <ImplicitUsings>enable</ImplicitUsings>
-  <Nullable>enable</Nullable>
-  <LangVersion>latest</LangVersion>
-  <PackageId>NetDevPack.Security.Jwt.Store.FileSystem</PackageId>
-  <Version>10.0.0</Version>
-  <Authors>brunobritodev</Authors>
-  <Company>NetDevPack</Company>
-  <Title>JWT Signing Credentials - File System Store</Title>
-  <Description>
+    <PackageId>NetDevPack.Security.Jwt.Store.FileSystem</PackageId>
+    <Title>JWT Signing Credentials - File System Store</Title>
+    <Description>
     File system storage provider for JWK/JWKS. Persist signing keys locally and
     support automatic key rotation scenarios for JWT signing (RSA, ECDSA, HMAC).
-  </Description>
-  <PackageTags>jwt;jwks;jwk;filesystem;store;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
-  <NeutralLanguage>en</NeutralLanguage>
-  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  <RepositoryUrl>https://github.com/NetDevPack/Security.Jwt</RepositoryUrl>
-  <RepositoryType>git</RepositoryType>
-  <RepositoryBranch>main</RepositoryBranch>
-  <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
-  <PackageIcon>icon.png</PackageIcon>
-  <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  <IncludeSymbols>true</IncludeSymbols>
-  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  <PackageReleaseNotes>
+    </Description>
+    <PackageTags>jwt;jwks;jwk;filesystem;store;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
+    <PackageReleaseNotes>
     v10.0.0:
+    - Targets net8.0, net9.0 and net10.0 (netstandard2.1 was removed)
     - File system provider for JWK/JWKS persistence
     - Supports automatic key rotation workflows
-  </PackageReleaseNotes>
-</PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
+    </PackageReleaseNotes>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetDevPack.Security.Jwt.Core\NetDevPack.Security.Jwt.Core.csproj" />

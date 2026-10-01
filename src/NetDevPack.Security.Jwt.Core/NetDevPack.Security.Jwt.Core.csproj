@@ -1,40 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net8.0;net9.0;net10.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
-
     <PackageId>NetDevPack.Security.Jwt</PackageId>
-    <VersionPrefix>10.0.0</VersionPrefix>
-    <Authors>brunobritodev</Authors>
-    <Company>NetDevPack</Company>
-
     <Title>JWT Signing Credentials - Automatic Key Rotation</Title>
     <Description>
     A .NET library that reduces friction when using JWT in your applications by handling signing credentials
     with automatic key rotation and JWK/JWKS management (RSA, ECDSA, HMAC) — without requiring you to implement an OAuth2 server.
     </Description>
-
     <PackageTags>jwt;jwk;jwks;signing-credentials;key-rotation;rsa;ecdsa;hmac;security;cryptography;dotnet</PackageTags>
-
-    <NeutralLanguage>en</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-
-    <RepositoryUrl>https://github.com/NetDevPack/Security.Jwt</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryBranch>main</RepositoryBranch>
-    <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
-
-    <PackageIcon>icon.png</PackageIcon>
-
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-
     <PackageReleaseNotes>
     v10.0.0:
+    - Targets net8.0, net9.0 and net10.0 (netstandard2.1 was removed)
     - Simplifies JWT usage by handling signing credentials and key rotation
     - Built-in JWK/JWKS management for publishing and consuming keys
     - Supports RSA, ECDSA and HMAC algorithms
@@ -42,72 +17,15 @@
     </PackageReleaseNotes>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.2" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0' And '$(TargetFramework)' != 'net7.0'">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="System.Formats.Asn1" Version="9.0.12" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0' And '$(TargetFramework)' != 'net7.0'">
-    <PackageReference Include="System.Formats.Asn1" Version="10.0.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.2" />
-    <PackageReference Include="System.Text.Json" Version="10.0.2" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="6.0.36" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="7.0.20" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="8.0.23" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="9.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.12" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>NetDevPack.Security.Jwt.Tests</_Parameter1>
-    </AssemblyAttribute>
+    <InternalsVisibleTo Include="NetDevPack.Security.Jwt.Tests" />
   </ItemGroup>
-
-  <Target Name="CopyHook" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Debug'">
-    <ItemGroup>
-      <_CustomFiles Include="../../.github/hooks/commit-msg" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_CustomFiles)" DestinationFolder="../../.git/hooks" />
-  </Target>
 
 </Project>

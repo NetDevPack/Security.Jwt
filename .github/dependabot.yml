@@ -1,0 +1,32 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      microsoft:
+        patterns: ["Microsoft.*", "System.*"]
+      tests:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "coverlet.*", "AwesomeAssertions"]
+    ignore:
+      # Microsoft.* are pinned per TFM (net8 -> 8.x, net9 -> 9.x, net10 -> 10.x); only patch bumps are safe
+      - dependency-name: "Microsoft.*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "System.Security.Cryptography.Xml"
+        update-types: ["version-update:semver-major"]
+      # IdentityServer4 is EOL, see docs/Decisions/ADR-002-identityserver4-deprecated.md
+      - dependency-name: "IdentityServer4"
+      # Never reintroduce FluentAssertions (commercial license since v8), see docs/Dependencies/Known-Issues.md
+      - dependency-name: "FluentAssertions"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci

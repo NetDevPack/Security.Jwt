@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Bogus;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -87,7 +87,6 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
             }
         }
 
-#if NET5_0_OR_GREATER
 
         [Fact]
         public async Task ShouldValidateJweAndJws()
@@ -142,7 +141,6 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
 
             jweResult.IsValid.Should().BeTrue();
         }
-#endif
 
 
         public Faker<Claim> GenerateClaim()

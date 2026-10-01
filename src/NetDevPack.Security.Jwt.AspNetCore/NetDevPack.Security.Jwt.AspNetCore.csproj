@@ -1,16 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Frameworks -->
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <PackageId>NetDevPack.Security.Jwt.AspNetCore</PackageId>
-    <VersionPrefix>10.0.0</VersionPrefix>
-    <Authors>brunobritodev</Authors>
-    <Company>NetDevPack</Company>
-
     <Title>JWT Signing Credentials - Expose JWKS Public Endpoint</Title>
     <Description>
     ASP.NET Core integration package to expose a JWKS (JWK Set) public endpoint and
@@ -18,19 +9,9 @@
     Suitable for OAuth2 / OpenID Connect scenarios.
     </Description>
     <PackageTags>jwt;jwks;jwk;aspnetcore;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
-    <NeutralLanguage>en</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/NetDevPack/Security.PasswordHasher</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryBranch>main</RepositoryBranch>
-    <PackageProjectUrl>https://github.com/NetDevPack/Security.PasswordHasher</PackageProjectUrl>
-    <PackageIcon>icon.png</PackageIcon>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <PackageReleaseNotes>
-    Initial release:
+    v10.0.0:
+    - Targets net8.0, net9.0 and net10.0
     - ASP.NET Core JWKS endpoint
     - JWK/JWKS management and rotation support
     - Compatible with OAuth2 / OpenID Connect
@@ -38,21 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.23" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.12" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
   </ItemGroup>
 
   <ItemGroup>

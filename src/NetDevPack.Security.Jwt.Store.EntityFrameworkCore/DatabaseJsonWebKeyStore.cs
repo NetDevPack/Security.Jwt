@@ -48,11 +48,7 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
             if (!_memoryCache.TryGetValue(cacheKey, out KeyMaterial credentials))
             {
                 var keyType = (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc");
-#if NET5_0_OR_GREATER
                 credentials = await _context.SecurityKeys.Where(X => X.IsRevoked == false).Where(s => s.Use == keyType).OrderByDescending(d => d.CreationDate).AsNoTrackingWithIdentityResolution().FirstOrDefaultAsync();
-#else
-                credentials = await _context.SecurityKeys.Where(X => X.IsRevoked == false).Where(s => s.Use == keyType).OrderByDescending(d => d.CreationDate).AsNoTracking().FirstOrDefaultAsync();
-#endif
 
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
@@ -74,13 +70,8 @@ namespace NetDevPack.Security.Jwt.Store.EntityFrameworkCore
 
             if (!_memoryCache.TryGetValue(cacheKey, out ReadOnlyCollection<KeyMaterial> keys))
             {
-#if NET5_0_OR_GREATER
                 keys = (await _context.SecurityKeys.Where(s => jwtKeyType == null || s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc"))
                                     .OrderByDescending(d => d.CreationDate).AsNoTrackingWithIdentityResolution().ToListAsync()).AsReadOnly();
-#else
-                keys = _context.SecurityKeys.Where(s => jwtKeyType == null || s.Use == (jwtKeyType == JwtKeyType.Jws ? "sig" : "enc"))
-                                    .OrderByDescending(d => d.CreationDate).AsNoTracking().ToList().AsReadOnly();
-#endif
                 // Set cache options.
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     // Keep in cache for this time, reset time if accessed.

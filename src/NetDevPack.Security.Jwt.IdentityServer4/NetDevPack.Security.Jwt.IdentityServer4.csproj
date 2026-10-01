@@ -1,48 +1,26 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-<PropertyGroup>
-  <!-- Frameworks -->
-  <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
-  <ImplicitUsings>enable</ImplicitUsings>
-  <Nullable>enable</Nullable>
-  <LangVersion>latest</LangVersion>
-
-  <!-- Package identity -->
-  <PackageId>NetDevPack.Security.Jwt.IdentityServer4</PackageId>
-  <Version>10.0.0</Version>
-  <Authors>brunobritodev</Authors>
-  <Company>NetDevPack</Company>
-
-  <Title>JWT Signing Credentials - IdentityServer4 Support</Title>
-  <Description>
+  <PropertyGroup>
+    <PackageId>NetDevPack.Security.Jwt.IdentityServer4</PackageId>
+    <Title>[DEPRECATED] JWT Signing Credentials - IdentityServer4 Support</Title>
+    <Description>
+    DEPRECATED: IdentityServer4 reached end of life and has known vulnerabilities. Prefer Duende IdentityServer or OpenIddict.
     Integration package for IdentityServer4 to manage JWK/JWKS with automatic key rotation (RSA, ECDSA, HMAC).
-  </Description>
-  <PackageTags>jwt;jwks;jwk;identityserver4;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
-  <NeutralLanguage>en</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  <RepositoryUrl>https://github.com/NetDevPack/Security.Jwt</RepositoryUrl>
-  <RepositoryType>git</RepositoryType>
-  <RepositoryBranch>main</RepositoryBranch>
-
-  <PackageProjectUrl>https://github.com/NetDevPack/Security.Jwt</PackageProjectUrl>
-  <PackageIcon>icon.png</PackageIcon>
-  <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  <IncludeSymbols>true</IncludeSymbols>
-  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  <PackageReleaseNotes>
+    </Description>
+    <PackageTags>deprecated;jwt;jwks;jwk;identityserver4;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
+    <PackageReleaseNotes>
     v10.0.0:
+    - Package is deprecated: IdentityServer4 is EOL (see GHSA-55p7-v223-x366 / GHSA-ff4q-64jc-gx98)
     - IdentityServer4 integration for JWK/JWKS management and automatic key rotation support
-  </PackageReleaseNotes>
-</PropertyGroup>
+    </PackageReleaseNotes>
+    <!-- IdentityServer4 4.1.2 is EOL and will not receive fixes. Kept only for backward compatibility. -->
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors.Replace('NU1902', ''))</WarningsAsErrors>
+  </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="IdentityServer4" Version="4.1.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="IdentityServer4" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <ItemGroup>

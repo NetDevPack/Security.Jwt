@@ -256,3 +256,10 @@ docs/_build
 docs/.vscode
 healthcheck
 back-end/src/DesenvolvedorIO.Site/Properties/ServiceDependencies/stage-desenvolvedorio - Web Deploy2/profile.arm.json
+
+# JetBrains Rider
+.idea/
+
+# Obsidian (keep docs/.obsidian/app.json, ignore per-user state)
+docs/.obsidian/*
+!docs/.obsidian/app.json

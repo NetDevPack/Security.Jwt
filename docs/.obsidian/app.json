@@ -1,0 +1,9 @@
+{
+  "attachmentFolderPath": "assets",
+  "newFileLocation": "current",
+  "useMarkdownLinks": false,
+  "newLinkFormat": "shortest",
+  "alwaysUpdateLinks": true,
+  "showUnsupportedFiles": false,
+  "userIgnoreFilters": []
+}

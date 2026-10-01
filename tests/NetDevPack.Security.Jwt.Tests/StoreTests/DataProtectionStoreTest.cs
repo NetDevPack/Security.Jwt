@@ -2,7 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Tests.Warmups;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using NetDevPack.Security.Jwt.Core.DefaultStore;
 using NetDevPack.Security.Jwt.Core.Jwa;
 using NetDevPack.Security.Jwt.Core.Model;

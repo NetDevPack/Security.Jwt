@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using NetDevPack.Security.Jwt.Core.Interfaces;
 using System.Security.Claims;
 using AspNet.Default;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Net.Http.Headers;
 using System.Text.Json;
 

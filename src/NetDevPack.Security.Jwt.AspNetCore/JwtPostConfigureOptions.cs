@@ -14,12 +14,7 @@ public class JwtPostConfigureOptions : IPostConfigureOptions<JwtBearerOptions>
 
     public void PostConfigure(string? name, JwtBearerOptions options)
     {
-#if NET8_0_OR_GREATER
         options.TokenHandlers.Clear();
         options.TokenHandlers.Add(new JwtServiceValidationHandler(_serviceProvider));
-#else
-        options.SecurityTokenValidators.Clear();
-        options.SecurityTokenValidators.Add(new JwtServiceValidationHandler(_serviceProvider));
-#endif
     }
 }
