@@ -1,3 +1,19 @@
+# [10.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v9.1.1...v10.0.0) (2026-10-01)
+
+
+* feat!: modernize deps and drop netstandard2.1 ([b7ef728](https://github.com/NetDevPack/Security.Jwt/commit/b7ef7287983003a0fa9455787e4f68f98b6667cf))
+* feat!: modernize deps and drop netstandard2.1 ([78c7324](https://github.com/NetDevPack/Security.Jwt/commit/78c7324496d2f6cee78d8bb05fc2599c76b3de55))
+
+
+### BREAKING CHANGES
+
+* netstandard2.1 is no longer supported. All packages
+now target net8.0, net9.0 and net10.0 only. Consumers on .NET
+Framework, .NET Core 3.1 or .NET 6/7 must stay on v9.x.
+* netstandard2.1 is no longer supported. All packages
+now target net8.0, net9.0 and net10.0 only. Consumers on .NET
+Framework, .NET Core 3.1 or .NET 6/7 must stay on v9.x.
+
 ## [9.1.1](https://github.com/NetDevPack/Security.Jwt/compare/v9.1.0...v9.1.1) (2026-07-16)
 
 
