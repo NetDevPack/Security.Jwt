@@ -533,6 +533,7 @@ public abstract class GenericStoreServiceTest<TWarmup> : IClassFixture<TWarmup>
         var getLastJwe =  (await _jwtService.GetLastKeys(1, JwtKeyType.Jwe)).First();
         var getLastJws =  (await _jwtService.GetLastKeys(1, JwtKeyType.Jws)).First();
 
+        getLast2DefaultVal.Should().HaveCount(2);
         jws.KeyId.Should().NotBe(jwe.KeyId);
         getLastJws.KeyId.Should().NotBe(getLastJwe.KeyId);
         defaultVal.KeyId.Should().Be(jws.KeyId);

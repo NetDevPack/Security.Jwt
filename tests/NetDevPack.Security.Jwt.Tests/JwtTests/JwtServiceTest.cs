@@ -13,6 +13,7 @@ using Xunit;
 
 namespace NetDevPack.Security.Jwt.Tests.JwtTests
 {
+    [Collection(InMemoryStoreCollection.Name)]
     public class JwtServiceTest : IClassFixture<WarmupInMemoryStore>
     {
         private readonly IJwtService _jwksService;
@@ -80,7 +81,8 @@ namespace NetDevPack.Security.Jwt.Tests.JwtTests
                 keysGenerated.Add(sign);
             }
 
-            var current = await _jwksService.GetLastKeys(5);
+            var current = await _jwksService.GetLastKeys(5, NetDevPack.Security.Jwt.Core.Jwa.JwtKeyType.Jws);
+            current.Should().HaveCount(5);
             foreach (var securityKey in current)
             {
                 keysGenerated.Should().Contain(s => s.KeyId == securityKey.KeyId);

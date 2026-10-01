@@ -89,8 +89,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
             keyMaterial = keys.FirstOrDefault();
             // Set cache options.
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(_options.Value.CacheTime);
+                .SetAbsoluteExpiration(_options.Value.CacheTime);
 
             if (keyMaterial != null)
                 _memoryCache.Set(cacheKey, keyMaterial, cacheEntryOptions);
@@ -160,8 +159,7 @@ internal class DataProtectionStore : IJsonWebKeyStore
 
             // Set cache options.
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                // Keep in cache for this time, reset time if accessed.
-                .SetSlidingExpiration(_options.Value.CacheTime);
+                .SetAbsoluteExpiration(_options.Value.CacheTime);
 
             if (keys.Any())
             {

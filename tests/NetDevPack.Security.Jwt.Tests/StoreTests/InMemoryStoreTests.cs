@@ -3,6 +3,7 @@ using Xunit;
 
 namespace NetDevPack.Security.Jwt.Tests.StoreTests;
 
+[Collection(InMemoryStoreCollection.Name)]
 [Trait("Category", "InMemory Tests")]
 public class InMemoryStoreTests : GenericStoreServiceTest<WarmupInMemoryStore>
 {
