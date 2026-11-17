@@ -24,12 +24,13 @@ public static class JsonWebKeySetManagerDependencyInjection
     }
 
     /// <summary>
-    /// Sets the signing credential.
+    /// Keeps the keys in memory, for the lifetime of the service provider. Keys are lost on restart
+    /// and are not shared between instances, so use it only for development and tests.
     /// </summary>
     /// <returns></returns>
     public static IJwksBuilder PersistKeysInMemory(this IJwksBuilder builder)
     {
-        builder.Services.AddScoped<IJsonWebKeyStore, InMemoryStore>();
+        builder.Services.AddSingleton<IJsonWebKeyStore, InMemoryStore>();
 
         return builder;
     }
