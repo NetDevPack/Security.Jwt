@@ -3,11 +3,11 @@
 
   <!-- NuGet package metadata shared by all NetDevPack.Security.Jwt.* packages -->
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <Version>10.0.0</Version>
+    <Version>11.0.0</Version>
     <Authors>brunobritodev</Authors>
     <Company>NetDevPack</Company>
     <NeutralLanguage>en</NeutralLanguage>

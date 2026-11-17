@@ -1,10 +1,10 @@
 ---
 tags: [samples]
-updated: 2026-10-01
+updated: 2026-11-17
 ---
 # Samples (`samples/`)
 
-All samples are in `src/NetDevPack.Security.Jwt.sln`, target net8/9/10 and use project references (except `Api.Sample`).
+All samples are in `src/NetDevPack.Security.Jwt.sln`, target net10.0 and use project references (except `Api.Sample`).
 
 | Sample | Shows |
 | --- | --- |

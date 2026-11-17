@@ -47,8 +47,16 @@ It generates keys with RSA and ECDsa algorithms, which are the most recommended 
 
 ### Supported frameworks
 
-All packages target **.NET 8, .NET 9 and .NET 10**.
+All packages target **.NET 10** (LTS).
 
+| Version | Target frameworks |
+| ------- | ----------------- |
+| 11.x | .NET 10 |
+| 10.x | .NET 8, .NET 9, .NET 10 |
+| 9.x | .NET Standard 2.1, .NET 8, .NET 9, .NET 10 |
+
+> **Breaking change in v11:** .NET 8 and .NET 9 are out of support since 2026-11-10 and are no longer targeted. If you need them, stay on v10.x.
+>
 > **Breaking change in v10:** `netstandard2.1` is no longer supported (it pulled EF Core 3.1, which is out of support). If you need it, stay on v9.x.
 
 ## Token Validation

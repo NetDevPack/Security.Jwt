@@ -1,12 +1,12 @@
 ---
 tags: [architecture]
-updated: 2026-10-01
+updated: 2026-11-17
 ---
 # Overview
 
 Library that **generates, stores, rotates and publishes** the keys used to sign (JWS) and encrypt (JWE) JWTs, so apps don't hardcode symmetric secrets. See [[Key-Lifecycle]].
 
-## Packages (all `net8.0;net9.0;net10.0`)
+## Packages (all `net10.0`, see [[ADR-005-net10-only]])
 
 | Project (`src/`) | NuGet id | Role |
 | --- | --- | --- |

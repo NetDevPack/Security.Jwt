@@ -15,17 +15,14 @@ jobs:
         working-directory: src
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
-            10.0.x
+          global-json-file: global.json
 
       - name: Restore dependencies
         run: dotnet restore
@@ -39,4 +36,5 @@ jobs:
       - name: Check vulnerable packages
         run: |
           dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerable.txt
-          ! grep -q "has the following vulnerable packages" vulnerable.txt
+          # IdentityServer4 is EOL with known advisories and is accepted on purpose (docs/Decisions/ADR-002)
+          ! grep -E '^\s+>' vulnerable.txt | grep -v ' IdentityServer4 '
