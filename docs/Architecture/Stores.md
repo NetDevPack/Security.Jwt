@@ -1,6 +1,6 @@
 ---
 tags: [architecture, storage]
-updated: 2026-10-01
+updated: 2026-11-17
 ---
 # Stores (`IJsonWebKeyStore`)
 
@@ -9,7 +9,7 @@ Contract (`Interfaces/IJsonWebKeyStore.cs`): `Store`, `GetCurrent(type)`, `Revok
 | Store | Registration | Persistence | Notes |
 | --- | --- | --- | --- |
 | `DataProtectionStore` (default, internal) | `AddJwksManager()` | ASP.NET DataProtection `IXmlRepository` (same place as cookie keys) | Payload protected with `IDataProtector`. Revocation is a separate XML element because `IXmlRepository` can't update. If no repository can be found, it falls back to Azure WebSites → default folder → Windows registry, then throws |
-| `InMemoryStore` | `.PersistKeysInMemory()` | Process memory | Tests/dev only |
+| `InMemoryStore` | `.PersistKeysInMemory()` | Memory of the service provider (singleton) | Tests/dev only. Each service provider has its own keys: hosts in the same process (e.g. parallel tests) don't share them. Lost on restart |
 | `FileSystemStore` | `.PersistKeysToFileSystem(dir)` | JSON files in a folder | Needs `IMemoryCache` |
 | `DatabaseJsonWebKeyStore<TContext>` | `.PersistKeysToDatabaseStore<TContext>()` | EF Core, `TContext : DbContext, ISecurityKeyContext` (`DbSet<KeyMaterial> SecurityKeys`) | Mapping in `KeyMaterialMap.cs`; uses `AsNoTrackingWithIdentityResolution` |
 
