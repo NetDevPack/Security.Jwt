@@ -1,6 +1,6 @@
 ---
 tags: [architecture]
-updated: 2026-11-17
+updated: 2026-11-18
 ---
 # Overview
 
@@ -14,7 +14,6 @@ Library that **generates, stores, rotates and publishes** the keys used to sign 
 | `NetDevPack.Security.Jwt.AspNetCore` | `NetDevPack.Security.Jwt.AspNetCore` | `UseJwksDiscovery()` endpoint + `UseJwtValidation()` — see [[AspNetCore-Integration]] |
 | `NetDevPack.Security.Jwt.Store.EntityFrameworkCore` | same | `PersistKeysToDatabaseStore<TContext>()` — see [[Stores]] |
 | `NetDevPack.Security.Jwt.Store.FileSystem` | same | `PersistKeysToFileSystem(DirectoryInfo)` |
-| `NetDevPack.Security.Jwt.IdentityServer4` | same | **Deprecated**, see [[ADR-002-identityserver4-deprecated]] |
 
 Note: the Core *project* name differs from its *package id* (`NetDevPack.Security.Jwt`).
 

@@ -13,7 +13,7 @@ dotnet list NetDevPack.Security.Jwt.sln package --vulnerable --include-transitiv
 
 ## Rules
 - Package versions only in `Directory.Packages.props` (Central Package Management). Never add `Version=` to a csproj. Microsoft.* packages follow the TFM (10.0.x). See `docs/Dependencies/Policy.md`.
-- NuGet Audit warnings NU1901-NU1904 are build errors. IdentityServer4 is the only deliberate exception (deprecated, ADR-002).
+- NuGet Audit warnings NU1901-NU1904 are build errors, with no exceptions (IdentityServer4 was dropped, ADR-006).
 - Commits: Conventional Commits (no local hook enforces it; semantic-release reads the messages). Use `chore(deps)` for dependency bumps. Breaking change = `feat!:` + `BREAKING CHANGE:` footer. semantic-release owns `CHANGELOG.md` and versions.
 - Public API in `src/` is a NuGet contract. Treat changes to it as breaking.
 - Encoding: UTF-8 with BOM + CRLF for C#/MSBuild files (enforced by `.editorconfig`). Never save files as UTF-16.

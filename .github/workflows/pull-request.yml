@@ -36,5 +36,4 @@ jobs:
       - name: Check vulnerable packages
         run: |
           dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerable.txt
-          # IdentityServer4 is EOL with known advisories and is accepted on purpose (docs/Decisions/ADR-002)
-          ! grep -E '^\s+>' vulnerable.txt | grep -v ' IdentityServer4 '
+          ! grep -E '^\s+>' vulnerable.txt

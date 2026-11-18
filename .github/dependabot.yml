@@ -19,8 +19,6 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "System.Security.Cryptography.Xml"
         update-types: ["version-update:semver-major"]
-      # IdentityServer4 is EOL, see docs/Decisions/ADR-002-identityserver4-deprecated.md
-      - dependency-name: "IdentityServer4"
       # Never reintroduce FluentAssertions (commercial license since v8), see docs/Dependencies/Known-Issues.md
       - dependency-name: "FluentAssertions"
 
