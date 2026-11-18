@@ -10,7 +10,7 @@
     <PackageTags>jwt;jwks;jwk;filesystem;store;rsa;ecdsa;hmac;oauth2;openid;key-rotation;security;cryptography</PackageTags>
     <PackageReleaseNotes>
     v10.0.0:
-    - Targets net8.0, net9.0 and net10.0 (netstandard2.1 was removed)
+    - Targets net10.0 only (net8.0/net9.0 were removed, both are out of support)
     - File system provider for JWK/JWKS persistence
     - Supports automatic key rotation workflows
     </PackageReleaseNotes>

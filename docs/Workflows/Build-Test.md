@@ -1,24 +1,23 @@
 ---
 tags: [workflow]
-updated: 2026-10-01
+updated: 2026-11-17
 ---
 # Build & Test
 
-Prerequisites: .NET **10 SDK** plus the .NET 8 and 9 runtimes (tests run on every TFM).
+Prerequisites: .NET **10 SDK** (pinned by `global.json`). Tests use **xunit.v3 on Microsoft.Testing.Platform** (MTP), enabled in `global.json`.
 
 ```bash
 cd src
 dotnet restore                       # fails on NU1901-NU1904 (vulnerabilities)
 dotnet build -c Release
-dotnet test -c Release               # all TFMs
-dotnet test -c Release -f net10.0    # one TFM
-dotnet test ../tests/NetDevPack.Security.Jwt.Tests -c Release -f net10.0 --filter "FullyQualifiedName~FileSystemStore"
+dotnet test -c Release
+dotnet test --project ../tests/NetDevPack.Security.Jwt.Tests -c Release --filter-class "*FileSystemStore*"
 dotnet list NetDevPack.Security.Jwt.sln package --vulnerable --include-transitive
-dotnet pack -c Release -o ./out      # 5 .nupkg + .snupkg, lib/net8.0|net9.0|net10.0
+dotnet pack -c Release -o ./out      # 5 .nupkg + .snupkg, lib/net10.0
 ```
 
 - Solution: `src/NetDevPack.Security.Jwt.sln` (src + tests + samples).
-- Test projects: `NetDevPack.Security.Jwt.Tests` (about 514 tests per TFM) and `NetDevPack.Security.Jwt.AspNetCoreTests`.
-- A test can be flaky on net10, see [[Known-Issues]].
+- Test projects: `NetDevPack.Security.Jwt.Tests` (about 514 tests) and `NetDevPack.Security.Jwt.AspNetCoreTests`.
+- A test can be flaky, see [[Known-Issues]].
 
-CI: `.github/workflows/pull-request.yml` runs restore, build, test and the vulnerability check on .NET 8/9/10.
+CI: `.github/workflows/pull-request.yml` runs restore, build, test and the vulnerability check (IdentityServer4 is the only accepted advisory, see [[ADR-002-identityserver4-deprecated]]).

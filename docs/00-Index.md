@@ -1,6 +1,6 @@
 ---
 tags: [moc, index]
-updated: 2026-10-01
+updated: 2026-11-17
 ---
 # NetDevPack.Security.Jwt — Knowledge Base
 
@@ -21,7 +21,7 @@ Open the `docs/` folder as an Obsidian vault, or just read the Markdown on GitHu
 - [[Samples]]
 
 ## Dependencies
-- [[Policy]]: Central Package Management, per-TFM versions, how to update
+- [[Policy]]: Central Package Management, .NET package versions, how to update
 - [[Known-Issues]]: tech debt and pending migrations
 
 ## Decisions (ADRs)
@@ -29,3 +29,4 @@ Open the `docs/` folder as an Obsidian vault, or just read the Markdown on GitHu
 - [[ADR-002-identityserver4-deprecated]]
 - [[ADR-003-central-package-management]]
 - [[ADR-004-remove-legacy-asymmetric-sample]]
+- [[ADR-005-net10-only]]

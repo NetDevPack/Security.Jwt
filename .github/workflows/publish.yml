@@ -26,18 +26,15 @@ jobs:
         working-directory: src
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ inputs.version && format('v{0}', inputs.version) || github.sha }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: |
-            8.0.x
-            9.0.x
-            10.0.x
+          global-json-file: global.json
 
       - name: Restore dependencies
         run: dotnet restore
@@ -57,6 +54,7 @@ jobs:
           extra_plugins: |
             @semantic-release/changelog@6
             @semantic-release/git@10
+            conventional-changelog-conventionalcommits@8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

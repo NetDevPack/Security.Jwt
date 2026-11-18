@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -36,11 +36,11 @@ public class JwtTests : IClassFixture<WebApplicationFactory<Program>>
         var jws = CreateJws(currentKey, customClaims);
 
         var client = _factory.CreateClient();
-        var response = await client.GetAsync($"validate-jws/{jws}");
+        var response = await client.GetAsync($"validate-jws/{jws}", TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
 
-        var claims = await System.Text.Json.JsonSerializer.DeserializeAsync<Dictionary<string, object>>(await response.Content.ReadAsStreamAsync());
+        var claims = await System.Text.Json.JsonSerializer.DeserializeAsync<Dictionary<string, object>>(await response.Content.ReadAsStreamAsync(TestContext.Current.CancellationToken), cancellationToken: TestContext.Current.CancellationToken);
         claims.Should().Contain(a => a.Key == customClaims.First().Type);
     }
 
@@ -61,7 +61,7 @@ public class JwtTests : IClassFixture<WebApplicationFactory<Program>>
         var client = _factory.CreateClient();
         var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost/protected-endpoint");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jws);
-        var response = await client.SendAsync(request);
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         response.IsSuccessStatusCode.Should().BeTrue();
     }
