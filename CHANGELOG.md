@@ -1,3 +1,11 @@
+## [10.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v10.0.0...v10.0.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* **deps:** patch vulnerable crypto packages ([a43ba0c](https://github.com/NetDevPack/Security.Jwt/commit/a43ba0c4335118cc18e55838f19bff680cb82060))
+* isolate in-memory key store per container ([48667cc](https://github.com/NetDevPack/Security.Jwt/commit/48667ccb285d97f96dc2c77edd15167a24eaa7d1))
+
 # [10.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v9.1.1...v10.0.0) (2026-10-01)
 
 
