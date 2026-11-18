@@ -1,3 +1,15 @@
+## [11.0.0](https://github.com/NetDevPack/Security.Jwt/compare/v10.0.1...v11.0.0) (2026-11-18)
+
+### ⚠ BREAKING CHANGES
+
+* all packages now target .NET 10 only. Stay on 10.x for .NET 8/9.
+
+* ci: use conventionalcommits release preset
+
+### Features
+
+* target .NET 10 only ([#81](https://github.com/NetDevPack/Security.Jwt/issues/81)) ([2ff1107](https://github.com/NetDevPack/Security.Jwt/commit/2ff1107d1596467ad678b19c54090a5b756995e6))
+
 ## [10.0.1](https://github.com/NetDevPack/Security.Jwt/compare/v10.0.0...v10.0.1) (2026-11-18)
 
 
