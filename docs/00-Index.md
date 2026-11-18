@@ -30,3 +30,4 @@ Open the `docs/` folder as an Obsidian vault, or just read the Markdown on GitHu
 - [[ADR-003-central-package-management]]
 - [[ADR-004-remove-legacy-asymmetric-sample]]
 - [[ADR-005-net10-only]]
+- [[ADR-006-drop-identityserver4]]

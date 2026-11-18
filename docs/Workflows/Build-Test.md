@@ -1,6 +1,6 @@
 ---
 tags: [workflow]
-updated: 2026-11-17
+updated: 2026-11-18
 ---
 # Build & Test
 
@@ -20,4 +20,4 @@ dotnet pack -c Release -o ./out      # 5 .nupkg + .snupkg, lib/net10.0
 - Test projects: `NetDevPack.Security.Jwt.Tests` (about 514 tests) and `NetDevPack.Security.Jwt.AspNetCoreTests`.
 - A test can be flaky, see [[Known-Issues]].
 
-CI: `.github/workflows/pull-request.yml` runs restore, build, test and the vulnerability check (IdentityServer4 is the only accepted advisory, see [[ADR-002-identityserver4-deprecated]]).
+CI: `.github/workflows/pull-request.yml` runs restore, build, test and the vulnerability check (no accepted advisories, see [[ADR-006-drop-identityserver4]]).

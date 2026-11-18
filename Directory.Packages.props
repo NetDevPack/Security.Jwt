@@ -12,8 +12,6 @@
 
   <ItemGroup>
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
-    <PackageVersion Include="IdentityServer4" Version="4.1.2" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
 
     <!-- Samples -->
     <PackageVersion Include="Bogus" Version="35.6.5" />

@@ -1,6 +1,6 @@
 ---
 tags: [dependencies, policy]
-updated: 2026-11-17
+updated: 2026-11-18
 ---
 # Dependency Policy
 
@@ -23,7 +23,7 @@ dotnet list NetDevPack.Security.Jwt.sln package --vulnerable --include-transitiv
 3. `dotnet build -c Release` + `dotnet test -c Release` (see [[Build-Test]]).
 4. Commit as `chore(deps): ...` (see [[Release]]).
 
-Dependabot (`.github/dependabot.yml`) runs weekly and ignores majors for `Microsoft.*` and also ignores `IdentityServer4`. 
+Dependabot (`.github/dependabot.yml`) runs weekly and ignores majors for `Microsoft.*`.
 
 ## Adding a new TFM (e.g. net11.0)
 1. `src/Directory.Build.props` `TargetFramework` → `TargetFrameworks` + every test/sample csproj.

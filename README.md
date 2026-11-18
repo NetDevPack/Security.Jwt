@@ -43,7 +43,8 @@ It generates keys with RSA and ECDsa algorithms, which are the most recommended 
 | `NetDevPack.Security.Jwt.AspNetCore` | [![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt.AspNetCore)](https://www.nuget.org/packages/NetDevPack.Security.Jwt.AspNetCore) | `/jwks` endpoint and `JwtBearer` validation integration |
 | `NetDevPack.Security.Jwt.Store.EntityFrameworkCore` | [![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt.Store.EntityFrameworkCore)](https://www.nuget.org/packages/NetDevPack.Security.Jwt.Store.EntityFrameworkCore) | Persist keys in a database |
 | `NetDevPack.Security.Jwt.Store.FileSystem` | [![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt.Store.FileSystem)](https://www.nuget.org/packages/NetDevPack.Security.Jwt.Store.FileSystem) | Persist keys in a folder |
-| `NetDevPack.Security.Jwt.IdentityServer4` | [![Nuget](https://img.shields.io/nuget/v/NetDevPack.Security.Jwt.IdentityServer4)](https://www.nuget.org/packages/NetDevPack.Security.Jwt.IdentityServer4) | ⚠️ **Deprecated** - IdentityServer4 key material |
+
+> `NetDevPack.Security.Jwt.IdentityServer4` is **deprecated and no longer published**. IdentityServer4 reached end of life in 2022 and has known vulnerabilities. 11.0.0 was the last version; migrate to [Duende IdentityServer](https://duendesoftware.com/products/identityserver) or [OpenIddict](https://github.com/openiddict/openiddict-core).
 
 ### Supported frameworks
 
@@ -129,7 +130,6 @@ app.MapGet("/token", async (IJwtService jwtService) =>
 - [Changing Algorithm](#changing-algorithm)
   - [Jws](#jws)
   - [Jwe](#jwe)
-- [IdentityServer4 - Auto jwks\_uri Management](#identityserver4---auto-jwks_uri-management)
 - [Why](#why)
   - [Load Balance scenarios](#load-balance-scenarios)
   - [Best practices](#best-practices)
@@ -141,7 +141,7 @@ app.MapGet("/token", async (IJwtService jwtService) =>
 # 🛡️ What is
 
 
-The JSON Web Key Set (JWKS) is a collection of public keys used for verifying JSON Web Tokens (JWTs) issued by an authorization server. This component's primary objective is to provide a centralized storage and key rotation for your JWKs while adhering to best practices in JWK generation. It features a plugin for IdentityServer4, enabling automatic rotation of the jwks_uri every 90 days and seamless management of your jwks_uri.
+The JSON Web Key Set (JWKS) is a collection of public keys used for verifying JSON Web Tokens (JWTs) issued by an authorization server. This component's primary objective is to provide a centralized storage and key rotation for your JWKs while adhering to best practices in JWK generation.
 
 If your API or OAuth 2.0 is deployed under a Load Balancer in Kubernetes or Docker Swarm, this component is essential. Its functionality is similar to the DataProtection Key in ASP.NET Core.
 
@@ -391,7 +391,6 @@ You can find several examples [here](samples):
 | ------ | ------------- |
 | [1_AspNet.Default](samples/1_AspNet.Default) | Minimal API generating/validating JWS and JWE with the default (DataProtection) store |
 | [2_AspNet.Store.EntityFramework](samples/2_AspNet.Store.EntityFramework) | Same as above, persisting keys with EF Core |
-| [3_IdentityServer4](samples/3_IdentityServer4) | ⚠️ Deprecated IdentityServer4 integration |
 | [Microservice.Sample](samples/Microservice.Sample) | Identity API exposing `/jwks` + client API validating through `NetDevPack.Security.JwtExtensions` |
 
 # Changing Algorithm
@@ -455,40 +454,6 @@ Encryption options
 | Aes192CbcHmacSha384 | A192CBC-HS384                |
 | Aes256CbcHmacSha512 | A256CBC-HS512                |
 
-
-# IdentityServer4 - Auto jwks_uri Management
-
-> ⚠️ **Deprecated.** IdentityServer4 reached end of life in 2022 and has known vulnerabilities ([GHSA-55p7-v223-x366](https://github.com/advisories/GHSA-55p7-v223-x366), [GHSA-ff4q-64jc-gx98](https://github.com/advisories/GHSA-ff4q-64jc-gx98)). The package is kept only for backward compatibility and will not receive new features. Consider migrating to [Duende IdentityServer](https://duendesoftware.com/products/identityserver) or [OpenIddict](https://github.com/openiddict/openiddict-core).
-
-`NetDevPack.Security.Jwt` provides `IdentityServer4` key material. It auto generates and rotates the key.
-
-
-First install
-```
-Install-Package NetDevPack.Security.Jwt.IdentityServer4
-```
-
-Or via the .NET command line interface:
-
-```
-dotnet add package NetDevPack.Security.Jwt.IdentityServer4
-```
-
-Go to `Startup.cs`
-
-``` c#
-public void ConfigureServices(IServiceCollection services)
-{
-    var builder = services.AddIdentityServer()
-        .AddInMemoryIdentityResources(Config.GetIdentityResources())
-        .AddInMemoryApiResources(Config.GetApis())
-        .AddInMemoryClients(Config.GetClients());
-
-    services.AddJwksManager().IdentityServer4AutoJwksManager();
-}
-```
-
-If you want to use a database, follow the [Database](#database) instructions instead.
 
 # Why
 
